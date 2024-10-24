@@ -175,7 +175,7 @@
             
             <span class="tag">
                 
-                <a href="/tags/%E4%BA%91%E8%AE%A1%E7%AE%97-%E4%BA%91%E5%8E%9F%E7%94%9F-DevOps/" style="color: #ff9e81">
+                <a href="/tags/%E4%BA%91%E8%AE%A1%E7%AE%97-%E4%BA%91%E5%8E%9F%E7%94%9F-DevOps/" style="color: #ffa2c4">
                     -云计算 -云原生 -DevOps
                 </a>
             </span>
@@ -192,7 +192,7 @@
 <li>了解并掌握阿里云云效代码管理Codeup的核心功能</li>
 <li>熟练掌握基于Codeup建立远程与本地仓库并开展代码管理的基本方法</li>
 </ul>
-<h2 id="实验过程"><a href="#实验过程" class="headerlink" title="实验过程"></a>实验过程</h2><h3 id="开发环境的搭建"><a href="#开发环境的搭建" class="headerlink" title="开发环境的搭建"></a>开发环境的搭建</h3><h5 id="本地安装Git与Python3"><a href="#本地安装Git与Python3" class="headerlink" title="本地安装Git与Python3"></a>本地安装Git与Python3</h5><ul>
+<h2 id="实验过程"><a href="#实验过程" class="headerlink" title="实验过程"></a>实验过程</h2><h3 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h3><h5 id="本地安装Git与Python3"><a href="#本地安装Git与Python3" class="headerlink" title="本地安装Git与Python3"></a>本地安装Git与Python3</h5><ul>
 <li><strong>安装Git与Python3：</strong>（略）</li>
 <li><strong>查看python版本：</strong></li>
 </ul>
@@ -234,7 +234,7 @@ git config --global user.email &quot;&lt;email&gt;&quot;
 <li><strong>设置独立依赖库</strong></li>
 </ul>
 <p>Python虚拟环境可以实现为不同项目设置独立的依赖库，以实现在统一系统中不同项目所需软件包的隔离。</p>
-<p>配置requirements.txt文件，提供要安装的Python库名，如web服务框架Sanic，http基础库Requests以及用于访问数据库的基础库PyMySQL，文件示例如下：</p>
+<p>配置<code>requirements.txt</code>文件，提供要安装的Python库名，如web服务框架Sanic，http基础库Requests以及用于访问数据库的基础库PyMySQL，文件示例如下：</p>
 <pre><code class="wiki">// requirements.txt
 sanic
 requests
@@ -249,7 +249,140 @@ pymysql
 </code></pre>
 <p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Codeup%E7%9A%84Git%E4%BB%A3%E7%A0%81%E7%AE%A1%E7%90%86/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-10-21%20191434.png" alt="屏幕截图 2024-10-21 191434"></p>
 <p>以上情况即为安装已完成</p>
-<h3 id="基于阿里云云效代码管理Codeup创建代码库"><a href="#基于阿里云云效代码管理Codeup创建代码库" class="headerlink" title="基于阿里云云效代码管理Codeup创建代码库"></a>基于阿里云云效代码管理Codeup创建代码库</h3><h5 id="新建远程仓库"><a href="#新建远程仓库" class="headerlink" title="新建远程仓库"></a>新建远程仓库</h5>
+<h3 id="基于阿里云云效代码管理Codeup创建代码库"><a href="#基于阿里云云效代码管理Codeup创建代码库" class="headerlink" title="基于阿里云云效代码管理Codeup创建代码库"></a>基于阿里云云效代码管理Codeup创建代码库</h3><h5 id="新建远程仓库"><a href="#新建远程仓库" class="headerlink" title="新建远程仓库"></a>新建远程仓库</h5><ul>
+<li>访问<a target="_blank" rel="noopener" href="https://www.aliyun.com/product/yunxiao/codeup">云效代码管理 Codeup_企业级代码管理平台-阿里云</a>首页，登录，如果是首次使用，需要创建&#x2F;加入一个企业。我这里是已经创建了一个名为“沙里院的雪”的企业。</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Codeup%E7%9A%84Git%E4%BB%A3%E7%A0%81%E7%AE%A1%E7%90%86/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-10-24%20103334.png" alt="屏幕截图 2024-10-24 103334"></p>
+<ul>
+<li>新建代码库”<code>exp_pyms</code>“，新建时注意勾选“创建.gitignore”，选择Python模板。Codeup会默认创建<code>Master</code>分支，并提供推荐<code>.gitignore</code>文件。<img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Codeup%E7%9A%84Git%E4%BB%A3%E7%A0%81%E7%AE%A1%E7%90%86/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-10-24%20103551.png" alt="屏幕截图 2024-10-24 103551"></li>
+</ul>
+<h5 id="克隆远程仓库至本地仓库（HTTPS）"><a href="#克隆远程仓库至本地仓库（HTTPS）" class="headerlink" title="克隆远程仓库至本地仓库（HTTPS）"></a>克隆远程仓库至本地仓库（HTTPS）</h5><ul>
+<li>配置HTTPS克隆密码</li>
+</ul>
+<p>进入Codeup系统，在右上角“个人设置”中进入“HTTPS密码”页面。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Codeup%E7%9A%84Git%E4%BB%A3%E7%A0%81%E7%AE%A1%E7%90%86/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-10-24%20104110.png" alt="屏幕截图 2024-10-24 104110"></p>
+<ul>
+<li>复制代码库地址（HTTPS URL）</li>
+</ul>
+<p>进入代码库<code>exp_pyms</code>的首页，找到其HTTPS地址，复制URL，用作仓库地址。记为<code>repo_addr</code>。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Codeup%E7%9A%84Git%E4%BB%A3%E7%A0%81%E7%AE%A1%E7%90%86/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-10-24%20104410.png" alt="屏幕截图 2024-10-24 104410"></p>
+<p>进入本地目录，使用<code>git clone</code>克隆远程仓库。</p>
+<pre><code class="bash">git clone &lt;repo_addr&gt;
+</code></pre>
+<p>执行时需要在弹出的窗口内正确输入远程仓库的用户名和密码完成身份验证。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Codeup%E7%9A%84Git%E4%BB%A3%E7%A0%81%E7%AE%A1%E7%90%86/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-10-24%20105712.png" alt="屏幕截图 2024-10-24 105712"></p>
+<blockquote>
+<p>[!NOTE]</p>
+<p>如果之前登陆过其他账号，此处可能出现：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Codeup%E7%9A%84Git%E4%BB%A3%E7%A0%81%E7%AE%A1%E7%90%86/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-10-24%20105900.png" alt="屏幕截图 2024-10-24 105900"></p>
+<p>这时可以通过清除原有的用户名和密码的方式重新登陆。</p>
+<pre><code class="bash"> git config --global user.name &quot;&quot;
+ git config --global user.email &quot;&quot;
+</code></pre>
+</blockquote>
+<p>bash返回下面语句则说明clone完成：</p>
+<pre><code class="bash">libpng warning: iCCP: known incorrect sRGB profile
+libpng warning: iCCP: known incorrect sRGB profile
+remote: Enumerating objects: 3, done.
+remote: Counting objects: 100% (3/3), done.
+remote: Total 3 (delta 0), reused 0 (delta 0), pack-reused 0
+Receiving objects: 100% (3/3), done.
+</code></pre>
+<p>本操作会把目录<code>exp_pyms</code>克隆到本地，其中包含：</p>
+<ol>
+<li>一个隐藏目录<code>.git</code>，为Git仓库核心配置</li>
+<li><code>.gitignore</code>文件</li>
+<li>主分支Master中全部文件的工作副本（此时只有<code>.gitignore</code>）</li>
+</ol>
+<p>后续操作均在目录<code>exp_pyms</code>中进行。</p>
+<h5 id="配置本地仓库"><a href="#配置本地仓库" class="headerlink" title="配置本地仓库"></a>配置本地仓库</h5><p>以<code>README.md</code>文件为例说明如何添加文件到本地仓库：</p>
+<pre><code class="bash">MINGW64 /e/exp_pyms (master)
+touch README.md			//创建空白文件
+
+git add README.md		//将其添加到Git暂存区
+
+git status				//查看当前工作目录中各文件状态
+On branch master
+Your branch is up to date with &#39;origin/master&#39;.
+
+Changes to be committed:
+  (use &quot;git restore --staged &lt;file&gt;...&quot; to unstage)
+        new file:   README.md
+</code></pre>
+<h5 id="同步本地仓库至远程仓库"><a href="#同步本地仓库至远程仓库" class="headerlink" title="同步本地仓库至远程仓库"></a>同步本地仓库至远程仓库</h5><p>执行以下操作，完成后查看远程仓库，已出现本次提交的<code>README.md</code>文件。</p>
+<pre><code class="bash">#提交前应养成习惯，先从远程仓库pull最新代码至本地进行冲突检查。
+$ git pull
+Already up to date.
+
+$ git commit -m &quot;docs:创建README.md&quot;		//将全部暂存文件提交至本地仓库
+[master 6d2d026] docs:创建README.md
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ create mode 100644 README.md
+ 
+ $ git push origin master			//推送本地提交至origin/master
+Enumerating objects: 4, done.
+Counting objects: 100% (4/4), done.
+Delta compression using up to 20 threads
+Compressing objects: 100% (2/2), done.
+Writing objects: 100% (3/3), 287 bytes | 287.00 KiB/s, done.
+Total 3 (delta 0), reused 0 (delta 0), pack-reused 0 (from 0)
+To https://codeup.aliyun.com/6705174d49e9309ce56b9e53/exp_pyms.git
+   5cc9ea6..6d2d026  master -&gt; master
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Codeup%E7%9A%84Git%E4%BB%A3%E7%A0%81%E7%AE%A1%E7%90%86/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-10-24%20114054.png" alt="屏幕截图 2024-10-24 114054"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Codeup%E7%9A%84Git%E4%BB%A3%E7%A0%81%E7%AE%A1%E7%90%86/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-10-24%20114134.png" alt="屏幕截图 2024-10-24 114134"></p>
+<p>其中，推送时使用的远程仓库<code>origin</code>与分支<code>master</code>是在<code>.git/config</code>文件中定义的。</p>
+<h3 id="使用SSH访问远程仓库"><a href="#使用SSH访问远程仓库" class="headerlink" title="使用SSH访问远程仓库"></a>使用SSH访问远程仓库</h3><p>本地执行涉及访问远程仓库的命令时，如使用HTTPS方式访问，每次均需提供用户名和密码，如果本地开发环境可信，可使用SSH方式访问远程仓库，提高效率。</p>
+<h5 id="生成SSH公私钥对"><a href="#生成SSH公私钥对" class="headerlink" title="生成SSH公私钥对"></a>生成SSH公私钥对</h5><p>使用命令ssh-keygen新建SSH公私钥对。主要参数：</p>
+<ol>
+<li><code>-t</code>	指定密钥类型，如<code>ed25519</code>或<code>rsa</code></li>
+<li><code>-f</code>        指定用于存储私钥的文件名，不使用则提示默认文件及路径<code>~/.ssh/id_rsa</code></li>
+<li><code>-C</code>      指定注释内容，可用作公钥名称，Codeup称为“标题”</li>
+</ol>
+<pre><code class="bash">$ ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519 -C &quot;&lt;注释内容&gt;&quot;
+Generating public/private ed25519 key pair.
+Enter passphrase (empty for no passphrase):
+Enter same passphrase again:
+Your identification has been saved in /c/Users/14043/.ssh/id_ed25519
+Your public key has been saved in /c/Users/14043/.ssh/id_ed25519.pub
+The key fingerprint is:
+SHA256:8WB7dIyc+fQ9G0l2LZNhPQ+syqgJ82OJAhZmQLl6LO8 zheng@Zheng-Dell-G15
+The key&#39;s randomart image is:
+//略
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Codeup%E7%9A%84Git%E4%BB%A3%E7%A0%81%E7%AE%A1%E7%90%86/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-10-24%20144621.png" alt="屏幕截图 2024-10-24 144621"></p>
+<p>创建成功后，可在本地<code>~/.ssh/</code>目录查看到新建的公钥和密钥文件。</p>
+<h5 id="配置远程仓库所需公钥"><a href="#配置远程仓库所需公钥" class="headerlink" title="配置远程仓库所需公钥"></a>配置远程仓库所需公钥</h5><ul>
+<li>在本地使用<code>cat</code>命令查看公钥</li>
+</ul>
+<pre><code class="bash">$ cat ~/.ssh/id_ed25519.pub
+ssh-ed25519 AAAAC3N... ...@...
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Codeup%E7%9A%84Git%E4%BB%A3%E7%A0%81%E7%AE%A1%E7%90%86/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-10-24%20145559.png" alt="屏幕截图 2024-10-24 145559"></p>
+<ul>
+<li>添加公钥</li>
+</ul>
+<p>通过“个人设置-&gt;SSH公钥”粘贴该公钥，完成添加。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Codeup%E7%9A%84Git%E4%BB%A3%E7%A0%81%E7%AE%A1%E7%90%86/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-10-24%20145806.png" alt="屏幕截图 2024-10-24 145806"></p>
+<h5 id="重建远程仓库并重新克隆"><a href="#重建远程仓库并重新克隆" class="headerlink" title="重建远程仓库并重新克隆"></a>重建远程仓库并重新克隆</h5><p>删除并重建云端远程仓库<code>exp_pyms</code>，并删除本地工作目录，重新使用SSH方式克隆代码库。</p>
+<p>选择地址时，要选取SSH方式的地址：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Codeup%E7%9A%84Git%E4%BB%A3%E7%A0%81%E7%AE%A1%E7%90%86/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-10-24%20150630.png" alt="屏幕截图 2024-10-24 150630"></p>
+<pre><code class="bash">$ git clone git@codeup.aliyun.com:6705174d49e9309ce56b9e53/exp_pyms.git
+Cloning into &#39;exp_pyms&#39;...
+The authenticity of host &#39;codeup.aliyun.com (118.31.165.50)&#39; can&#39;t be established.
+RSA key fingerprint is SHA256:yEGmgQNVrc3QAvDvoBrTCF2s07KwmmQ+AbWi9vSt/fE.
+This key is not known by any other names.
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added &#39;codeup.aliyun.com&#39; (RSA) to the list of known hosts.
+remote: Enumerating objects: 3, done.
+remote: Counting objects: 100% (3/3), done.
+remote: Total 3 (delta 0), reused 0 (delta 0), pack-reused 0
+Receiving objects: 100% (3/3), done.
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Codeup%E7%9A%84Git%E4%BB%A3%E7%A0%81%E7%AE%A1%E7%90%86/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-10-24%20150759.png" alt="屏幕截图 2024-10-24 150759"></p>
+<h3 id="代码托管练习"><a href="#代码托管练习" class="headerlink" title="代码托管练习"></a>代码托管练习</h3><p>在本地工作目录<code>exp_pyms</code>进行Git基础练习</p>
+<h5 id="创建文件并同步至远程仓库"><a href="#创建文件并同步至远程仓库" class="headerlink" title="创建文件并同步至远程仓库"></a>创建文件并同步至远程仓库</h5><p>创建test.py，暂存至暂存区，观察其状态。</p>
+<h5 id=""><a href="#" class="headerlink" title=""></a></h5>
     </div>
     
     
