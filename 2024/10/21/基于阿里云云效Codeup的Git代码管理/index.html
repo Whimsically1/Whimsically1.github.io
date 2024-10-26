@@ -176,7 +176,7 @@
             <span class="tag">
                 
                 <a href="/tags/%E4%BA%91%E8%AE%A1%E7%AE%97-%E4%BA%91%E5%8E%9F%E7%94%9F-DevOps/" style="color: #ffa2c4">
-                    -云计算 -云原生 -DevOps
+                    云计算 云原生 DevOps
                 </a>
             </span>
             
@@ -933,14 +933,14 @@ To codeup.aliyun.com:.../exp_pyms.git
 </code></pre>
 <p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Codeup%E7%9A%84Git%E4%BB%A3%E7%A0%81%E7%AE%A1%E7%90%86/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-10-26%20110403.png" alt="屏幕截图 2024-10-26 110403"></p>
 <h5 id="创建feature分支用于特定功能开发"><a href="#创建feature分支用于特定功能开发" class="headerlink" title="创建feature分支用于特定功能开发"></a>创建feature分支用于特定功能开发</h5><ul>
-<li>从当前分支创建feature分支并推送当前暂存文件至远程仓库对应分支。</li>
+<li>从当前分支创建<code>feature</code>分支并推送当前暂存文件至远程仓库对应分支。</li>
 </ul>
 <pre><code class="bash">$ git checkout -b feature
 Switched to a new branch &#39;feature&#39;
 </code></pre>
 <p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Codeup%E7%9A%84Git%E4%BB%A3%E7%A0%81%E7%AE%A1%E7%90%86/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-10-26%20110625.png" alt="屏幕截图 2024-10-26 110625"></p>
 <ul>
-<li>修订xxx.py，完成feature功能要求，从config.json读取并打印login_url。</li>
+<li>修订<code>xxx.py</code>，完成<code>feature</code>功能要求，从<code>config.json</code>读取并打印<code>login_url</code>。</li>
 </ul>
 <pre><code class="python">import json
 
@@ -973,7 +973,138 @@ python xxx.py
 <ul>
 <li>本地暂存提交，推送远程仓库<code>feature</code>分支。</li>
 </ul>
+<pre><code class="bash">$ git commit -a -m &quot;feat(xxx.py):打印login_url&quot;
+[feature 16bea33] feat(xxx.py):打印login_url
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
+$ git push origin feature
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 20 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 411 bytes | 411.00 KiB/s, done.
+Total 3 (delta 1), reused 0 (delta 0), pack-reused 0 (from 0)
+To codeup.aliyun.com:.../exp_pyms.git
+ * [new branch]      feature -&gt; feature
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Codeup%E7%9A%84Git%E4%BB%A3%E7%A0%81%E7%AE%A1%E7%90%86/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-10-26%20112914.png" alt="屏幕截图 2024-10-26 112914"></p>
+<ul>
+<li>将<code>feature</code>分支合并到<code>develop</code>分支，并推送远程仓库</li>
+</ul>
+<pre><code class="bash">$ git checkout develop
+Switched to branch &#39;develop&#39;
+
+$ cat xxx.py	//此时尚未添加打印login_url的语句
+$ git merge feature
+Updating c235300..16bea33
+Fast-forward
+ xxx.py | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+$ cat xxx.py	//此时develop分支下的代码文件已存在打印login_url的语句
+import json
+
+def get_config(path: str) -&gt; dict:
+        with open(path, &quot;r&quot;) as f:
+                return json.load(f)
+
+if __name__ == &#39;__main__&#39;:
+        config: dict = get_config(&quot;./config.json&quot;)
+        print(f&quot;dev_sn: &#123;config[&#39;dev_sn&#39;]&#125;&quot;)
+        print(f&quot;dev_pwd: &#123;config[&#39;dev_pwd&#39;]&#125;&quot;)
+        print(f&quot;login_url: &#123;config[&#39;login_url&#39;]&#125;&quot;)
+
+$ git push origin develop
+Total 0 (delta 0), reused 0 (delta 0), pack-reused 0 (from 0)
+To codeup.aliyun.com:.../exp_pyms.git
+   c235300..16bea33  develop -&gt; develop
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Codeup%E7%9A%84Git%E4%BB%A3%E7%A0%81%E7%AE%A1%E7%90%86/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-10-26%20113507.png" alt="屏幕截图 2024-10-26 113507"></p>
+<p>此时查看Codeup，在<code>exp_pyms</code>项目的<code>develop</code>分支，可发现代码已提交成功。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Codeup%E7%9A%84Git%E4%BB%A3%E7%A0%81%E7%AE%A1%E7%90%86/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-10-26%20113810.png" alt="屏幕截图 2024-10-26 113810"></p>
+<p>如开发完成，可继续将<code>develop</code>分支合并到<code>master</code>分支并推送远程仓库。若云端<code>master</code>有对应生产环境流水线，便会触发流水线执行打包部署。</p>
+<pre><code class="bash">$ git switch master
+Switched to branch &#39;master&#39;
+Your branch is up to date with &#39;origin/master&#39;.
+
+$ git merge develop
+Updating cbc5ec9..16bea33
+Fast-forward
+ .gitignore          |  1 +
+ xxx.py | 11 +++++++++++
+ 2 files changed, 12 insertions(+)
+ create mode 100644 xxx.py
+
+$ git push origin master
+Total 0 (delta 0), reused 0 (delta 0), pack-reused 0 (from 0)
+To codeup.aliyun.com:.../exp_pyms.git
+   cbc5ec9..16bea33  master -&gt; master
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Codeup%E7%9A%84Git%E4%BB%A3%E7%A0%81%E7%AE%A1%E7%90%86/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-10-26%20114201.png" alt="屏幕截图 2024-10-26 114201"></p>
+<h5 id="创建hotfix分支执行热修复"><a href="#创建hotfix分支执行热修复" class="headerlink" title="创建hotfix分支执行热修复"></a>创建hotfix分支执行热修复</h5><p>代码在<code>master</code>上线后，若突然发现严重bug，则应马上修复，可立刻从<code>master</code>分支迁出一个<code>hotfix</code>分支用于热修复。</p>
+<pre><code class="bash">$ git checkout -b hotfix
+Switched to a new branch &#39;hotfix&#39;
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Codeup%E7%9A%84Git%E4%BB%A3%E7%A0%81%E7%AE%A1%E7%90%86/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-10-26%20114601.png" alt="屏幕截图 2024-10-26 114601"></p>
+<p>简单设定修复措施，即删除<code>xxx.py</code>中打印<code>dev_pwd</code>的语句。</p>
+<p>完成修订及测试后，将<code>hotfix</code>分支合并到<code>master</code>分支和<code>develop</code>分支。</p>
+<pre><code class="bash">$ git commit -a -m &quot;fix(xxx.py):不应打印密码，删除对应语句&quot;
+[hotfix adcd281] fix(xxx.py):不应打印密码，删除对应语句
+ 1 file changed, 1 deletion(-)
+
+$ git checkout master	//切换到分支master
+Switched to branch &#39;master&#39;
+Your branch is up to date with &#39;origin/master&#39;.
+
+$ git merge hotfix		//在master合并hotfix
+Updating 16bea33..adcd281
+Fast-forward
+ xxx.py | 1 -
+ 1 file changed, 1 deletion(-)
+
+$ cat xxx.py	//此时打印dev_pwd的语句已删除
+import json
+
+def get_config(path: str) -&gt; dict:
+        with open(path, &quot;r&quot;) as f:
+                return json.load(f)
+
+if __name__ == &#39;__main__&#39;:
+        config: dict = get_config(&quot;./config.json&quot;)
+        print(f&quot;dev_sn: &#123;config[&#39;dev_sn&#39;]&#125;&quot;)
+        print(f&quot;login_url: &#123;config[&#39;login_url&#39;]&#125;&quot;)
+
+$ git push origin master	//推送远程仓库分支master
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 20 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 403 bytes | 403.00 KiB/s, done.
+Total 3 (delta 1), reused 0 (delta 0), pack-reused 0 (from 0)
+To codeup.aliyun.com:.../exp_pyms.git
+   16bea33..adcd281  master -&gt; master
+
+$ git checkout develop		//切换到分支develop
+Switched to branch &#39;develop&#39;
+
+$ git merge hotfix		在分支develop合并hotfix
+Updating 16bea33..adcd281
+Fast-forward
+ xxx.py | 1 -
+ 1 file changed, 1 deletion(-)
+
+$ git push origin develop		//推送远程仓库分支develop
+Total 0 (delta 0), reused 0 (delta 0), pack-reused 0 (from 0)
+To codeup.aliyun.com:.../exp_pyms.git
+   16bea33..adcd281  develop -&gt; develop
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Codeup%E7%9A%84Git%E4%BB%A3%E7%A0%81%E7%AE%A1%E7%90%86/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-10-26%20115119.png" alt="屏幕截图 2024-10-26 115119"></p>
+<p>最后删除<code>hotfix</code>分支。</p>
+<pre><code class="bash">$ git branch -d hotfix
+Deleted branch hotfix (was adcd281).
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Codeup%E7%9A%84Git%E4%BB%A3%E7%A0%81%E7%AE%A1%E7%90%86/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-10-26%20115513.png" alt="屏幕截图 2024-10-26 115513"></p>
+<h3 id="代码冲突处理练习（暂略）"><a href="#代码冲突处理练习（暂略）" class="headerlink" title="代码冲突处理练习（暂略）"></a>代码冲突处理练习（暂略）</h3>
     </div>
     
     
