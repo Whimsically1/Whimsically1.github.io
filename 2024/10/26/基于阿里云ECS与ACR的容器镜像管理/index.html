@@ -175,21 +175,21 @@
             
             <span class="tag">
                 
-                <a href="/tags/%E4%BA%91%E8%AE%A1%E7%AE%97/" style="color: #ffe4d6">
+                <a href="/tags/%E4%BA%91%E8%AE%A1%E7%AE%97/" style="color: #ff9e81">
                     云计算
                 </a>
             </span>
             
             <span class="tag">
                 
-                <a href="/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" style="color: #00a596">
+                <a href="/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" style="color: #ffe4d6">
                     云原生
                 </a>
             </span>
             
             <span class="tag">
                 
-                <a href="/tags/DevOps/" style="color: #ff7d73">
+                <a href="/tags/DevOps/" style="color: #ff9e81">
                     DevOps
                 </a>
             </span>
@@ -207,7 +207,7 @@
 <li>了解并掌握创建与管理阿里云ECS服务器的基本操作</li>
 <li>了解并掌握基于阿里云容器镜像服务ACR创建与应用镜像仓库的基本操作</li>
 </ul>
-<h2 id="实验过程"><a href="#实验过程" class="headerlink" title="实验过程"></a>实验过程</h2><h3 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h3><h5 id="准备云服务器ECS"><a href="#准备云服务器ECS" class="headerlink" title="准备云服务器ECS"></a>准备云服务器ECS</h5><p>访问<a target="_blank" rel="noopener" href="https://cn.aliyun.com/product/ecs%EF%BC%8C%E9%80%89%E6%8B%A9%E7%9B%B8%E5%85%B3%E9%85%8D%E7%BD%AE%E5%90%8E%E8%B4%AD%E4%B9%B0%E3%80%82%E5%85%B6%E4%B8%AD%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E9%80%89%E6%8B%A9Ubuntu%EF%BC%8C%E5%AE%89%E5%85%A8%E7%BB%84%E9%85%8D%E7%BD%AE%E9%BB%98%E8%AE%A4%E5%BA%94%E4%BB%85%E5%85%81%E8%AE%B8%E5%BC%80%E5%90%AFSSH(22)%EF%BC%8CHTTP(80)%E4%B8%8EHTTPS(443)%E7%AB%AF%E5%8F%A3%E3%80%82">https://cn.aliyun.com/product/ecs，选择相关配置后购买。其中操作系统选择Ubuntu，安全组配置默认应仅允许开启SSH(22)，HTTP(80)与HTTPS(443)端口。</a></p>
+<h2 id="实验过程"><a href="#实验过程" class="headerlink" title="实验过程"></a>实验过程</h2><h3 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h3><h5 id="准备云服务器ECS"><a href="#准备云服务器ECS" class="headerlink" title="准备云服务器ECS"></a>准备云服务器ECS</h5><p>访问<a target="_blank" rel="noopener" href="https://cn.aliyun.com/product/ecs?from_alibabacloud=">云服务器ECS产品首页</a>，选择相关配置后购买。其中操作系统选择Ubuntu，安全组配置默认应仅允许开启SSH(22)，HTTP(80)与HTTPS(443)端口。</p>
 <p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84%E5%AE%B9%E5%99%A8%E9%95%9C%E5%83%8F%E7%AE%A1%E7%90%86/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-10-27%20135030.png" alt="屏幕截图 2024-10-27 135030"></p>
 <p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84%E5%AE%B9%E5%99%A8%E9%95%9C%E5%83%8F%E7%AE%A1%E7%90%86/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-10-27%20143227.png" alt="屏幕截图 2024-10-27 143227"></p>
 <h5 id="在ECS安装Docker引擎"><a href="#在ECS安装Docker引擎" class="headerlink" title="在ECS安装Docker引擎"></a>在ECS安装Docker引擎</h5><p>访问Docker官网（<a target="_blank" rel="noopener" href="https://docs.docker.com/engine/install/ubuntu/">docs.docker.com</a>），根据提示在阿里云服务器ECS上安装Docker。</p>
@@ -235,26 +235,26 @@
 </code></pre>
 <p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84%E5%AE%B9%E5%99%A8%E9%95%9C%E5%83%8F%E7%AE%A1%E7%90%86/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-10-27%20143622.png" alt="屏幕截图 2024-10-27 143622"></p>
 <ul>
-<li><h5 id="添加-Docker-GPG-密钥"><a href="#添加-Docker-GPG-密钥" class="headerlink" title="添加 Docker GPG 密钥"></a>添加 Docker GPG 密钥</h5></li>
+<li>添加 Docker GPG 密钥</li>
 </ul>
 <pre><code class="shell">curl -fsSL https://mirrors.aliyun.com/docker-ce/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
 </code></pre>
 <ul>
-<li><h5 id="设置-Docker-仓库"><a href="#设置-Docker-仓库" class="headerlink" title="设置 Docker 仓库"></a>设置 Docker 仓库</h5></li>
+<li>设置 Docker 仓库</li>
 </ul>
 <pre><code class="shell">echo \
   &quot;deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://mirrors.aliyun.com/docker-ce/linux/ubuntu \
   $(lsb_release -cs) stable&quot; | sudo tee /etc/apt/sources.list.d/docker.list &gt; /dev/null
 </code></pre>
 <ul>
-<li><h5 id="更新包索引并安装-Docker"><a href="#更新包索引并安装-Docker" class="headerlink" title="更新包索引并安装 Docker"></a>更新包索引并安装 Docker</h5></li>
+<li>更新包索引并安装 Docker</li>
 </ul>
 <pre><code class="shell">sudo apt-get update
 sudo apt-get install docker-ce docker-ce-cli containerd.io
 </code></pre>
 <p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84%E5%AE%B9%E5%99%A8%E9%95%9C%E5%83%8F%E7%AE%A1%E7%90%86/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-10-27%20143931.png" alt="屏幕截图 2024-10-27 143931"></p>
 <ul>
-<li><h5 id="启动并验证-Docker"><a href="#启动并验证-Docker" class="headerlink" title="启动并验证 Docker"></a>启动并验证 Docker</h5></li>
+<li>启动并验证 Docker</li>
 </ul>
 <p>启动Docker服务并确保已经启动：</p>
 <pre><code class="shell">sudo systemctl start docker
