@@ -1,0 +1,337 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>字节跳动Arco Design Pro快速调用指南 | Whimsically_&#39;s</title>
+    <meta name="author" content="UniqueZheng" />
+    <meta name="description" content="A UESTCer/A Liverpool Fan" />
+    <meta name="keywords" content="" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
+    />
+    <link rel="icon" href="/images/avatar.jpg" />
+    <link rel="preconnect" href="https://s4.zstatic.net" />
+<script src="https://s4.zstatic.net/ajax/libs/vue/3.3.7/vue.global.prod.min.js"></script>
+<link rel="stylesheet" href="https://s4.zstatic.net/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+<link rel="preconnect" href="https://fonts.googleapis.cn" />
+<link rel="preconnect" href="https://fonts.gstatic.cn" crossorigin />
+<link
+    rel="stylesheet"
+    href="https://fonts.googleapis.cn/css2?family=Fira+Code:wght@400;500;600;700&family=Lexend:wght@400;500;600;700;800;900&family=Noto+Sans+SC:wght@400;500;600;700;800;900&display=swap"
+/>
+<script> const mixins = {}; </script>
+
+<script src="https://polyfill.alicdn.com/v3/polyfill.min.js?features=default"></script>
+
+
+<script src="https://s4.zstatic.net/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://s4.zstatic.net/ajax/libs/highlightjs-line-numbers.js/2.8.0/highlightjs-line-numbers.min.js"></script>
+<link
+    rel="stylesheet"
+    href="https://s4.zstatic.net/ajax/libs/highlight.js/11.9.0/styles/github.min.css"
+/>
+<script src="/js/lib/highlight.js"></script>
+
+
+
+<script src="/js/lib/preview.js"></script>
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/css/main.css" />
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+<body>
+    <div id="layout">
+        <transition name="fade">
+            <div id="loading" v-show="loading">
+                <div id="loading-circle">
+                    <h2>LOADING</h2>
+                    <p>加载过慢请开启缓存 浏览器默认开启</p>
+                    <img src="/images/loading.gif" />
+                </div>
+            </div>
+        </transition>
+        <div id="menu" :class="{ hidden: hiddenMenu, 'menu-color': menuColor}">
+    <nav id="desktop-menu">
+        <a class="title" href="/">
+            <span>WHIMSICALLY_&#39;S</span>
+        </a>
+        
+        <a href="/">
+            <i class="fa-solid fa-house fa-fw"></i>
+            <span>&ensp;Home</span>
+        </a>
+        
+        <a href="/about">
+            <i class="fa-solid fa-id-card fa-fw"></i>
+            <span>&ensp;About</span>
+        </a>
+        
+        <a href="/archives">
+            <i class="fa-solid fa-box-archive fa-fw"></i>
+            <span>&ensp;Archives</span>
+        </a>
+        
+        <a href="/categories">
+            <i class="fa-solid fa-bookmark fa-fw"></i>
+            <span>&ensp;Categories</span>
+        </a>
+        
+        <a href="/tags">
+            <i class="fa-solid fa-tags fa-fw"></i>
+            <span>&ensp;Tags</span>
+        </a>
+        
+    </nav>
+    <nav id="mobile-menu">
+        <div class="title" @click="showMenuItems = !showMenuItems">
+            <i class="fa-solid fa-bars fa-fw"></i>
+            <span>&emsp;WHIMSICALLY_&#39;S</span>
+        </div>
+        <transition name="slide">
+            <div class="items" v-show="showMenuItems">
+                
+                <a href="/">
+                    <div class="item">
+                        <div style="min-width: 20px; max-width: 50px; width: 10%">
+                            <i class="fa-solid fa-house fa-fw"></i>
+                        </div>
+                        <div style="min-width: 100px; max-width: 150%; width: 20%">Home</div>
+                    </div>
+                </a>
+                
+                <a href="/about">
+                    <div class="item">
+                        <div style="min-width: 20px; max-width: 50px; width: 10%">
+                            <i class="fa-solid fa-id-card fa-fw"></i>
+                        </div>
+                        <div style="min-width: 100px; max-width: 150%; width: 20%">About</div>
+                    </div>
+                </a>
+                
+                <a href="/archives">
+                    <div class="item">
+                        <div style="min-width: 20px; max-width: 50px; width: 10%">
+                            <i class="fa-solid fa-box-archive fa-fw"></i>
+                        </div>
+                        <div style="min-width: 100px; max-width: 150%; width: 20%">Archives</div>
+                    </div>
+                </a>
+                
+                <a href="/categories">
+                    <div class="item">
+                        <div style="min-width: 20px; max-width: 50px; width: 10%">
+                            <i class="fa-solid fa-bookmark fa-fw"></i>
+                        </div>
+                        <div style="min-width: 100px; max-width: 150%; width: 20%">Categories</div>
+                    </div>
+                </a>
+                
+                <a href="/tags">
+                    <div class="item">
+                        <div style="min-width: 20px; max-width: 50px; width: 10%">
+                            <i class="fa-solid fa-tags fa-fw"></i>
+                        </div>
+                        <div style="min-width: 100px; max-width: 150%; width: 20%">Tags</div>
+                    </div>
+                </a>
+                
+            </div>
+        </transition>
+    </nav>
+</div>
+<transition name="fade">
+    <div id="menu-curtain" @click="showMenuItems = !showMenuItems" v-show="showMenuItems"></div>
+</transition>
+
+        <div id="main" :class="loading ? 'into-enter-from': 'into-enter-active'">
+            <div class="article">
+    <div>
+        <h1>字节跳动Arco Design Pro快速调用指南</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2024/10/27
+        </span>
+        
+        
+        <span class="tags">
+            <span class="icon">
+                <i class="fa-solid fa-tags fa-fw"></i>
+            </span>
+            
+            
+            <span class="tag">
+                
+                <a href="/tags/%E5%89%8D%E7%AB%AF/" style="color: #ffe4d6">
+                    前端
+                </a>
+            </span>
+            
+        </span>
+        
+    </div>
+    
+    <div class="content" v-pre>
+        <h1 id="字节跳动Arco-Design-Pro快速调用指南"><a href="#字节跳动Arco-Design-Pro快速调用指南" class="headerlink" title="字节跳动Arco Design Pro快速调用指南"></a>字节跳动Arco Design Pro快速调用指南</h1><hr>
+<h2 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h2><p>本篇是在做横向项目的时候写的，因为不论是比赛还是做项目，基本上会搭建前端框架，而诸如Arco Design这样的开源框架突出一个简约美观又快速易上手，所以实践中我是多次用到。关于整个项目的架构介绍可能会有机会再填坑。这里主要是随着一次使用记录一下使用过程，方便自己以后的再次使用。</p>
+<h2 id="快速建站"><a href="#快速建站" class="headerlink" title="快速建站"></a>快速建站</h2><h3 id="项目基本结构"><a href="#项目基本结构" class="headerlink" title="项目基本结构"></a>项目基本结构</h3><p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%AD%97%E8%8A%82%E8%B7%B3%E5%8A%A8Arco%20Design%20Pro%E5%BF%AB%E9%80%9F%E8%B0%83%E7%94%A8%E6%8C%87%E5%8D%97/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-10-27%20100631.png" alt="屏幕截图 2024-10-27 100631"></p>
+<p>以上是我截取的该项目的文件结构。其中重要内容基本都集中在&#x2F;src文件夹下。</p>
+<h3 id="网站标题修改"><a href="#网站标题修改" class="headerlink" title="网站标题修改"></a>网站标题修改</h3><p>首先，网站的标题是需要修改的。也就是在你的浏览器最上方标签页显示的文字。如下图所示：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%AD%97%E8%8A%82%E8%B7%B3%E5%8A%A8Arco%20Design%20Pro%E5%BF%AB%E9%80%9F%E8%B0%83%E7%94%A8%E6%8C%87%E5%8D%97/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-10-27%20100946.png" alt="屏幕截图 2024-10-27 100946"></p>
+<p>该部分的修改在最根部的index.html文件中（基础中的基础）。这里可以修改的是缩略图标和网站标题。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%AD%97%E8%8A%82%E8%B7%B3%E5%8A%A8Arco%20Design%20Pro%E5%BF%AB%E9%80%9F%E8%B0%83%E7%94%A8%E6%8C%87%E5%8D%97/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-10-27%20101042.png" alt="屏幕截图 2024-10-27 101042"></p>
+<pre><code class="html">&lt;head&gt;
+    &lt;meta charset=&quot;UTF-8&quot; /&gt;
+    &lt;link rel=&quot;shortcut icon&quot; type=&quot;image/x-icon&quot; href=&quot;https://unpkg.byted-static.com/latest/byted/arco-config/assets/favicon.ico&quot;&gt;		//图标修改位置
+    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot; /&gt;
+    &lt;title&gt;Arco Design Pro - 开箱即用的中台前端/设计解决方案&lt;/title&gt;		//标题修改位置
+  &lt;/head&gt;
+</code></pre>
+<h3 id="登录注册界面"><a href="#登录注册界面" class="headerlink" title="登录注册界面"></a>登录注册界面</h3><p>登录注册界面的原始效果如下：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%AD%97%E8%8A%82%E8%B7%B3%E5%8A%A8Arco%20Design%20Pro%E5%BF%AB%E9%80%9F%E8%B0%83%E7%94%A8%E6%8C%87%E5%8D%97/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-10-27%20100312.png" alt="屏幕截图 2024-10-27 100312"></p>
+<p>这里“注册账号”按钮默认是没有连接超链接的。也就是说如果需要注册账号功能，需要你自己写。项目默认提供的账号和密码都是“admin”。点击登录就会进入平台首页了。</p>
+<p>该部分修改的位置在&#x2F;src&#x2F;views&#x2F;login文件夹下。后续绝大多数页面的修改都是在views文件夹下完成的。各子页面的位置基本也算见文知意。</p>
+<p>这里如果你不追求对页面的布局进行修改的话，只需在&#x2F;src&#x2F;views&#x2F;login&#x2F;locale&#x2F;zh-CN.ts修改显示的文字就可以了。</p>
+<blockquote>
+<p>[!CAUTION]</p>
+<p>左上角的“Arco Design Pro”应在&#x2F;src&#x2F;views&#x2F;login&#x2F;index.vue中修改。</p>
+</blockquote>
+<blockquote>
+<p>[!NOTE]</p>
+<p>如果改成汉字之后出现乱码，是编码格式的问题。在VS2022中的修改方式：文件&#x2F;高级保存选项，把GB2312改成UTF-8并保存即可。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%AD%97%E8%8A%82%E8%B7%B3%E5%8A%A8Arco%20Design%20Pro%E5%BF%AB%E9%80%9F%E8%B0%83%E7%94%A8%E6%8C%87%E5%8D%97/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-10-27%20102952.png" alt="屏幕截图 2024-10-27 102952"></p>
+</blockquote>
+<h3 id="导航栏-路由修改"><a href="#导航栏-路由修改" class="headerlink" title="导航栏&amp;路由修改"></a>导航栏&amp;路由修改</h3><p>导航栏的默认状态如下：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%AD%97%E8%8A%82%E8%B7%B3%E5%8A%A8Arco%20Design%20Pro%E5%BF%AB%E9%80%9F%E8%B0%83%E7%94%A8%E6%8C%87%E5%8D%97/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-10-27%20104147.png" alt="屏幕截图 2024-10-27 104147"></p>
+<p>该部分修改的位置在&#x2F;src&#x2F;router&#x2F;routes文件夹下。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%AD%97%E8%8A%82%E8%B7%B3%E5%8A%A8Arco%20Design%20Pro%E5%BF%AB%E9%80%9F%E8%B0%83%E7%94%A8%E6%8C%87%E5%8D%97/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-10-27%20104541.png" alt="屏幕截图 2024-10-27 104541"></p>
+<p>我们以dashboard这一页面的修改方式简单介绍：</p>
+<pre><code class="ts">import &#123; DEFAULT_LAYOUT &#125; from &#39;../base&#39;;
+import &#123; AppRouteRecordRaw &#125; from &#39;../types&#39;;
+
+const DASHBOARD: AppRouteRecordRaw = &#123;
+  path: &#39;/dashboard&#39;,
+  name: &#39;dashboard&#39;,
+  component: DEFAULT_LAYOUT,
+  meta: &#123;
+    locale: &#39;menu.dashboard&#39;,
+    requiresAuth: true,
+    icon: &#39;icon-dashboard&#39;,				//修改缩略图标
+    order: 0,						   //修改在导航栏的展示顺序，0为第一个
+  &#125;,
+  children: [						   //下一级导航
+    &#123;
+      path: &#39;workplace&#39;,			    //子域名
+      name: &#39;Workplace&#39;,
+      component: () =&gt; import(&#39;@/views/dashboard/workplace/index.vue&#39;),
+      meta: &#123;
+        locale: &#39;menu.dashboard.workplace&#39;,
+        requiresAuth: true,
+        roles: [&#39;*&#39;],				    //可见用户，*表示所有用户均可见
+      &#125;,
+    &#125;,
+
+    &#123;
+      path: &#39;monitor&#39;,
+      name: &#39;Monitor&#39;,
+      component: () =&gt; import(&#39;@/views/dashboard/monitor/index.vue&#39;),
+      meta: &#123;
+        locale: &#39;menu.dashboard.monitor&#39;,
+        requiresAuth: true,
+        roles: [&#39;admin&#39;],
+      &#125;,
+    &#125;,
+  ],
+&#125;;
+
+export default DASHBOARD;
+</code></pre>
+<p>以上是&#x2F;src&#x2F;router&#x2F;routes&#x2F;modules&#x2F;dashboard.ts的代码，对应生成的是如下图所示的目录结构：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%AD%97%E8%8A%82%E8%B7%B3%E5%8A%A8Arco%20Design%20Pro%E5%BF%AB%E9%80%9F%E8%B0%83%E7%94%A8%E6%8C%87%E5%8D%97/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-10-27%20104727.png" alt="屏幕截图 2024-10-27 104727"></p>
+<p>如果需要修改缩略图标、目录结构、导航栏的排序，都可以在此修改。如果要修改显示的名称，则需要到&#x2F;src&#x2F;locale&#x2F;zh-CN.ts文件处修改，它存储了绝大多数中文显示内容。</p>
+<p>缩略图标的修改，可以访问<a target="_blank" rel="noopener" href="https://arco.design/react/components/icon">图标 Icon | ArcoDesign</a>。修改“icon-”后面的内容就可以了。要注意使用小写。</p>
+
+    </div>
+    
+    
+    
+    
+    <div id="comment">
+        <div id="giscus-container" class="giscus"></div>
+    </div>
+    
+    
+    
+    
+</div>
+
+            <footer id="footer">
+    <div id="footer-wrap">
+        <div>
+            &copy;
+            2024 - 2024 Whimsically_&#39;s
+            <span id="footer-icon">
+                <i class="fa-solid fa-font-awesome fa-fw"></i>
+            </span>
+            &commat;UniqueZheng
+        </div>
+        <div>
+            Based on the <a target="_blank" rel="noopener" href="https://hexo.io">Hexo Engine</a> &amp;
+            <a target="_blank" rel="noopener" href="https://github.com/theme-particlex/hexo-theme-particlex">ParticleX Theme</a>
+        </div>
+        
+    </div>
+</footer>
+
+        </div>
+        
+        <transition name="fade">
+            <div id="preview" ref="preview" v-show="previewShow">
+                <img id="preview-content" ref="previewContent" />
+            </div>
+        </transition>
+        
+    </div>
+    <script src="/js/main.js"></script>
+    
+    
+<script
+    src="https://giscus.app/client.js"
+    data-repo="Whimsically1/Whimsically1.github.io"
+    data-repo-id="R_kgDONAidog"
+    data-category="General"
+    data-category-id="DIC_kwDONAidos4CjdjK"
+    data-mapping="pathname"
+    data-strict="0"
+    data-reactions-enabled="1"
+    data-emit-metadata="0"
+    data-input-position="bottom"
+    data-theme="preferred_color_scheme"
+    data-lang="zh-CN"
+    crossorigin
+    async
+></script>
+
+
+
+
+
+    
+</body>
+</html>
+
+<script src="/js/fireworks.min.js"></script>
+
