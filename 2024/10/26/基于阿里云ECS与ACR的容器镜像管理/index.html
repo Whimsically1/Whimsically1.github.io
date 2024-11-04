@@ -175,21 +175,21 @@
             
             <span class="tag">
                 
-                <a href="/tags/%E4%BA%91%E8%AE%A1%E7%AE%97/" style="color: #ff9e81">
+                <a href="/tags/%E4%BA%91%E8%AE%A1%E7%AE%97/" style="color: #ffe4d6">
                     云计算
                 </a>
             </span>
             
             <span class="tag">
                 
-                <a href="/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" style="color: #ffe4d6">
+                <a href="/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" style="color: #00a596">
                     云原生
                 </a>
             </span>
             
             <span class="tag">
                 
-                <a href="/tags/DevOps/" style="color: #ff9e81">
+                <a href="/tags/DevOps/" style="color: #ffe4d6">
                     DevOps
                 </a>
             </span>
@@ -340,14 +340,268 @@ sudo usermod -G docker whim1		编辑/etc/group，将指定用户加入docker组�
 <h5 id="基于镜像创建并运行容器"><a href="#基于镜像创建并运行容器" class="headerlink" title="基于镜像创建并运行容器"></a>基于镜像创建并运行容器</h5><ul>
 <li>简单创建运行</li>
 </ul>
-<p>使用命令docker run进行简单创建与运行：</p>
+<p>使用命令<code>docker run</code>进行简单创建与运行：</p>
 <pre><code class="shell">docker run -d --name nginx -p 80:80 nginx
 # -d， --detach：在后台运行该docker容器，并在启动后打印容器ID
 # --name：指定启动后的容器名称，本例设置容器实例名称为“nginx”
 # -p，--publish list：端口发布（映射），&lt;宿主端口&gt;:&lt;容器端口&gt;
 # 最后的“nginx”为镜像名，此处省略了冒号与紧跟其后的tag，默认tag为latest
 </code></pre>
-<p>使用命令docker ps可查看正在运行的容器信息：</p>
+<p>使用命令<code>docker ps</code>可查看正在运行的容器信息：</p>
+<pre><code>docker ps
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84%E5%AE%B9%E5%99%A8%E9%95%9C%E5%83%8F%E7%AE%A1%E7%90%86/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-10-28%20083311.png" alt="屏幕截图 2024-10-28 083311"></p>
+<p>此时使用浏览器访问ECS服务器公网IP，可见如下页面：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84%E5%AE%B9%E5%99%A8%E9%95%9C%E5%83%8F%E7%AE%A1%E7%90%86/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-10-28%20083421.png" alt="屏幕截图 2024-10-28 083421"></p>
+<ul>
+<li>挂载宿主目录</li>
+</ul>
+<p>实际应用时，对于容器中部署的服务，通常需把其所依赖的配置文件、数据文件进行持久化存储。否则一旦容器被销毁，这些文件也将随之销毁。</p>
+<p>要满足此类需求，需要在容器创建运行时，将宿主系统中用于存储配置文件、代码文件、数据文件的目录甚至具体文件映射到容器中的对应目录或文件，即，让容器在创建启动时，从宿主系统中指定的目录文件加载配置文件，在生成数据时则写入宿主系统中指定的目录文件。</p>
+<p>下面将为nginx服务的配置文件、日志文件以及Web服务的根目录分别建立持久化映射。nginx容器中的三个固有目录与宿主系统的目录映射关系定义为：</p>
+<table>
+<thead>
+<tr>
+<th align="center">持久化内容</th>
+<th align="center">容器目录</th>
+<th align="center">宿主目录</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">总体配置</td>
+<td align="center">&#x2F;etc&#x2F;nginx&#x2F;nginx.conf</td>
+<td align="center">&#x2F;opt&#x2F;docker&#x2F;nginx&#x2F;nginx.conf</td>
+</tr>
+<tr>
+<td align="center">服务配置</td>
+<td align="center">&#x2F;etc&#x2F;nginx&#x2F;conf.d</td>
+<td align="center">&#x2F;opt&#x2F;data&#x2F;nginx&#x2F;conf.d</td>
+</tr>
+<tr>
+<td align="center">日志文件</td>
+<td align="center">&#x2F;var&#x2F;log&#x2F;nginx</td>
+<td align="center">&#x2F;opt&#x2F;log&#x2F;nginx</td>
+</tr>
+<tr>
+<td align="center">Web服务</td>
+<td align="center">&#x2F;usr&#x2F;share&#x2F;nginx&#x2F;html</td>
+<td align="center">&#x2F;opt&#x2F;share&#x2F;nginx&#x2F;html</td>
+</tr>
+</tbody></table>
+<p>首先在ECS上创建三个宿主目录：</p>
+<pre><code class="shell">mkdir -p /opt/docker/nginx/conf.d
+mkdir -p /opt/docker/nginx/logs
+mkdir -p /opt/docker/nginx/html
+# -p， --parents：如果路径中任一级父目录不存在，则创建
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84%E5%AE%B9%E5%99%A8%E9%95%9C%E5%83%8F%E7%AE%A1%E7%90%86/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-10-31%20154847.png" alt="屏幕截图 2024-10-31 154847"></p>
+<p>然后从先前启动的nginx容器中将配置文件复制到宿主（否则目录挂载后，若容器找不到配置文件，服务不能正常运行)</p>
+<pre><code class="shell">docker cp nginx:/etc/nginx/nginx.conf /opt/docker/nginx/
+docker cp nginx:/etc/nginx/conf.d /opt/docker/nginx/
+docker cp nginx:/usr/share/nginx/html /opt/docker/nginx/
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84%E5%AE%B9%E5%99%A8%E9%95%9C%E5%83%8F%E7%AE%A1%E7%90%86/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-10-31%20154958.png" alt="屏幕截图 2024-10-31 154958"></p>
+<p>为重新运行挂载在宿主目录的nginx容器，必须停止并删除当前nginx容器。</p>
+<p>首先停止运行当前nginx容器。</p>
+<pre><code class="shell">docker stop nginx
+#除容器名称，也可使用容器id标识容器
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84%E5%AE%B9%E5%99%A8%E9%95%9C%E5%83%8F%E7%AE%A1%E7%90%86/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-10-31%20155027.png" alt="屏幕截图 2024-10-31 155027"></p>
+<p>此时<code>docker ps</code>已查询不到已停止运行的nginx容器，但是应用参数<code>-a</code>，即可查看全部正在运行与停止运行的容器。停止的容器状态被标注为<code>Exited</code>，同时端口没有发布（映射）记录。</p>
+<pre><code class="shell">docker ps -a
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84%E5%AE%B9%E5%99%A8%E9%95%9C%E5%83%8F%E7%AE%A1%E7%90%86/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-10-31%20155058.png" alt="屏幕截图 2024-10-31 155058"></p>
+<p>随后删除停止运行的<code>nginx</code>容器。删除后通过<code>docker ps -a</code>查看，确认已删除。</p>
+<pre><code class="shell">docker rm nginx
+nginx
+docker ps -a
+#观察
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84%E5%AE%B9%E5%99%A8%E9%95%9C%E5%83%8F%E7%AE%A1%E7%90%86/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-10-31%20155142.png" alt="屏幕截图 2024-10-31 155142"></p>
+<p>重新设置执行<code>docker run</code>，完成相关文件与目录的挂载。</p>
+<pre><code class="shell"># -v， --volume list：挂载（绑定）目录，&lt;宿主目录&gt;:&lt;容器目录&gt;
+docker run -d --restart=always \
+        --name nginx \
+        -p 80:80 \
+        -v /opt/docker/nginx/nginx.conf:/etc/nginx/nginx.conf \
+        -v /opt/docker/nginx/conf.d:/etc/nginx/conf.d \
+        -v /opt/docker/nginx/html:/usr/share/nginx/html \
+        -v /opt/docker/nginx/logs:/var/log/nginx \
+        nginx
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84%E5%AE%B9%E5%99%A8%E9%95%9C%E5%83%8F%E7%AE%A1%E7%90%86/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-10-31%20155340.png" alt="屏幕截图 2024-10-31 155340"></p>
+<h5 id="停止，启动，进出容器"><a href="#停止，启动，进出容器" class="headerlink" title="停止，启动，进出容器"></a>停止，启动，进出容器</h5><p>关闭刚创建的挂载了宿主目录的nginx容器，随后使用<code>docker start</code>命令启动该容器。</p>
+<pre><code class="shell">docker stop nginx
+nginx
+docker start nginx
+nginx
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84%E5%AE%B9%E5%99%A8%E9%95%9C%E5%83%8F%E7%AE%A1%E7%90%86/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-10-31%20155415.png" alt="屏幕截图 2024-10-31 155415"></p>
+<p>启动后，换命令行方式快速在ECS进行Nginx服务验证。</p>
+<pre><code class="shell">curl 127.0.0.1:80
+#使用curl访问ECS本地服务端口，输出Nginx默认HTML页面
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84%E5%AE%B9%E5%99%A8%E9%95%9C%E5%83%8F%E7%AE%A1%E7%90%86/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-10-31%20155443.png" alt="屏幕截图 2024-10-31 155443"></p>
+<p>重启容器nginx后，使用<code>docker exec</code>命令进入容器。该命令本身定义为在容器内部运行一条指定命令，通过指定命令为Shell程序，如<code>/bin/bash</code>，配合应用参数<code>-it</code>，可实现进入容器进行命令行交互式操作。</p>
+<pre><code class="shell">docker exec -it nginx /bin/bash
+# -i --interactive，保持交互模式
+# -t --tty，分配一个伪终端（模拟终端）
+# nginx，容器名称
+# /bin/bash，待执行的命令。进入bash shell
+</code></pre>
+<p>进入容器后，可执行容器本身所支持的命令操作。此时尝试进入<code>/usr/share/nginx/html</code>目录，创建一个<code>test.html</code>文件。</p>
+<p>因为该容器不支持编辑命令<code>vim</code>，所以使用<code>echo</code>命令创建Web文件<code>test.html</code>，浏览器访问该文件时，将展示h1大小的<code>Hello，world</code>。</p>
+<p>完成容器内的文件创建后，使用<code>exit</code>命令退出容器，查看宿主目录<code>ls /opt/docker/nginx/html</code>，可见在容器内创建的<code>test.html</code>文件，已成功持久化存储到宿主系统。此时使用<code>curl</code>访问ECS本地URL<code>127.0.0.1:80/test.html</code>，可成功输出<code>test.html</code>文件内容。</p>
+<p>下面以<code>(nginx)$</code>作为容器内命令行提示符：</p>
+<pre><code class="shell">(nginx)$ cd /usr/share/nginx/html
+(nginx)$ echo &quot;&lt;h1&gt;Hello,world&lt;/h1&gt;&quot; &gt; test.html
+(nginx)$ exit
+ls /opt/docker/nginx/html
+50x.html  index.html  test.html
+curl 127.0.0.1:80/test.html
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84%E5%AE%B9%E5%99%A8%E9%95%9C%E5%83%8F%E7%AE%A1%E7%90%86/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-10-31%20173220.png" alt="屏幕截图 2024-10-31 173220"></p>
+<p>完成以上步骤后，用浏览器访问<code>http://&lt;ECS公网地址&gt;/test.html</code>，观察<code>h1</code>大小的<code>Hello，world</code>。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84%E5%AE%B9%E5%99%A8%E9%95%9C%E5%83%8F%E7%AE%A1%E7%90%86/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-10-31%20173517.png" alt="屏幕截图 2024-10-31 173517"></p>
+<h5 id="查看容器日志"><a href="#查看容器日志" class="headerlink" title="查看容器日志"></a>查看容器日志</h5><p>使用<code>docker logs</code>命令查看容器的日志输出。</p>
+<pre><code class="shell">docker logs nginx
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84%E5%AE%B9%E5%99%A8%E9%95%9C%E5%83%8F%E7%AE%A1%E7%90%86/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-10-31%20174241.png" alt="屏幕截图 2024-10-31 174241"></p>
+<h5 id="删除容器镜像"><a href="#删除容器镜像" class="headerlink" title="删除容器镜像"></a>删除容器镜像</h5><pre><code class="shell">docker rmi nginx
+# rmi： remove images；也可使用docker image rm nginx
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84%E5%AE%B9%E5%99%A8%E9%95%9C%E5%83%8F%E7%AE%A1%E7%90%86/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-01%20110626.png" alt="屏幕截图 2024-11-01 110626"></p>
+<p>因为尚有基于该镜像创建的容器存在，所以无法删除该镜像，需首先停止、删除容器实例后再行删除容器镜像。</p>
+<pre><code class="shell">docker stop nginx
+nginx
+docker rm nginx
+nginx
+docker rmi nginx
+
+docker images
+# 自行观察
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84%E5%AE%B9%E5%99%A8%E9%95%9C%E5%83%8F%E7%AE%A1%E7%90%86/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-01%20110917.png" alt="屏幕截图 2024-11-01 110917"></p>
+<h3 id="构建Docker容器镜像"><a href="#构建Docker容器镜像" class="headerlink" title="构建Docker容器镜像"></a>构建Docker容器镜像</h3><p>以Ubuntu镜像作为基础镜像，拟制作一个包含Python基础环境以及Nginx服务器的新镜像。整个制作过程包含两大步骤，一是撰写Dockerfile文件，二是使用<code>docker build</code>命令基于Dockerfile创建新镜像。</p>
+<h5 id="编写Dockerfile文件"><a href="#编写Dockerfile文件" class="headerlink" title="编写Dockerfile文件"></a>编写Dockerfile文件</h5><p>Dockerfile是制作Docker容器镜像的基础。一般而言，Dockerfile文件指令逻辑应按照以下模式建立：选择合适的基础镜像、安装基础工具与依赖、添加其他应用、清理缓存、声明镜像端口暴露情况、设置默认启动命令。</p>
+<ul>
+<li>编写命令</li>
+</ul>
+<pre><code class="shell">vim 文件名
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84%E5%AE%B9%E5%99%A8%E9%95%9C%E5%83%8F%E7%AE%A1%E7%90%86/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-01%20114802.png" alt="屏幕截图 2024-11-01 114802"></p>
+<ul>
+<li>选择基础镜像Ubuntu并添加文件维护者信息</li>
+</ul>
+<pre><code class="dockerfile"># 使用Ubuntu作为基础镜像
+FROM ubuntu:22.04
+# 维护者信息
+LABEL maintainer=&quot;&lt;维护者邮箱&gt;&quot;
+</code></pre>
+<ul>
+<li>设置工作目录</li>
+</ul>
+<pre><code class="dockerfile">WORKDIR /app
+</code></pre>
+<ul>
+<li>安装Nginx&amp;Python</li>
+</ul>
+<pre><code class="dockerfile"># 安装nginx&amp;Python
+RUN apt-get update &amp;&amp; apt-get install -y \
+    nginx \
+    python3 \
+    python3-distutils
+</code></pre>
+<ul>
+<li>清理apt软件包缓存</li>
+</ul>
+<pre><code class="dockerfile">RUN rm -rf /var/lib/apt/lists/*
+</code></pre>
+<ul>
+<li>声明暴露端口</li>
+</ul>
+<pre><code class="dockerfile">EXPOSE 80
+</code></pre>
+<ul>
+<li>设置启动命令</li>
+</ul>
+<pre><code class="dockerfile">CMD [&quot;nginx&quot;,&quot;-g&quot;,&quot;daemon off;&quot;]
+</code></pre>
+<ul>
+<li>Dockerfile完整逻辑：</li>
+</ul>
+<pre><code class="dockerfile">FROM ubuntu:22.04
+LABEL maintainer=&quot;&lt;维护者邮箱&gt;&quot;
+
+WORKDIR /app
+
+RUN apt-get update &amp;&amp; apt-get install -y \
+    nginx \
+    python3 \
+    python3-distutils
+    
+RUN rm -rf /var/lib/apt/lists/*
+EXPOSE 80
+CMD [&quot;nginx&quot;,&quot;-g&quot;,&quot;daemon off;&quot;]
+</code></pre>
+<p>输入完之后，敲下esc，然后<code>:wq</code>保存并退出。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84%E5%AE%B9%E5%99%A8%E9%95%9C%E5%83%8F%E7%AE%A1%E7%90%86/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-01%20114740.png" alt="屏幕截图 2024-11-01 114740"></p>
+<h5 id="基于Dockerfile创建容器镜像"><a href="#基于Dockerfile创建容器镜像" class="headerlink" title="基于Dockerfile创建容器镜像"></a>基于Dockerfile创建容器镜像</h5><p>基于Dockerfile，使用<code>docker build</code>命令创建容器镜像。创建完成后，通过<code>docker images</code>观察新建镜像的大小。</p>
+<pre><code class="shell">docker build -f dockerfile-npu -t npu .
+
+docker images
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84%E5%AE%B9%E5%99%A8%E9%95%9C%E5%83%8F%E7%AE%A1%E7%90%86/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-01%20115345.png" alt="屏幕截图 2024-11-01 115345"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84%E5%AE%B9%E5%99%A8%E9%95%9C%E5%83%8F%E7%AE%A1%E7%90%86/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-01%20115419.png" alt="屏幕截图 2024-11-01 115419"></p>
+<p>运行该镜像，访问<code>80</code>端口，检测Nginx服务。随后进入容器，检测Python解析能力。</p>
+<pre><code class="shell">docker run -d --name npu -p 80:80 npu
+
+curl 127.0.0.1
+# 等价于127.0.0.1:80，或者http://127.0.0.1:80
+docker exec -it npu /bin/bash
+(nginx)$ python3
+(nginx)$ exit()
+(nginx)$ exit
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84%E5%AE%B9%E5%99%A8%E9%95%9C%E5%83%8F%E7%AE%A1%E7%90%86/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-04%20104310.png" alt="屏幕截图 2024-11-04 104310"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84%E5%AE%B9%E5%99%A8%E9%95%9C%E5%83%8F%E7%AE%A1%E7%90%86/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-04%20104319.png" alt="屏幕截图 2024-11-04 104319"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84%E5%AE%B9%E5%99%A8%E9%95%9C%E5%83%8F%E7%AE%A1%E7%90%86/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-04%20104334.png" alt="屏幕截图 2024-11-04 104334"></p>
+<h3 id="ACR镜像管理与应用"><a href="#ACR镜像管理与应用" class="headerlink" title="ACR镜像管理与应用"></a>ACR镜像管理与应用</h3><p>实际应用时，开发者通常需要配置持续集成与持续部署流水线，在“构建镜像”阶段，将代码打包到基础镜像后，推送至特定镜像仓库，而在“服务部署”阶段则从镜像仓库拉取该镜像并部署于特定ECS服务器或集群。</p>
+<p>下面练习基于阿里云容器镜像服务与命令行Docker指令的镜像推送与拉取。</p>
+<h5 id="推送容器镜像至ACR"><a href="#推送容器镜像至ACR" class="headerlink" title="推送容器镜像至ACR"></a>推送容器镜像至ACR</h5><p>重新标记刚创建的镜像<code>npu</code>，以满足推送该镜像至ACR的要求。镜像名包括“镜像仓库”与“标记”两部分。此时要推送的仓库是阿里云容器镜像服务ACR中所创仓库。</p>
+<p>访问之前在阿里云ACR控制台创建的镜像仓库<code>npu</code>，查询镜像仓库URL，并使用仓库地址重新标记镜像<code>npu</code>。</p>
+<pre><code class="shell">docker tag npu crpi-exr3j7gox2plovb8.cn-heyuan.personal.cr.aliyuncs.com/whim111/npu
+</code></pre>
+<p>![屏幕截图 2024-11-04 113523](<a target="_blank" rel="noopener" href="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84%E5%AE%B9%E5%99%A8%E9%95%9C%E5%83%8F%E7%AE%A1%E7%90%86/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE">https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/基于阿里云ECS与ACR的容器镜像管理/屏幕截图</a> 2024-11-04 113523.png)</p>
+<p>登录阿里云ACR，使用命令<code>docker push</code>推送镜像至ACR镜像仓库<code>npu</code>。</p>
+<pre><code class="shell">docker login --username=沙里院的雪 crpi-exr3j7gox2plovb8.cn-heyuan.personal.cr.aliyuncs.com
+
+docker push crpi-exr3j7gox2plovb8.cn-heyuan.personal.cr.aliyuncs.com/whim111/npu
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84%E5%AE%B9%E5%99%A8%E9%95%9C%E5%83%8F%E7%AE%A1%E7%90%86/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-04%20114848.png" alt="屏幕截图 2024-11-04 114848"></p>
+<p>镜像上传成功。此时查看阿里云ACR控制台，在镜像仓库<code>npu</code>的“镜像版本”页面，可见刚提交的镜像记录。</p>
+<h5 id="拉取容器镜像至ECS"><a href="#拉取容器镜像至ECS" class="headerlink" title="拉取容器镜像至ECS"></a>拉取容器镜像至ECS</h5><p>为测试从阿里云ACR拉取到ECS的容器镜像是否能正常工作，首先需要删除ECS本地相关的容器以及镜像，以免干扰测试。</p>
+<pre><code class="shell">docker stop npu
+
+docker rm npu
+
+docker rmi npu
+
+docker rmi crpi-exr3j7gox2plovb8.cn-heyuan.personal.cr.aliyuncs.com/whim111/npu
+
+docker images
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84%E5%AE%B9%E5%99%A8%E9%95%9C%E5%83%8F%E7%AE%A1%E7%90%86/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-04%20115032.png" alt="屏幕截图 2024-11-04 115032"></p>
+<p>此时在ECS上执行拉取镜像操作，随后创建运行容器并测试服务效果。</p>
+<pre><code class="shell">docker pull crpi-exr3j7gox2plovb8.cn-heyuan.personal.cr.aliyuncs.com/whim111/npu
+
+docker run -d --name npu -p 80:80 crpi-exr3j7gox2plovb8.cn-heyuan.personal.cr.aliyuncs.com/whim111/npu
+
+curl 127.0.0.1
+# 自行观察，确认从阿里云ACR拉取的镜像无误，可创建容器通过服务测试。
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84%E5%AE%B9%E5%99%A8%E9%95%9C%E5%83%8F%E7%AE%A1%E7%90%86/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-04%20134417.png" alt="屏幕截图 2024-11-04 134417"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84%E5%AE%B9%E5%99%A8%E9%95%9C%E5%83%8F%E7%AE%A1%E7%90%86/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-04%20134426.png" alt="屏幕截图 2024-11-04 134426"></p>
 
     </div>
     
