@@ -175,21 +175,21 @@
             
             <span class="tag">
                 
-                <a href="/tags/%E4%BA%91%E8%AE%A1%E7%AE%97/" style="color: #00a596">
+                <a href="/tags/%E4%BA%91%E8%AE%A1%E7%AE%97/" style="color: #ffe4d6">
                     云计算
                 </a>
             </span>
             
             <span class="tag">
                 
-                <a href="/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" style="color: #ffe4d6">
+                <a href="/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" style="color: #ffa2c4">
                     云原生
                 </a>
             </span>
             
             <span class="tag">
                 
-                <a href="/tags/DevOps/" style="color: #00a596">
+                <a href="/tags/DevOps/" style="color: #ffe4d6">
                     DevOps
                 </a>
             </span>
@@ -199,15 +199,208 @@
     </div>
     
     <div class="content" v-pre>
-        <h1 id="基于阿里云ECS与ACR的Python微服务镜像构建、部署与接口访问（基于Windows-11）"><a href="#基于阿里云ECS与ACR的Python微服务镜像构建、部署与接口访问（基于Windows-11）" class="headerlink" title="基于阿里云ECS与ACR的Python微服务镜像构建、部署与接口访问（基于Windows 11）"></a>基于阿里云ECS与ACR的Python微服务镜像构建、部署与接口访问（基于Windows 11）</h1><hr>
+        <h1 id="基于阿里云ECS与ACR的Python微服务镜像构建、部署与接口访问"><a href="#基于阿里云ECS与ACR的Python微服务镜像构建、部署与接口访问" class="headerlink" title="基于阿里云ECS与ACR的Python微服务镜像构建、部署与接口访问"></a>基于阿里云ECS与ACR的Python微服务镜像构建、部署与接口访问</h1><hr>
 <h2 id="基本要求"><a href="#基本要求" class="headerlink" title="基本要求"></a>基本要求</h2><ul>
-<li>理解并掌握云服务器ECS、容器、镜像、镜像仓库等核心概念</li>
-<li>理解并掌握Docker基本原理与常用指令</li>
-<li>理解并掌握Dockerfile的撰写与容器镜像的构建</li>
-<li>了解并掌握创建与管理阿里云ECS服务器的基本操作</li>
-<li>了解并掌握基于阿里云容器镜像服务ACR创建与应用镜像仓库的基本操作</li>
+<li>掌握使用Dockerfile构建容器镜像的基本方法</li>
+<li>掌握阿里云云服务器ECS与容器镜像服务ACR的相关操作</li>
+<li>理解HTTP协议基本概念，熟练掌握HTTP调试工具的使用</li>
+<li>理解网络服务API的基本概念、分类，重点掌握HTTP RESTful API的定义原则、应用模式</li>
+<li>理解并掌握基于Python Requests库撰写代码访问RESTful API的基本方法</li>
 </ul>
-<h2 id="实验过程"><a href="#实验过程" class="headerlink" title="实验过程"></a>实验过程</h2><h3 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h3>
+<h2 id="实验过程"><a href="#实验过程" class="headerlink" title="实验过程"></a>实验过程</h2><h3 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h3><h5 id="在本地安装Python3"><a href="#在本地安装Python3" class="headerlink" title="在本地安装Python3"></a>在本地安装Python3</h5><p>在本地开发环境安装Python3，以便本地测试微服务范例程序：</p>
+<pre><code class="shell">(local)$ sudo apt install python3
+</code></pre>
+<h5 id="准备云服务器ECS（略）"><a href="#准备云服务器ECS（略）" class="headerlink" title="准备云服务器ECS（略）"></a>准备云服务器ECS（略）</h5><h5 id="基于阿里云容器镜像服务ACR配置镜像仓库"><a href="#基于阿里云容器镜像服务ACR配置镜像仓库" class="headerlink" title="基于阿里云容器镜像服务ACR配置镜像仓库"></a>基于阿里云容器镜像服务ACR配置镜像仓库</h5><p>访问<a target="_blank" rel="noopener" href="https://cn.aliyun.com/product/acr?from_alibabacloud=">容器镜像服务ACR产品首页-阿里云</a>，点击“管理控制台”进入实例列表，创建使用个人实例。随后根据页面提示：</p>
+<ul>
+<li>设置访问密码</li>
+<li>创建命名空间<code>exp_pyms1</code></li>
+<li>创建镜像仓库<code>exp_pyms_api_demo</code>，且“代码源”选择本地仓库。</li>
+</ul>
+<p>配置完成后，可在ACR控制台的镜像仓库基本信息中查看登录ACR，以及从镜像仓库拉取或推送镜像的提示信息。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84Python%E5%BE%AE%E6%9C%8D%E5%8A%A1%E9%95%9C%E5%83%8F%E6%9E%84%E5%BB%BA%E3%80%81%E9%83%A8%E7%BD%B2%E4%B8%8E%E6%8E%A5%E5%8F%A3%E8%AE%BF%E9%97%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-05%20104535.png" alt="屏幕截图 2024-11-05 104535"></p>
+<h3 id="在本地开发环境测试微服务示例程序"><a href="#在本地开发环境测试微服务示例程序" class="headerlink" title="在本地开发环境测试微服务示例程序"></a>在本地开发环境测试微服务示例程序</h3><p>在本地开发环境启动微服务范例，体验HTTP RESTful API接口。</p>
+<p>本微服务范例在<code>8000</code>端口监听，启动命令为：</p>
+<pre><code class="shell">./exp_pyms_api_demo ./device.csv
+# ./exp_pyms_api_demo &lt;csv_file&gt;，csv_file为存储设备信息的CSV文件路径。若该路径中CSV文件已存在，则从CSV读取设备信息；否则自动创建5条设备信息，生成CSV文件。
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84Python%E5%BE%AE%E6%9C%8D%E5%8A%A1%E9%95%9C%E5%83%8F%E6%9E%84%E5%BB%BA%E3%80%81%E9%83%A8%E7%BD%B2%E4%B8%8E%E6%8E%A5%E5%8F%A3%E8%AE%BF%E9%97%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-05%20111345.png" alt="屏幕截图 2024-11-05 111345"></p>
+<p>此时访问<code>http://localhost:8000/docs</code>，页面如下：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84Python%E5%BE%AE%E6%9C%8D%E5%8A%A1%E9%95%9C%E5%83%8F%E6%9E%84%E5%BB%BA%E3%80%81%E9%83%A8%E7%BD%B2%E4%B8%8E%E6%8E%A5%E5%8F%A3%E8%AE%BF%E9%97%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-05%20111747.png" alt="屏幕截图 2024-11-05 111747"></p>
+<p>且当前目录将产生<code>device.csv</code>文件：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84Python%E5%BE%AE%E6%9C%8D%E5%8A%A1%E9%95%9C%E5%83%8F%E6%9E%84%E5%BB%BA%E3%80%81%E9%83%A8%E7%BD%B2%E4%B8%8E%E6%8E%A5%E5%8F%A3%E8%AE%BF%E9%97%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-05%20111353.png" alt="屏幕截图 2024-11-05 111353"></p>
+<p>测试完毕，输入<code>CTR+C</code>关闭微服务示例程序。</p>
+<h3 id="在阿里云ECS以容器方式部署微服务范例"><a href="#在阿里云ECS以容器方式部署微服务范例" class="headerlink" title="在阿里云ECS以容器方式部署微服务范例"></a>在阿里云ECS以容器方式部署微服务范例</h3><h5 id="构建微服务范例镜像（本地）"><a href="#构建微服务范例镜像（本地）" class="headerlink" title="构建微服务范例镜像（本地）"></a>构建微服务范例镜像（本地）</h5><p>创建<code>Dockerfile</code>文件：</p>
+<pre><code class="shell">vim Dockerfile
+</code></pre>
+<p>内容如下：</p>
+<pre><code class="dockerfile"># 使用Ubuntu 22.04作为基础镜像
+FROM ubuntu:22.04
+LABEL maintainer=&quot;&lt;邮箱&gt;&quot;
+
+# 指定工作目录为/app
+WORKDIR /app
+# 将主机文件系统中的exp_pyms_api_demo复制到镜像中
+COPY exp_pyms_api_demo exp_pyms_api_demo
+
+# 暴露服务端口8000
+EXPOSE 8000
+
+# 指定容器的启动命令，device.csv将存储在容器的/var/lib/exp_pyms_data/目录下，因此该目录应持久化
+CMD [&quot;/app/exp_pyms_api_demo&quot;,&quot;/var/lib/exp_pyms_data/device.csv&quot;]
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84Python%E5%BE%AE%E6%9C%8D%E5%8A%A1%E9%95%9C%E5%83%8F%E6%9E%84%E5%BB%BA%E3%80%81%E9%83%A8%E7%BD%B2%E4%B8%8E%E6%8E%A5%E5%8F%A3%E8%AE%BF%E9%97%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-05%20114214.png" alt="屏幕截图 2024-11-05 114214"></p>
+<p>确保工作目录中仅有<code>Dockerfile</code>与<code>exp_pyms_api_demo</code>文件。</p>
+<p>使用<code>docker build</code>命令构建容器镜像，并为镜像设置名为<code>exp_pyms_api_demo:1.0</code>的标签：</p>
+<blockquote>
+<p>[!NOTE]</p>
+<p>注：本地环境需要首先安装好Docker！</p>
+</blockquote>
+<pre><code class="shell"># -t，tag：后跟镜像名称（REPOSITORY：TAG）
+# exp_pyms_api_demo:1.0：自定义镜像名称
+# .：PATH，执行命令的上下文路径，构造过程中可以引用该上下文路径中的任何文件
+docker build -t exp_pyms_api_demo:1.0 .
+
+(local)$ docker images
+(local)$
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84Python%E5%BE%AE%E6%9C%8D%E5%8A%A1%E9%95%9C%E5%83%8F%E6%9E%84%E5%BB%BA%E3%80%81%E9%83%A8%E7%BD%B2%E4%B8%8E%E6%8E%A5%E5%8F%A3%E8%AE%BF%E9%97%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-05%20140932.png" alt="屏幕截图 2024-11-05 140932"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84Python%E5%BE%AE%E6%9C%8D%E5%8A%A1%E9%95%9C%E5%83%8F%E6%9E%84%E5%BB%BA%E3%80%81%E9%83%A8%E7%BD%B2%E4%B8%8E%E6%8E%A5%E5%8F%A3%E8%AE%BF%E9%97%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-05%20140959.png" alt="屏幕截图 2024-11-05 140959"></p>
+<h5 id="上传镜像至镜像仓库（本地）"><a href="#上传镜像至镜像仓库（本地）" class="headerlink" title="上传镜像至镜像仓库（本地）"></a>上传镜像至镜像仓库（本地）</h5><p>在本地开发环境登录阿里云容器镜像服务ACR。</p>
+<pre><code class="shell">(local)$ docker login --username=沙里院的雪 crpi-exr3j7gox2plovb8.cn-heyuan.personal.cr.aliyuncs.com
+
+(local)$ 
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84Python%E5%BE%AE%E6%9C%8D%E5%8A%A1%E9%95%9C%E5%83%8F%E6%9E%84%E5%BB%BA%E3%80%81%E9%83%A8%E7%BD%B2%E4%B8%8E%E6%8E%A5%E5%8F%A3%E8%AE%BF%E9%97%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-05%20143631.png" alt="屏幕截图 2024-11-05 143631"></p>
+<p>随后为本地<code>exp_pyms_api_demo:1.0</code>镜像设置带有阿里云镜像仓库标记的标签。</p>
+<pre><code class="shell">(local)$ docker tag exp_pyms_api_demo:1.0 crpi-exr3j7gox2plovb8.cn-heyuan.personal.cr.aliyuncs.com/exp_pyms1/exp_pyms_api_demo:1.0
+(local)$ docker push crpi-exr3j7gox2plovb8.cn-heyuan.personal.cr.aliyuncs.com/exp_pyms1/exp_pyms_api_demo:1.0
+
+(local)$
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84Python%E5%BE%AE%E6%9C%8D%E5%8A%A1%E9%95%9C%E5%83%8F%E6%9E%84%E5%BB%BA%E3%80%81%E9%83%A8%E7%BD%B2%E4%B8%8E%E6%8E%A5%E5%8F%A3%E8%AE%BF%E9%97%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-05%20145924.png" alt="屏幕截图 2024-11-05 145924"></p>
+<blockquote>
+<p>[!NOTE]</p>
+<p>注：如果中途遇到权限问题，而账户已经登陆，可以尝试重启docker服务。</p>
+</blockquote>
+<p>访问阿里云ACR控制台页面，在镜像仓库<code>exp_pyms_api_demo</code>的“镜像版本”页面，可以看见刚推送的镜像<code>exp_pyms_api_demo:1.0。</code></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84Python%E5%BE%AE%E6%9C%8D%E5%8A%A1%E9%95%9C%E5%83%8F%E6%9E%84%E5%BB%BA%E3%80%81%E9%83%A8%E7%BD%B2%E4%B8%8E%E6%8E%A5%E5%8F%A3%E8%AE%BF%E9%97%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-05%20150113.png" alt="屏幕截图 2024-11-05 150113"></p>
+<h5 id="拉取镜像并部署服务（ECS）"><a href="#拉取镜像并部署服务（ECS）" class="headerlink" title="拉取镜像并部署服务（ECS）"></a>拉取镜像并部署服务（ECS）</h5><p>以SSH方式登录阿里云ECS，从ECS登录阿里云ACR拉取镜像。</p>
+<pre><code class="shell">(ecs)$ docker login --username=沙里院的雪 crpi-exr3j7gox2plovb8.cn-heyuan.personal.cr.aliyuncs.com
+
+(ecs)$ docker pull crpi-exr3j7gox2plovb8.cn-heyuan.personal.cr.aliyuncs.com/exp_pyms1/exp_pyms_api_demo:1.0
+
+(ecs)$ docker images
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84Python%E5%BE%AE%E6%9C%8D%E5%8A%A1%E9%95%9C%E5%83%8F%E6%9E%84%E5%BB%BA%E3%80%81%E9%83%A8%E7%BD%B2%E4%B8%8E%E6%8E%A5%E5%8F%A3%E8%AE%BF%E9%97%AE/%25E5%25B1%258F%25E5%25B9%2595%25E6%2588%25AA%25E5%259B%25BE%25202024-11-05%2520151701.png" alt="屏幕截图 2024-11-05 151701"></p>
+<p>在ECS工作目录（自行指定）创建一持久化目录<code>exp_pyms_data</code>，用于在ECS存储容器内服务生成的业务数据文档，即设备信息数据，随后运行微服务范例程序容器镜像。</p>
+<blockquote>
+<p>[!WARNING]</p>
+<p>需要首先在阿里云ECS的安全组开放服务器8000端口！</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84Python%E5%BE%AE%E6%9C%8D%E5%8A%A1%E9%95%9C%E5%83%8F%E6%9E%84%E5%BB%BA%E3%80%81%E9%83%A8%E7%BD%B2%E4%B8%8E%E6%8E%A5%E5%8F%A3%E8%AE%BF%E9%97%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-05%20183305.png" alt="屏幕截图 2024-11-05 183305"></p>
+</blockquote>
+<pre><code class="shell">(ecs)$ mkdir exp_pyms_data
+(ecs)$ docker run -d --restart=always \
+                --name exp_pyms_api_demo \
+                -p 8000:8000 \
+                -v ./exp_pyms_data/:/var/lib/exp_pyms_data/ \
+                crpi-exr3j7gox2plovb8.cn-heyuan.personal.cr.aliyuncs.com/exp_pyms1/exp_pyms_api_demo:1.0	
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84Python%E5%BE%AE%E6%9C%8D%E5%8A%A1%E9%95%9C%E5%83%8F%E6%9E%84%E5%BB%BA%E3%80%81%E9%83%A8%E7%BD%B2%E4%B8%8E%E6%8E%A5%E5%8F%A3%E8%AE%BF%E9%97%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-05%20175306.png" alt="屏幕截图 2024-11-05 175306"></p>
+<p>查看容器运行日志，可确认服务已成功启动。</p>
+<pre><code class="shell">(ecs)$ docker logs exp_pyms_api_demo
+
+(ecs)$ ls exp_pyms_data/
+device.csv
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84Python%E5%BE%AE%E6%9C%8D%E5%8A%A1%E9%95%9C%E5%83%8F%E6%9E%84%E5%BB%BA%E3%80%81%E9%83%A8%E7%BD%B2%E4%B8%8E%E6%8E%A5%E5%8F%A3%E8%AE%BF%E9%97%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-05%20175419.png" alt="屏幕截图 2024-11-05 175419"></p>
+<h3 id="使用OpenAPI查看微服务接口"><a href="#使用OpenAPI查看微服务接口" class="headerlink" title="使用OpenAPI查看微服务接口"></a>使用OpenAPI查看微服务接口</h3><p>微服务范例提供两种OpenAPI文档页面，分别为Redocly文档和Swagger。</p>
+<ul>
+<li><p>Redocly文档提供清晰、完整、详尽的接口与参数信息。通过该文档，可了解服务包含哪些接口、接口请求与响应消息体等内容。Redocly文档地址为<code>&lt;ecs_ip&gt;:8000/docs</code>。</p>
+</li>
+<li><p>Swagger文档除了类似Redocly提供接口与参数信息意以外，还提供最基础的调试功能。Swagger文档地址为<code>&lt;ecs_ip&gt;:8000/docs/swagger</code>。</p>
+</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84Python%E5%BE%AE%E6%9C%8D%E5%8A%A1%E9%95%9C%E5%83%8F%E6%9E%84%E5%BB%BA%E3%80%81%E9%83%A8%E7%BD%B2%E4%B8%8E%E6%8E%A5%E5%8F%A3%E8%AE%BF%E9%97%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-05%20183655.png" alt="屏幕截图 2024-11-05 183655"></p>
+<h3 id="使用Requests库编码访问微服务范例接口（本地）"><a href="#使用Requests库编码访问微服务范例接口（本地）" class="headerlink" title="使用Requests库编码访问微服务范例接口（本地）"></a>使用Requests库编码访问微服务范例接口（本地）</h3><h5 id="配置Python虚拟环境"><a href="#配置Python虚拟环境" class="headerlink" title="配置Python虚拟环境"></a>配置Python虚拟环境</h5><p>Python虚拟环境可实现为不同项目设置独立的依赖库，以实现在同一系统中不同项目所需软件包的隔离。</p>
+<p>例如开发环境中两个项目依赖同一个软件包，但依赖的版本不同，或者一些依赖是相互冲突的，那么使用Python虚拟环境就能为不同项目创建独立的虚拟环境。</p>
+<p>在本地开发环境创建工作目录<code>exp_pyms_cli</code>，进入该目录安装启用Python虚拟环境<code>exp_venv</code>。</p>
+<pre><code class="shell">(local)$ python3 -m venv exp_venv
+(local)$ source exp_venv/bin/activate
+(local)(exp_venv)$
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84Python%E5%BE%AE%E6%9C%8D%E5%8A%A1%E9%95%9C%E5%83%8F%E6%9E%84%E5%BB%BA%E3%80%81%E9%83%A8%E7%BD%B2%E4%B8%8E%E6%8E%A5%E5%8F%A3%E8%AE%BF%E9%97%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-05%20171558.png" alt="屏幕截图 2024-11-05 171558"></p>
+<p>随后使用<code>pip install</code>命令在虚拟环境中安装Python Requests库。</p>
+<pre><code class="shell">(local)(exp_venv)$ pip install requests
+...
+(local)(exp_venv)$
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84Python%E5%BE%AE%E6%9C%8D%E5%8A%A1%E9%95%9C%E5%83%8F%E6%9E%84%E5%BB%BA%E3%80%81%E9%83%A8%E7%BD%B2%E4%B8%8E%E6%8E%A5%E5%8F%A3%E8%AE%BF%E9%97%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-05%20171701.png" alt="屏幕截图 2024-11-05 171701"></p>
+<p>安装完成Requests库后，可在Python交互式界面中初步验证。</p>
+<pre><code>(local)(exp_venv)$ python3
+
+&gt;&gt;&gt; import requests
+&gt;&gt;&gt; requests.__version__
+
+&gt;&gt;&gt; exit()
+(local)(exp_venv)$
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84Python%E5%BE%AE%E6%9C%8D%E5%8A%A1%E9%95%9C%E5%83%8F%E6%9E%84%E5%BB%BA%E3%80%81%E9%83%A8%E7%BD%B2%E4%B8%8E%E6%8E%A5%E5%8F%A3%E8%AE%BF%E9%97%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-05%20171822.png" alt="屏幕截图 2024-11-05 171822"></p>
+<h5 id="体验“查询设备”接口"><a href="#体验“查询设备”接口" class="headerlink" title="体验“查询设备”接口"></a>体验“查询设备”接口</h5><p>在ECS工作目录中，查看先前创建的<code>exp_pyms_data</code>目录，可以找到微服务范例程序启动时自动生成的CSV文件，查看文件内容，可发现五条设备信息数据。</p>
+<pre><code class="shell">(ecs)$ cat exp_pyms_data/device.csv
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84Python%E5%BE%AE%E6%9C%8D%E5%8A%A1%E9%95%9C%E5%83%8F%E6%9E%84%E5%BB%BA%E3%80%81%E9%83%A8%E7%BD%B2%E4%B8%8E%E6%8E%A5%E5%8F%A3%E8%AE%BF%E9%97%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-05%20183749.png" alt="屏幕截图 2024-11-05 183749"></p>
+<p>以ID<code>7719024672</code>的设备为例，通过Requests库访问“查询设备”接口，可基于设备编号获取设备信息。</p>
+<pre><code class="shell">(local)(exp_venv)$ python3
+
+&gt;&gt;&gt; import requests
+&gt;&gt;&gt; resp = requests.get(&quot;http://&lt;ecs_ip&gt;:8000/v1/devices&quot;,json=&#123;&quot;id&quot;:&quot;7719024672&quot;&#125;)
+&gt;&gt;&gt; resp
+
+&gt;&gt;&gt; resp.status_code
+
+&gt;&gt;&gt; resp.text
+
+&gt;&gt;&gt; resp.json()
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84Python%E5%BE%AE%E6%9C%8D%E5%8A%A1%E9%95%9C%E5%83%8F%E6%9E%84%E5%BB%BA%E3%80%81%E9%83%A8%E7%BD%B2%E4%B8%8E%E6%8E%A5%E5%8F%A3%E8%AE%BF%E9%97%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-05%20184252.png" alt="屏幕截图 2024-11-05 184252"></p>
+<p>这一查询接口还支持另一种查询方式：以设备“序号SN-类型”的组合信息为基准进行设备查询。</p>
+<pre><code class="shell">&gt;&gt;&gt; resp = requests.get(&quot;http://&lt;ecs_ip&gt;:8000/v1/devices&quot;,json=&#123;&quot;sn&quot;:&quot;NDAKw&quot;,&quot;model&quot;:&quot;x86 PC&quot;&#125;)
+&gt;&gt;&gt; resp.status_code
+
+&gt;&gt;&gt; resp.json()
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84Python%E5%BE%AE%E6%9C%8D%E5%8A%A1%E9%95%9C%E5%83%8F%E6%9E%84%E5%BB%BA%E3%80%81%E9%83%A8%E7%BD%B2%E4%B8%8E%E6%8E%A5%E5%8F%A3%E8%AE%BF%E9%97%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-05%20190006.png" alt="屏幕截图 2024-11-05 190006"></p>
+<h5 id="体验“删除设备”接口"><a href="#体验“删除设备”接口" class="headerlink" title="体验“删除设备”接口"></a>体验“删除设备”接口</h5><p>删除接口的消息体是一个设备编号列表，微服务范例程序将根据客户端提交的“删除设备编号列表”进行删除操作，并将实际删除的设备编号列表返回。</p>
+<p>下面练习该接口访问。删除设备编号为<code>7719024672</code>，<code>6132632285</code>，<code>1234567890</code>的三台设备，其中最后一台设备并不存在。观察返回结果。</p>
+<pre><code class="shell">&gt;&gt;&gt; resp = requests.delete(&quot;http://&lt;ecs_ip&gt;:8000/v1/devices&quot;,json=&#123;&quot;ids&quot;:[&quot;7719024672&quot;,&quot;6132632285&quot;,&quot;1234567890&quot;]&#125;)
+&gt;&gt;&gt; resp.json()
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84Python%E5%BE%AE%E6%9C%8D%E5%8A%A1%E9%95%9C%E5%83%8F%E6%9E%84%E5%BB%BA%E3%80%81%E9%83%A8%E7%BD%B2%E4%B8%8E%E6%8E%A5%E5%8F%A3%E8%AE%BF%E9%97%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-05%20185558.png" alt="屏幕截图 2024-11-05 185558"></p>
+<p>此时登录ECS查看device.csv文件，设备编号为<code>7719024672</code>，<code>6132632285</code>的设备信息已被删除。</p>
+<pre><code class="shell">(ecs)$ cat exp_pyms_data/device.csv
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84Python%E5%BE%AE%E6%9C%8D%E5%8A%A1%E9%95%9C%E5%83%8F%E6%9E%84%E5%BB%BA%E3%80%81%E9%83%A8%E7%BD%B2%E4%B8%8E%E6%8E%A5%E5%8F%A3%E8%AE%BF%E9%97%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-05%20185650.png" alt="屏幕截图 2024-11-05 185650"></p>
+<h5 id="体验“添加设备”接口"><a href="#体验“添加设备”接口" class="headerlink" title="体验“添加设备”接口"></a>体验“添加设备”接口</h5><p>添加设备的接口输入参数与获取设备信息相比，只缺少了设备编号，即<code>id</code>字段。设备编号信息将在成功添加设备后由云端微服务范例程序生成。</p>
+<p>下面练习“添加设备”接口访问。</p>
+<pre><code class="shell">&gt;&gt;&gt; resp = requests.post(&quot;http://&lt;ecs_ip&gt;:8000/v1/devices&quot;,json=&#123;&quot;name&quot;: &quot;test-name&quot;,&quot;type&quot;: &quot;controller&quot;,&quot;hardware&quot;: &#123;&quot;model&quot;: &quot;test-model&quot;, &quot;sn&quot;: &quot;test-sn&quot;&#125;,&quot;software&quot;: &#123;&quot;version&quot;: &quot;0.1&quot;, &quot;last_update&quot;: &quot;2023-08-06 20:00:00&quot;&#125;,&quot;nic&quot;: [&#123;&quot;type&quot;: &quot;wifi&quot;,&quot;mac&quot;: &quot;12:34:56:78:9a:bc&quot;,&quot;ipv4&quot;: &quot;192.168.1.2&quot;&#125;],&quot;status&quot;: &quot;online&quot;&#125;)
+&gt;&gt;&gt; resp.json()
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84Python%E5%BE%AE%E6%9C%8D%E5%8A%A1%E9%95%9C%E5%83%8F%E6%9E%84%E5%BB%BA%E3%80%81%E9%83%A8%E7%BD%B2%E4%B8%8E%E6%8E%A5%E5%8F%A3%E8%AE%BF%E9%97%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-05%20191330.png" alt="屏幕截图 2024-11-05 191330"></p>
+<p>此时登录ECS查看<code>device.csv</code>，发现已增加了一条设备编号为<code>0366286629</code>的设备，其数据与刚才访问接口执行添加操作的数据一致。</p>
+<pre><code class="shell">(ecs)$ cat exp_pyms_data/device.csv
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84Python%E5%BE%AE%E6%9C%8D%E5%8A%A1%E9%95%9C%E5%83%8F%E6%9E%84%E5%BB%BA%E3%80%81%E9%83%A8%E7%BD%B2%E4%B8%8E%E6%8E%A5%E5%8F%A3%E8%AE%BF%E9%97%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-05%20191456.png" alt="屏幕截图 2024-11-05 191456"></p>
+<h5 id="体验“更新设备信息”接口"><a href="#体验“更新设备信息”接口" class="headerlink" title="体验“更新设备信息”接口"></a>体验“更新设备信息”接口</h5><p>微服务范例程序允许更新“设备名称、设备类型、设备硬件型号、设备硬件序号、软件版本、软件上次更新时间、设备状态信息”，在请求体中组织JSON形式的参数时，以上字段的JSON嵌套方式与“添加设备”接口的JSON规范一致。此外，调用“更新设备信息”接口要求必须指定设备编号，否则无法定位具体设备。</p>
+<p>下面练习“更新设备信息”接口。</p>
+<pre><code class="shell">&gt;&gt;&gt; resp = requests.put(&quot;http://&lt;ecs_ip&gt;:8000/v1/devices&quot;,json=&#123;&quot;id&quot;: &quot;1449204488&quot;,&quot;name&quot;: &quot;new-name&quot;,&quot;software&quot;: &#123;&quot;version&quot;: &quot;0.5&quot;, &quot;last_update&quot;: &quot;2023-08-06 10:00:00&quot;&#125;,&quot;status&quot;: &quot;offline&quot;&#125;)
+&gt;&gt;&gt; resp.json()
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84Python%E5%BE%AE%E6%9C%8D%E5%8A%A1%E9%95%9C%E5%83%8F%E6%9E%84%E5%BB%BA%E3%80%81%E9%83%A8%E7%BD%B2%E4%B8%8E%E6%8E%A5%E5%8F%A3%E8%AE%BF%E9%97%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-05%20192408.png" alt="屏幕截图 2024-11-05 192408"></p>
+<p>此时到ECS查看device.csv文件，数据已经成功修改：</p>
+<pre><code class="shell">(ecs)$ cat exp_pyms_data/device.csv
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91ECS%E4%B8%8EACR%E7%9A%84Python%E5%BE%AE%E6%9C%8D%E5%8A%A1%E9%95%9C%E5%83%8F%E6%9E%84%E5%BB%BA%E3%80%81%E9%83%A8%E7%BD%B2%E4%B8%8E%E6%8E%A5%E5%8F%A3%E8%AE%BF%E9%97%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-05%20192438.png" alt="屏幕截图 2024-11-05 192438"></p>
+
     </div>
     
     
