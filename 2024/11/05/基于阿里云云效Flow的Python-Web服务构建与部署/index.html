@@ -175,21 +175,21 @@
             
             <span class="tag">
                 
-                <a href="/tags/%E4%BA%91%E8%AE%A1%E7%AE%97/" style="color: #ffe4d6">
+                <a href="/tags/%E4%BA%91%E8%AE%A1%E7%AE%97/" style="color: #ffa2c4">
                     云计算
                 </a>
             </span>
             
             <span class="tag">
                 
-                <a href="/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" style="color: #00a596">
+                <a href="/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" style="color: #ff9e81">
                     云原生
                 </a>
             </span>
             
             <span class="tag">
                 
-                <a href="/tags/DevOps/" style="color: #ffe4d6">
+                <a href="/tags/DevOps/" style="color: #ffa2c4">
                     DevOps
                 </a>
             </span>
@@ -538,22 +538,83 @@ EXPOSE 8000
 # 容器启动时执行命令
 CMD [ &quot;python3&quot;, &quot;server.py&quot;]
 </code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Flow%E7%9A%84Python%20Web%E6%9C%8D%E5%8A%A1%E6%9E%84%E5%BB%BA%E4%B8%8E%E9%83%A8%E7%BD%B2/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-07%20211442.png" alt="屏幕截图 2024-11-07 211442"></p>
 <p>添加</p>
 <pre><code class="shell">(local)$ git add Dockerfile
-(local)$ git
-(local)$ git
-
-(local)$ git
+(local)$ git commit -m &quot;docs:Add Dockerfile&quot;
+(local)$ git push --set-upstream origin docker
+# 推送远程仓库分支origin/docker，没有则新建
+(local)$ la -F
 </code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Flow%E7%9A%84Python%20Web%E6%9C%8D%E5%8A%A1%E6%9E%84%E5%BB%BA%E4%B8%8E%E9%83%A8%E7%BD%B2/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-07%20195107.png" alt="屏幕截图 2024-11-07 195107"></p>
 <h5 id="配置云效Flow以支持ECS容器镜像部署"><a href="#配置云效Flow以支持ECS容器镜像部署" class="headerlink" title="配置云效Flow以支持ECS容器镜像部署"></a>配置云效Flow以支持ECS容器镜像部署</h5><p>基于之前配置的云效Flow流水线进行修改，以支持ECS容器镜像模式部署范例服务。</p>
 <p>在云效控制台页面选中之前配置的流水线，点击“编辑”按钮，进入流水线配置页面。其中“代码测试”阶段保持不变，其他三个阶段均需修改。</p>
 <ul>
 <li>配置阶段“流水线源”</li>
 </ul>
 <p>“默认分支”选择docker</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Flow%E7%9A%84Python%20Web%E6%9C%8D%E5%8A%A1%E6%9E%84%E5%BB%BA%E4%B8%8E%E9%83%A8%E7%BD%B2/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-07%20195217.png" alt="屏幕截图 2024-11-07 195217"></p>
 <ul>
 <li>配置阶段“镜像构建”</li>
 </ul>
+<p>将原“制品构建”阶段更名为“镜像构建”，首先新建“并行任务”用于构建镜像，随后再删除原有任务“Python构建上传到仓库”（否则若该阶段无任务，自身也会被自动删除）。</p>
+<p>新建“并行任务”时，在弹出页面中选择“镜像构建”，再选择“Python镜像构建”。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Flow%E7%9A%84Python%20Web%E6%9C%8D%E5%8A%A1%E6%9E%84%E5%BB%BA%E4%B8%8E%E9%83%A8%E7%BD%B2/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-07%20204252.png" alt="屏幕截图 2024-11-07 204252"></p>
+<p>随后配置任务“Python镜像构建”，在步骤“镜像构建并推送至ACR（个人版）”中：</p>
+<ol>
+<li>点击“添加服务连接”，创建新的服务连接，“使用范围”设为私密。</li>
+<li>选择“地域”。</li>
+<li>在ACR控制台新建仓库<code>exp_pyms_demo</code>，并绑定到此处。</li>
+<li>“标签”：<code>$&#123;DATETIME&#125;</code></li>
+<li>“Dockerfile路径”：默认为<code>Dockerfile</code>，即从仓库目录直接查找。</li>
+</ol>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Flow%E7%9A%84Python%20Web%E6%9C%8D%E5%8A%A1%E6%9E%84%E5%BB%BA%E4%B8%8E%E9%83%A8%E7%BD%B2/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-07%20203047.png" alt="屏幕截图 2024-11-07 203047"></p>
+<ul>
+<li>配置阶段“服务部署”</li>
+</ul>
+<p>首先新建“并行任务”用于容器部署，再删除任务“主机部署”。</p>
+<p>新建“并行任务”时，在弹出页面中选择“部署”，再选择“Docker部署”。</p>
+<p>在具体配置“Docker部署”任务之前，先点击页面顶部的“变量和缓存”，新建字符变量<code>ACR_LOGIN_PWD</code>，默认值为登录阿里云容器镜像服务ACR时所需密码，必须采用“私密模式”保存。该变量将用于后续任务配置中的“部署脚本”。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Flow%E7%9A%84Python%20Web%E6%9C%8D%E5%8A%A1%E6%9E%84%E5%BB%BA%E4%B8%8E%E9%83%A8%E7%BD%B2/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-07%20204647.png" alt="屏幕截图 2024-11-07 204647"></p>
+<p>回到“流程配置”页面，在“服务部署”阶段配置“Docker部署”任务：</p>
+<p>“主机组”选择之前所建主机组。</p>
+<p>“执行用户”保持默认。</p>
+<p>“部署脚本”定义如下，使用时请更换阿里云账号<code>username</code>以及地域<code>region</code>。</p>
+<pre><code class="shell">docker login --username=&lt;username&gt; --password=$&#123;ACR_LOGIN_PWD&#125; crpi-exr3j7gox2plovb8.cn-heyuan.personal.cr.aliyuncs.com
+
+docker rm -f exp_pyms_demo
+
+docker pull $&#123;CONTAINER_TAG&#125;
+docker run -d --restart=always --name exp_pyms_demo -p 8000:8000 $&#123;CONTAINER_TAG&#125;
+</code></pre>
+<p>点击“添加”新增变量，选择“上游任务 制品&#x2F;镜像 下载地址”，新增变量“<code>CONTAINER_TAG</code>”，变量值选择镜像公网地址。</p>
+<h5 id="运行流水线-1"><a href="#运行流水线-1" class="headerlink" title="运行流水线"></a>运行流水线</h5><p>点击“保存并运行”按钮，弹出对话框点击“运行”按钮，流水线即被触发，逐一执行阶段任务直至最终完成服务部署。</p>
+<p>由于始终报错，决定先将基础镜像拉取至ACR镜像仓库“：</p>
+<pre><code class="shell">(ecs)$ docker login --username=沙里院的雪 crpi-exr3j7gox2plovb8.cn-heyuan.personal.cr.aliyuncs.com
+(ecs)$ docker pull python:3.10-slim-buster
+(ecs)$ docker tag python:3.10-slim-buster crpi-exr3j7gox2plovb8.cn-heyuan.personal.cr.aliyuncs.com/whim111/exp_pyms_demo:1.0
+(ecs)$ docker push crpi-exr3j7gox2plovb8.cn-heyuan.personal.cr.aliyuncs.com/whim111/exp_pyms_demo:1.0
+</code></pre>
+<p>同时Dockerfile的开头也要修改：</p>
+<pre><code class="dockerfile"># 基于ACR中的Python基础镜像
+FROM crpi-exr3j7gox2plovb8.cn-heyuan.personal.cr.aliyuncs.com/whim111/exp_pyms_demo:1.0
+</code></pre>
+<p>这次Python镜像构建成功。但是Docker部署有报错：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Flow%E7%9A%84Python%20Web%E6%9C%8D%E5%8A%A1%E6%9E%84%E5%BB%BA%E4%B8%8E%E9%83%A8%E7%BD%B2/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-07%20223052.png" alt="屏幕截图 2024-11-07 223052"></p>
+<p>端口未释放的问题，重启ECS就解决了。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Flow%E7%9A%84Python%20Web%E6%9C%8D%E5%8A%A1%E6%9E%84%E5%BB%BA%E4%B8%8E%E9%83%A8%E7%BD%B2/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-07%20224809.png" alt="屏幕截图 2024-11-07 224809"></p>
+<p>运行完成后，在阿里云ECS上执行<code>docker images</code>与<code>docker ps</code>命令查看到生成的镜像和容器。此时用浏览器重新访问该服务，可见之前一样的页面输出。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Flow%E7%9A%84Python%20Web%E6%9C%8D%E5%8A%A1%E6%9E%84%E5%BB%BA%E4%B8%8E%E9%83%A8%E7%BD%B2/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-07%20224906.png" alt="屏幕截图 2024-11-07 224906"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Flow%E7%9A%84Python%20Web%E6%9C%8D%E5%8A%A1%E6%9E%84%E5%BB%BA%E4%B8%8E%E9%83%A8%E7%BD%B2/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-07%20224926.png" alt="屏幕截图 2024-11-07 224926"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Flow%E7%9A%84Python%20Web%E6%9C%8D%E5%8A%A1%E6%9E%84%E5%BB%BA%E4%B8%8E%E9%83%A8%E7%BD%B2/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-07%20225006.png" alt="屏幕截图 2024-11-07 225006"></p>
+<h5 id="修改代码文件，提交代码并触发流水线"><a href="#修改代码文件，提交代码并触发流水线" class="headerlink" title="修改代码文件，提交代码并触发流水线"></a>修改代码文件，提交代码并触发流水线</h5><p>在本地环境根据“代码测试”阶段“Python代码扫描”任务上次执行所提示的信息，修订server.py存在的格式问题后提交、推送。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Flow%E7%9A%84Python%20Web%E6%9C%8D%E5%8A%A1%E6%9E%84%E5%BB%BA%E4%B8%8E%E9%83%A8%E7%BD%B2/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-07%20212040.png" alt="屏幕截图 2024-11-07 212040"></p>
+<pre><code class="shell">(local)$ git commit -a -m &quot;style: Adjust format on server.py&quot;
+(local)$ git push origin docker
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Flow%E7%9A%84Python%20Web%E6%9C%8D%E5%8A%A1%E6%9E%84%E5%BB%BA%E4%B8%8E%E9%83%A8%E7%BD%B2/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-07%20225256.png" alt="屏幕截图 2024-11-07 225256"></p>
+<p>本次推送将再次自动触发流水线，可发现修订后的代码文件正常通过了代码扫描。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Flow%E7%9A%84Python%20Web%E6%9C%8D%E5%8A%A1%E6%9E%84%E5%BB%BA%E4%B8%8E%E9%83%A8%E7%BD%B2/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-07%20230131.png" alt="屏幕截图 2024-11-07 230131"></p>
 
     </div>
     
