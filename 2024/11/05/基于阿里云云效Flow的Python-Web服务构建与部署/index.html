@@ -167,10 +167,394 @@
         </span>
         
         
+        <span class="tags">
+            <span class="icon">
+                <i class="fa-solid fa-tags fa-fw"></i>
+            </span>
+            
+            
+            <span class="tag">
+                
+                <a href="/tags/%E4%BA%91%E8%AE%A1%E7%AE%97/" style="color: #ffe4d6">
+                    云计算
+                </a>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" style="color: #00a596">
+                    云原生
+                </a>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/tags/DevOps/" style="color: #ffe4d6">
+                    DevOps
+                </a>
+            </span>
+            
+        </span>
+        
     </div>
     
     <div class="content" v-pre>
-        
+        <h1 id="基于阿里云云效Flow的Python-Web服务构建与部署"><a href="#基于阿里云云效Flow的Python-Web服务构建与部署" class="headerlink" title="基于阿里云云效Flow的Python Web服务构建与部署"></a>基于阿里云云效Flow的Python Web服务构建与部署</h1><hr>
+<h2 id="基本要求"><a href="#基本要求" class="headerlink" title="基本要求"></a>基本要求</h2><ul>
+<li>理解并掌握Python虚拟环境的应用价值与管理操作</li>
+<li>掌握Docker命令与Dockerfile构建逻辑，能够基于Dockerfile创建容器镜像</li>
+<li>熟练掌握阿里云云服务器ECS、阿里云云效代码管理Codeup与流水线Flow，以及阿里云容器镜像服务ACR的相关配置与管理操作</li>
+<li>理解并掌握Python项目的多种部署方式，初步体验流水线的应用模式</li>
+</ul>
+<h2 id="实验过程"><a href="#实验过程" class="headerlink" title="实验过程"></a>实验过程</h2><h3 id="范例代码结构"><a href="#范例代码结构" class="headerlink" title="范例代码结构"></a>范例代码结构</h3><h3 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h3><h5 id="本地开发环境"><a href="#本地开发环境" class="headerlink" title="本地开发环境"></a>本地开发环境</h5><ul>
+<li>在本地环境安装Git与Python3（略）</li>
+<li>在本地环境安装Python第三方库</li>
+</ul>
+<h5 id="准备云服务器ECS（略）"><a href="#准备云服务器ECS（略）" class="headerlink" title="准备云服务器ECS（略）"></a>准备云服务器ECS（略）</h5><h5 id="在ECS安装Docker引擎（略）"><a href="#在ECS安装Docker引擎（略）" class="headerlink" title="在ECS安装Docker引擎（略）"></a>在ECS安装Docker引擎（略）</h5><h5 id="在ECS安装Python3"><a href="#在ECS安装Python3" class="headerlink" title="在ECS安装Python3"></a>在ECS安装Python3</h5><pre><code class="shell">(ecs)$ sudo apt install python3
+(ecs)$ sudo apt install python3-venv
+</code></pre>
+<p>![屏幕截图 2024-11-06 152716](<a target="_blank" rel="noopener" href="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Flow%E7%9A%84Python">https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/基于阿里云云效Flow的Python</a> Web服务构建与部署&#x2F;屏幕截图 2024-11-06 152716.png)</p>
+<p>![屏幕截图 2024-11-06 152835](<a target="_blank" rel="noopener" href="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Flow%E7%9A%84Python">https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/基于阿里云云效Flow的Python</a> Web服务构建与部署&#x2F;屏幕截图 2024-11-06 152835.png)</p>
+<h5 id="基于阿里云容器镜像服务ACR配置镜像仓库"><a href="#基于阿里云容器镜像服务ACR配置镜像仓库" class="headerlink" title="基于阿里云容器镜像服务ACR配置镜像仓库"></a>基于阿里云容器镜像服务ACR配置镜像仓库</h5><p>访问<a target="_blank" rel="noopener" href="https://www.aliyun.com/product/acr">容器镜像服务-阿里云</a>，点击“管理控制台”进入实例列表，创建使用个人实例。具体使用的镜像仓库将在后续配置Flow流水线时按需创建。</p>
+<h5 id="基于阿里云云效代码管理Codeup创建代码库"><a href="#基于阿里云云效代码管理Codeup创建代码库" class="headerlink" title="基于阿里云云效代码管理Codeup创建代码库"></a>基于阿里云云效代码管理Codeup创建代码库</h5><ul>
+<li>在Codeup新建远程仓库</li>
+</ul>
+<p>新建代码库<code>exp_pyms_demo</code>，注意勾选“创建.gitignore”，并选择Python模板。</p>
+<p>新建后，Codeup默认创建Master分支并提供推荐<code>.gitignore</code>文件。</p>
+<p>![屏幕截图 2024-11-06 154109](<a target="_blank" rel="noopener" href="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Flow%E7%9A%84Python">https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/基于阿里云云效Flow的Python</a> Web服务构建与部署&#x2F;屏幕截图 2024-11-06 154109.png)</p>
+<ul>
+<li>配置SSH访问Codeup远程仓库</li>
+</ul>
+<p>根据<a target="_blank" rel="noopener" href="https://help.aliyun.com/zh/yunxiao/user-guide/configure-ssh-key">如何配置SSH密钥及自定义SSH认证密钥的路径_云效(Apsara Devops)-阿里云帮助中心</a>，分别在本地环境与ECS服务器创建SSH公私钥，并在Codeup对应页面添加公钥，保证本地环境与ECS服务器均可基于SSH访问Codeup远程仓库。</p>
+<p>本地环境已有公钥可以直接使用。下面为ECS服务器添加公钥：</p>
+<ul>
+<li>在ECS安装Git</li>
+</ul>
+<pre><code class="shell">apt-get install git
+
+git config --global user.name &quot;&lt;用户名&gt;&quot;
+git config --global user.email &quot;&lt;邮箱&gt;&quot;
+</code></pre>
+<p>![屏幕截图 2024-11-06 172158](<a target="_blank" rel="noopener" href="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Flow%E7%9A%84Python">https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/基于阿里云云效Flow的Python</a> Web服务构建与部署&#x2F;屏幕截图 2024-11-06 172158.png)</p>
+<p>获取系统Git版本（需大于1.9）：</p>
+<pre><code class="shell">git --version
+</code></pre>
+<p>![屏幕截图 2024-11-06 172420](<a target="_blank" rel="noopener" href="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Flow%E7%9A%84Python">https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/基于阿里云云效Flow的Python</a> Web服务构建与部署&#x2F;屏幕截图 2024-11-06 172420.png)</p>
+<ul>
+<li>对于OpenSSH，ECS已经内置</li>
+<li>生成SSH密钥</li>
+</ul>
+<pre><code class="shell">ssh-keygen -t ed25519 -C &quot;&lt;注释内容&gt;&quot;
+</code></pre>
+<blockquote>
+<p>[!NOTE]</p>
+<p>如果没有添加注释的需求，<code>-C</code>及以后的内容可以不写。</p>
+</blockquote>
+<p><strong>选择生成路径</strong>，一般我们选择默认即可。默认路径如下：</p>
+<pre><code class="shell"># 以 ED25519 算法为例
+Generating public/private ed25519 key pair.
+Enter file in which to save the key (/home/user/.ssh/id_ed25519):
+</code></pre>
+<p>这里直接敲回车就可以。密钥默认生成路径：<code>/home/user/.ssh/id_ed25519</code>，公钥与之对应为：<code>/home/user/.ssh/id_ed25519.pub</code>。</p>
+<p><strong>设置密钥口令</strong>，口令默认为空。可以选择使用口令保护私钥文件。如果不想在每次使用 SSH 协议访问仓库时，都要输入用于保护私钥文件的口令，可以在创建密钥时，输入空口令。</p>
+<pre><code class="shell">Enter passphrase (empty for no passphrase):
+Enter same passphrase again:
+</code></pre>
+<p>保持空白，连续敲击两次回车就可以了。</p>
+<blockquote>
+<p>[!WARNING]</p>
+<p>密钥用于鉴权，请谨慎保管。公钥文件以 <code>.pub</code> 扩展名结尾，可以公开给其他人，而没有 <code>.pub</code> 扩展名的私钥文件不要泄露给任何人！</p>
+</blockquote>
+<ul>
+<li>拷贝公钥</li>
+</ul>
+<pre><code class="shell">xclip -sel clip &lt; ~/.ssh/id_ed25519.pub
+</code></pre>
+<blockquote>
+<p>[!NOTE]</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Flow%E7%9A%84Python%20Web%E6%9C%8D%E5%8A%A1%E6%9E%84%E5%BB%BA%E4%B8%8E%E9%83%A8%E7%BD%B2/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-07%20090531.png" alt="屏幕截图 2024-11-07 090531"></p>
+<p>错误信息 “Error: Can’t open display: (null)” 表明 <code>xclip</code> 命令无法找到可用的 X11 显示环境。这通常发生在你通过 SSH 连接到服务器并且没有启用 X11 转发的情况下。由于你是以 <code>root</code> 用户身份连接的，而且 <code>xclip</code> 需要访问图形界面，所以它无法在没有 X11 转发的情况下工作。</p>
+<p>可以直接查看<code>/root/.ssh/id_ed25519.pub</code>文件的内容。</p>
+<pre><code class="shell">cat /root/.ssh/id_ed25519.pub
+</code></pre>
+<p>执行这个命令后，文件的内容将被显示在终端中，可手动复制这些内容。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Flow%E7%9A%84Python%20Web%E6%9C%8D%E5%8A%A1%E6%9E%84%E5%BB%BA%E4%B8%8E%E9%83%A8%E7%BD%B2/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-07%20110826.png" alt="屏幕截图 2024-11-07 110826"></p>
+</blockquote>
+<ul>
+<li>在Codeup上设置公钥</li>
+</ul>
+<p>登录云效Codeup，在页面右上角选择个人设置-&gt;SSH公钥，添加生成的SSH公钥信息。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Flow%E7%9A%84Python%20Web%E6%9C%8D%E5%8A%A1%E6%9E%84%E5%BB%BA%E4%B8%8E%E9%83%A8%E7%BD%B2/%25E5%25B1%258F%25E5%25B9%2595%25E6%2588%25AA%25E5%259B%25BE%25202024-11-07%2520111956.png" alt="屏幕截图 2024-11-07 111956"></p>
+<h3 id="基于阿里云云服务器ECS直接部署范例服务"><a href="#基于阿里云云服务器ECS直接部署范例服务" class="headerlink" title="基于阿里云云服务器ECS直接部署范例服务"></a>基于阿里云云服务器ECS直接部署范例服务</h3><h5 id="获取范例服务包并解压"><a href="#获取范例服务包并解压" class="headerlink" title="获取范例服务包并解压"></a>获取范例服务包并解压</h5><ul>
+<li>将范例服务包上传ECS服务器</li>
+</ul>
+<p>参考<a target="_blank" rel="noopener" href="https://help.aliyun.com/zh/ecs/user-guide/use-winscp-to-upload-a-file-to-a-linux-instance?spm=a2c4g.11186623.0.i2">通过WinSCP上传本地文件到Linux系统的ECS或下载文件到本地-阿里云帮助中心</a>，把范例文件上传到ECS。</p>
+<p>下载并打开WinSCP，用<code>root</code>用户名登录，即可拖拽传输文件了：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Flow%E7%9A%84Python%20Web%E6%9C%8D%E5%8A%A1%E6%9E%84%E5%BB%BA%E4%B8%8E%E9%83%A8%E7%BD%B2/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-07%20143623.png" alt="屏幕截图 2024-11-07 143623"></p>
+<ul>
+<li>解压后获得<code>exp_pyws_demo</code>目录，以此作为工作目录进入。</li>
+</ul>
+<pre><code class="shell">(ecs)$ tar -xzvf exp_pyms_demo.tar.gz
+
+(ecs)$ cd exp_pyws_demo
+(ecs)(exp_pyws_demo)$ ls -F
+
+(ecs)(exp_pyws_demo)$
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Flow%E7%9A%84Python%20Web%E6%9C%8D%E5%8A%A1%E6%9E%84%E5%BB%BA%E4%B8%8E%E9%83%A8%E7%BD%B2/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-07%20144731.png" alt="屏幕截图 2024-11-07 144731"></p>
+<h5 id="在虚拟环境部署范例服务"><a href="#在虚拟环境部署范例服务" class="headerlink" title="在虚拟环境部署范例服务"></a>在虚拟环境部署范例服务</h5><p>创建Python虚拟环境<code>venv</code>并安装<code>requirements.txt</code>指定的相关依赖：</p>
+<pre><code class="shell">(ecs)(exp_pyws_demo)$ cat requirements.txt #查看所需依赖
+
+(ecs)(exp_pyws_demo)$ python3 -m venv exp_venv #完成后生成目录exp_venv
+(ecs)(exp_pyws_demo)$ source exp_venv/bin/activate #激活Python虚拟环境
+(ecs)(exp_pyws_demo)(exp_venv)$ pip3 install -r requirements.txt #安装所需依赖
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Flow%E7%9A%84Python%20Web%E6%9C%8D%E5%8A%A1%E6%9E%84%E5%BB%BA%E4%B8%8E%E9%83%A8%E7%BD%B2/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-07%20145632.png" alt="屏幕截图 2024-11-07 145632"></p>
+<p>启动Python Web服务：</p>
+<pre><code class="shell">(ecs)(exp_pyws_demo)(exp_venv)$ python3 server.py
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Flow%E7%9A%84Python%20Web%E6%9C%8D%E5%8A%A1%E6%9E%84%E5%BB%BA%E4%B8%8E%E9%83%A8%E7%BD%B2/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-07%20150452.png" alt="屏幕截图 2024-11-07 150452"></p>
+<p>使用浏览器访问<code>&lt;ECS IP&gt;:8000/</code>，查看服务页面输出。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Flow%E7%9A%84Python%20Web%E6%9C%8D%E5%8A%A1%E6%9E%84%E5%BB%BA%E4%B8%8E%E9%83%A8%E7%BD%B2/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-07%20150609.png" alt="屏幕截图 2024-11-07 150609"></p>
+<p>查看无误后，键入<code>Ctrl + C</code>停止服务：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Flow%E7%9A%84Python%20Web%E6%9C%8D%E5%8A%A1%E6%9E%84%E5%BB%BA%E4%B8%8E%E9%83%A8%E7%BD%B2/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-07%20150743.png" alt="屏幕截图 2024-11-07 150743"></p>
+<p>随后退出虚拟环境<code>venv</code>，删除虚拟目录。</p>
+<pre><code class="shell">(ecs)(exp_pyws_demo)(exp_venv)$ deactivate
+(ecs)(exp_pyws_demo)$ rm -r exp_venv
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Flow%E7%9A%84Python%20Web%E6%9C%8D%E5%8A%A1%E6%9E%84%E5%BB%BA%E4%B8%8E%E9%83%A8%E7%BD%B2/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-07%20150915.png" alt="屏幕截图 2024-11-07 150915"></p>
+<h5 id="以容器形式部署范例服务"><a href="#以容器形式部署范例服务" class="headerlink" title="以容器形式部署范例服务"></a>以容器形式部署范例服务</h5><p>在<code>exp_pyws_demo</code>目录下创建<code>Dockerfile</code>文件，将Python Web服务范例代码打包进容器镜像。</p>
+<pre><code class="dockerfile"># 基于Python最新基础镜像
+FROM python:3.10-slim-buster
+LABEL maintainer=&quot;&lt;邮箱&gt;&quot;
+
+# 工作目录
+WORKDIR /app
+
+# 安装Python库
+COPY requirements.txt requirements.txt
+RUN apt-get update &amp;&amp; apt-get install -y \
+    &amp;&amp; pip3 install -r requirements.txt
+
+# 清理apt软件包缓存
+RUN rm -rf /var/lib/apt/lists/*
+
+# 复制当前文件夹全部文件到镜像
+COPY . .
+
+# 暴露服务端口8000
+EXPOSE 8000
+
+# 容器启动时执行命令
+CMD [ &quot;python3&quot;, &quot;server.py&quot;]
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Flow%E7%9A%84Python%20Web%E6%9C%8D%E5%8A%A1%E6%9E%84%E5%BB%BA%E4%B8%8E%E9%83%A8%E7%BD%B2/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-07%20151920.png" alt="屏幕截图 2024-11-07 151920"></p>
+<p>使用<code>docker build</code>命令构建镜像，完成后通过<code>docker images</code>可查询。</p>
+<pre><code class="shell">(ecs)(exp_pyws_demo)$ docker build -t exp_pyms_demo .
+
+(ecs)(exp_pyws_demo)$ docker images
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Flow%E7%9A%84Python%20Web%E6%9C%8D%E5%8A%A1%E6%9E%84%E5%BB%BA%E4%B8%8E%E9%83%A8%E7%BD%B2/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-07%20155515.png" alt="屏幕截图 2024-11-07 155515"></p>
+<p>基于镜像<code>exp_pyms_demo</code>启动容器：</p>
+<pre><code class="shell">(ecs)$ docker run -d --restart=always --name exp_pyms_demo -p 8000:8000 exp_pyms_demo
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Flow%E7%9A%84Python%20Web%E6%9C%8D%E5%8A%A1%E6%9E%84%E5%BB%BA%E4%B8%8E%E9%83%A8%E7%BD%B2/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-07%20163540.png" alt="屏幕截图 2024-11-07 163540"></p>
+<p>浏览器访问<code>http://&lt;ECS IP&gt;:8000/</code>，查看服务页面输出。此外也可在ECS中使用<code>curl</code>命令访问ECS本地服务URL，观察输出已确认服务部署是否生效。</p>
+<pre><code class="shell">(ecs)$ curl http://127.0.0.1:8000
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Flow%E7%9A%84Python%20Web%E6%9C%8D%E5%8A%A1%E6%9E%84%E5%BB%BA%E4%B8%8E%E9%83%A8%E7%BD%B2/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-07%20163619.png" alt="屏幕截图 2024-11-07 163619"></p>
+<p>测试确认部署无误，关闭容器，删除容器与镜像。</p>
+<pre><code class="shell">(ecs)$ docker stop exp_pyms_demo #停止容器
+(ecs)$ docker rm exp_pyms_demo #删除容器
+(ecs)$ docker rmi exp_pyms_demo #删除镜像
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Flow%E7%9A%84Python%20Web%E6%9C%8D%E5%8A%A1%E6%9E%84%E5%BB%BA%E4%B8%8E%E9%83%A8%E7%BD%B2/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-07%20163717.png" alt="屏幕截图 2024-11-07 163717"></p>
+<h3 id="基于阿里云云效Flow在虚拟环境部署范例服务"><a href="#基于阿里云云效Flow在虚拟环境部署范例服务" class="headerlink" title="基于阿里云云效Flow在虚拟环境部署范例服务"></a>基于阿里云云效Flow在虚拟环境部署范例服务</h3><h5 id="配置Git仓库，创建分支venv"><a href="#配置Git仓库，创建分支venv" class="headerlink" title="配置Git仓库，创建分支venv"></a>配置Git仓库，创建分支venv</h5><p>将范例服务包下载到本地环境后，解压进入目录<code>exp_pyws_demo</code>，将该目录作为Git工作目录。此时查看目录，内容如下：</p>
+<pre><code class="shell">(local)$ ls -a -p
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Flow%E7%9A%84Python%20Web%E6%9C%8D%E5%8A%A1%E6%9E%84%E5%BB%BA%E4%B8%8E%E9%83%A8%E7%BD%B2/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-07%20164345.png" alt="屏幕截图 2024-11-07 164345"></p>
+<p>完成本地仓库初始化之后关联远程仓库。</p>
+<pre><code class="shell">(local)$ git init
+
+(local)$ git remote add origin git@codeup.aliyun.com:6705174d49e9309ce56b9e53/exp_pyms_demo.git
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Flow%E7%9A%84Python%20Web%E6%9C%8D%E5%8A%A1%E6%9E%84%E5%BB%BA%E4%B8%8E%E9%83%A8%E7%BD%B2/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-07%20164655.png" alt="屏幕截图 2024-11-07 164655"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Flow%E7%9A%84Python%20Web%E6%9C%8D%E5%8A%A1%E6%9E%84%E5%BB%BA%E4%B8%8E%E9%83%A8%E7%BD%B2/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-07%20164702.png" alt="屏幕截图 2024-11-07 164702"></p>
+<p>查看当前所在分支与工作目录文件状态。每次开工前，首先从远程仓库<code>git pull</code>。</p>
+<pre><code class="shell">(local)$ git pull origin master
+
+(local)$ ls -a -F 
+# Codeup远程仓库创建时生成了.gitignore，此时通过git pull已经下载到本地
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Flow%E7%9A%84Python%20Web%E6%9C%8D%E5%8A%A1%E6%9E%84%E5%BB%BA%E4%B8%8E%E9%83%A8%E7%BD%B2/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-07%20170641.png" alt="屏幕截图 2024-11-07 170641"></p>
+<p>通过<code>git status</code>观察工作目录文件状态，随后全部纳入跟踪且暂存，再提交。</p>
+<pre><code class="shell">(local)$ git status
+
+(local)$ git add .
+# 将本地目录全部文件纳入跟踪
+(local)$ git commit -m &quot;init&quot;
+# 进行本地初始化提交
+(local)$ git push -u origin master
+# 推送至远程仓库master分支
+(local)$ git checkout -b venv
+# 创建venv分支并切换
+(local)$ git push --set-upstream origin venv
+# 创建远程仓库，与本地仓库关联
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Flow%E7%9A%84Python%20Web%E6%9C%8D%E5%8A%A1%E6%9E%84%E5%BB%BA%E4%B8%8E%E9%83%A8%E7%BD%B2/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-07%20170827.png" alt="屏幕截图 2024-11-07 170827"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Flow%E7%9A%84Python%20Web%E6%9C%8D%E5%8A%A1%E6%9E%84%E5%BB%BA%E4%B8%8E%E9%83%A8%E7%BD%B2/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-07%20170835.png" alt="屏幕截图 2024-11-07 170835"></p>
+<h5 id="配置云效Flow以支持ECS虚拟环境部署"><a href="#配置云效Flow以支持ECS虚拟环境部署" class="headerlink" title="配置云效Flow以支持ECS虚拟环境部署"></a>配置云效Flow以支持ECS虚拟环境部署</h5><ul>
+<li><strong>根据模板创建流水线</strong></li>
+</ul>
+<p>在云效流水线Flow系统新建流水线，选择云效预置模板“Python·测试、构建、部署到阿里云ECS&#x2F;自有主机”，将测试、构建、部署三个阶段命名分别改为代码测试、制品构建、服务部署。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Flow%E7%9A%84Python%20Web%E6%9C%8D%E5%8A%A1%E6%9E%84%E5%BB%BA%E4%B8%8E%E9%83%A8%E7%BD%B2/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-07%20171351.png" alt="屏幕截图 2024-11-07 171351"></p>
+<ul>
+<li><strong>配置阶段“流水线源”</strong></li>
+</ul>
+<p>点击“添加流水线源”，在“代码源”页面中：</p>
+<ol>
+<li>“选择代码源”选择<code>Codeup</code></li>
+<li>“代码仓库”选择<code>exp_pyms_demo</code></li>
+<li>“默认分支”选择<code>venv</code></li>
+<li>“触发事件”选择<code>代码提交</code></li>
+<li>“工作目录”设为<code>exp_pyms_demo</code></li>
+</ol>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Flow%E7%9A%84Python%20Web%E6%9C%8D%E5%8A%A1%E6%9E%84%E5%BB%BA%E4%B8%8E%E9%83%A8%E7%BD%B2/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-07%20171939.png" alt="屏幕截图 2024-11-07 171939"></p>
+<ul>
+<li><strong>配置阶段“代码测试”</strong></li>
+</ul>
+<p>本阶段模板设置有“Python单元测试”与“Python代码扫描”两个任务。我们暂不考虑单元测试，删除“Python单元测试”任务。而“Python代码扫描”任务保持模板默认配置即可。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Flow%E7%9A%84Python%20Web%E6%9C%8D%E5%8A%A1%E6%9E%84%E5%BB%BA%E4%B8%8E%E9%83%A8%E7%BD%B2/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-07%20172216.png" alt="屏幕截图 2024-11-07 172216"></p>
+<ul>
+<li><strong>配置阶段“制品构建”</strong></li>
+</ul>
+<p>本阶段模板设置有一个任务“Python构建上传到仓库”，包含“Python构建”与“构建物上传”两步骤。我们无需对Python脚本进行特殊构建，只需使用默认设置将代码制品打包上传至阿里云提供的“云效公共存储空间”即可。</p>
+<ul>
+<li><strong>配置阶段“服务部署”</strong></li>
+</ul>
+<p>本阶段模板有一个任务“主机部署”，其中：</p>
+<ul>
+<li><p>“制品”选择上一步“构建物上传”步骤设定的制品名称<code>Artifacts_$&#123;PIPELINE_ID&#125;</code></p>
+</li>
+<li><p>“主机组”</p>
+</li>
+</ul>
+<p>首次使用时，需要点击“新建主机组”，弹出界面中选择“新建主机组”下方的“新建主机组-阿里云ECS标签”。</p>
+<p>“服务连接”点击“添加服务连接”创建新的服务连接，进行部署授权。</p>
+<p>如果没有服务连接，需要新建，并提供服务授权：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Flow%E7%9A%84Python%20Web%E6%9C%8D%E5%8A%A1%E6%9E%84%E5%BB%BA%E4%B8%8E%E9%83%A8%E7%BD%B2/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-07%20174023.png" alt="屏幕截图 2024-11-07 174023"></p>
+<p>“地域”选择自己名下的ECS服务器所在地域。</p>
+<p>“ECS标签键”，“ECS标签值”依次选择即可。</p>
+<blockquote>
+<p>[!NOTE]</p>
+<p>需要先设置ECS服务器的标签：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Flow%E7%9A%84Python%20Web%E6%9C%8D%E5%8A%A1%E6%9E%84%E5%BB%BA%E4%B8%8E%E9%83%A8%E7%BD%B2/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-07%20180145.png" alt="屏幕截图 2024-11-07 180145"></p>
+</blockquote>
+<ul>
+<li>“部署配置”</li>
+</ul>
+<p>“下载路径”保持默认。</p>
+<p>“执行用户”保持默认。</p>
+<p>“部署脚本”定义如下：</p>
+<pre><code class="shell"># 清理上一次部署时的运行环境
+pkill python3
+rm -rf ~/exp_pyms_demo
+# 解压代码到指定运行目录
+mkdir ~/exp_pyms_demo
+tar -xvzf /home/admin/app/package.tgz -C ~/exp_pyms_demo
+# 此处路径必须与“部署配置-&gt;下载路径”一致
+cd ~/exp_pyms_demo
+
+# 建立Python虚拟环境并安装依赖
+python3 -m venv exp_venv
+source exp_venv/bin/activate
+pip3 install -r requirements.txt
+
+# 运行Web服务
+nohup python3 server.py &gt; /dev/null 2&gt;&amp;1 &amp;
+# nohup：no hang up，程序输出重定向到nohup.out，终端退出不会影响运行
+# &gt; /dev/null：将server.py的日志输出重定向到/dev/null而非标注输出stdout
+# 2&gt;&amp;1:2为stderr，&gt;&amp;为重定向，将标准错误出重定向到标准输出
+# &amp;：让程序在后台执行，不会被CTRL+C触发的SIGINT中断，终端退出不会影响运行
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Flow%E7%9A%84Python%20Web%E6%9C%8D%E5%8A%A1%E6%9E%84%E5%BB%BA%E4%B8%8E%E9%83%A8%E7%BD%B2/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-07%20184104.png" alt="屏幕截图 2024-11-07 184104"></p>
+<h5 id="运行流水线"><a href="#运行流水线" class="headerlink" title="运行流水线"></a>运行流水线</h5><p>点击“保存并运行”按钮，弹出对话框中点击“运行”按钮，流水线即被触发，逐一执行阶段任务直至最终完成服务部署。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Flow%E7%9A%84Python%20Web%E6%9C%8D%E5%8A%A1%E6%9E%84%E5%BB%BA%E4%B8%8E%E9%83%A8%E7%BD%B2/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-07%20184447.png" alt="屏幕截图 2024-11-07 184447"></p>
+<p>此时阿里云ECS已经基于容器启动了Python Web服务，通过<code>curl</code>命令可测试服务接口是否可访问。</p>
+<pre><code class="shell">(ecs)$ curl http://127.0.0.1:8000
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Flow%E7%9A%84Python%20Web%E6%9C%8D%E5%8A%A1%E6%9E%84%E5%BB%BA%E4%B8%8E%E9%83%A8%E7%BD%B2/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-07%20184726.png" alt="屏幕截图 2024-11-07 184726"></p>
+<p>也可选择某台能访问ECS IP的终端设备，使用浏览器访问<code>&lt;ECS IP&gt;:8000/</code>，可查看服务页面输出。</p>
+<h5 id="修改设备文件，提交代码并触发流水线"><a href="#修改设备文件，提交代码并触发流水线" class="headerlink" title="修改设备文件，提交代码并触发流水线"></a>修改设备文件，提交代码并触发流水线</h5><p>在本地环境修改<code>devices.csv</code>，添加一条设备信息，保存退出。</p>
+<pre><code class="shell">(local)$ vim devices.csv
+7097988787878778888,device4,client,PC,00003,10,2023-08-01 00:00:00,WiFi,00:00:00:00:00:15,156.123.2.13,alive
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Flow%E7%9A%84Python%20Web%E6%9C%8D%E5%8A%A1%E6%9E%84%E5%BB%BA%E4%B8%8E%E9%83%A8%E7%BD%B2/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-07%20191657.png" alt="屏幕截图 2024-11-07 191657"></p>
+<p>直接提交并推送远程仓库并触发流水线执行。</p>
+<pre><code class="shell">(local)$ git commit -a -m &quot;docs:Add a device info in devices.csv&quot;
+
+(local)$ git push origin venv
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Flow%E7%9A%84Python%20Web%E6%9C%8D%E5%8A%A1%E6%9E%84%E5%BB%BA%E4%B8%8E%E9%83%A8%E7%BD%B2/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-07%20192018.png" alt="屏幕截图 2024-11-07 192018"></p>
+<p>可见流水线已经自动执行一次：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Flow%E7%9A%84Python%20Web%E6%9C%8D%E5%8A%A1%E6%9E%84%E5%BB%BA%E4%B8%8E%E9%83%A8%E7%BD%B2/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-07%20192105.png" alt="屏幕截图 2024-11-07 192105"></p>
+<p>流水线自动执行完毕后，使用浏览器重新访问该服务，可发现设备信息表多出一行，更新成功。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Flow%E7%9A%84Python%20Web%E6%9C%8D%E5%8A%A1%E6%9E%84%E5%BB%BA%E4%B8%8E%E9%83%A8%E7%BD%B2/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-07%20192205.png" alt="屏幕截图 2024-11-07 192205"></p>
+<h5 id="完成测试后关闭范例服务"><a href="#完成测试后关闭范例服务" class="headerlink" title="完成测试后关闭范例服务"></a>完成测试后关闭范例服务</h5><pre><code class="shell">(ecs)$ ps aux|grep server.py
+
+(ecs)$ kill 4981 #&lt;PID&gt;
+(ecs)$ ps aux|grep server.py
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Flow%E7%9A%84Python%20Web%E6%9C%8D%E5%8A%A1%E6%9E%84%E5%BB%BA%E4%B8%8E%E9%83%A8%E7%BD%B2/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-07%20192529.png" alt="屏幕截图 2024-11-07 192529"></p>
+<h3 id="基于阿里云云效Flow以容器形式部署范例服务"><a href="#基于阿里云云效Flow以容器形式部署范例服务" class="headerlink" title="基于阿里云云效Flow以容器形式部署范例服务"></a>基于阿里云云效Flow以容器形式部署范例服务</h3><h5 id="配置Git仓库，创建分支docker"><a href="#配置Git仓库，创建分支docker" class="headerlink" title="配置Git仓库，创建分支docker"></a>配置Git仓库，创建分支docker</h5><p>在本地环境从当前<code>venv</code>分支中创建检出<code>docker</code>分支。</p>
+<pre><code class="shell">(local)$ git checkout -b docker
+# 基于分支venv检出分支docker
+
+(local)$ git branch
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E4%BA%91%E6%95%88Flow%E7%9A%84Python%20Web%E6%9C%8D%E5%8A%A1%E6%9E%84%E5%BB%BA%E4%B8%8E%E9%83%A8%E7%BD%B2/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-07%20192904.png" alt="屏幕截图 2024-11-07 192904"></p>
+<p>准备Dockerfile文件，用于在流水线中制作承载范例服务的Docker镜像。</p>
+<pre><code class="dockerfile"># 基于Python最新基础镜像
+FROM python:3.10-slim-buster
+LABEL maintainer=&quot;&lt;邮箱&gt;&quot;
+
+# 工作目录
+WORKDIR /app
+
+# 安装Python库
+COPY requirements.txt requirements.txt
+RUN apt-get update &amp;&amp; apt-get install -y \
+    &amp;&amp; pip3 install -r requirements.txt
+
+# 清理apt软件包缓存
+RUN rm -rf /var/lib/apt/lists/*
+
+# 复制当前文件夹全部文件到镜像
+COPY . .
+
+# 暴露服务端口8000
+EXPOSE 8000
+
+# 容器启动时执行命令
+CMD [ &quot;python3&quot;, &quot;server.py&quot;]
+</code></pre>
+<p>添加</p>
+<pre><code class="shell">(local)$ git add Dockerfile
+(local)$ git
+(local)$ git
+
+(local)$ git
+</code></pre>
+<h5 id="配置云效Flow以支持ECS容器镜像部署"><a href="#配置云效Flow以支持ECS容器镜像部署" class="headerlink" title="配置云效Flow以支持ECS容器镜像部署"></a>配置云效Flow以支持ECS容器镜像部署</h5><p>基于之前配置的云效Flow流水线进行修改，以支持ECS容器镜像模式部署范例服务。</p>
+<p>在云效控制台页面选中之前配置的流水线，点击“编辑”按钮，进入流水线配置页面。其中“代码测试”阶段保持不变，其他三个阶段均需修改。</p>
+<ul>
+<li>配置阶段“流水线源”</li>
+</ul>
+<p>“默认分支”选择docker</p>
+<ul>
+<li>配置阶段“镜像构建”</li>
+</ul>
+
     </div>
     
     
