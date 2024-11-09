@@ -167,10 +167,474 @@
         </span>
         
         
+        <span class="tags">
+            <span class="icon">
+                <i class="fa-solid fa-tags fa-fw"></i>
+            </span>
+            
+            
+            <span class="tag">
+                
+                <a href="/tags/SpringBoot/" style="color: #ff7d73">
+                    SpringBoot
+                </a>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/tags/DevOps/" style="color: #ff9e81">
+                    DevOps
+                </a>
+            </span>
+            
+        </span>
+        
     </div>
     
     <div class="content" v-pre>
-        
+        <h1 id="基于Maven的包依赖管理与仓库配置"><a href="#基于Maven的包依赖管理与仓库配置" class="headerlink" title="基于Maven的包依赖管理与仓库配置"></a>基于Maven的包依赖管理与仓库配置</h1><hr>
+<h2 id="基本要求"><a href="#基本要求" class="headerlink" title="基本要求"></a>基本要求</h2><ul>
+<li>理解并掌握Maven项目的依赖管理机制</li>
+<li>熟悉Maven安装过程及Maven仓库配置方式</li>
+<li>掌握通过Maven构建工具来管理项目的第三方依赖</li>
+</ul>
+<h2 id="实验原理"><a href="#实验原理" class="headerlink" title="实验原理"></a>实验原理</h2><h3 id="Maven基本命令"><a href="#Maven基本命令" class="headerlink" title="Maven基本命令"></a>Maven基本命令</h3><p>Maven 运行命令格式如下：</p>
+<pre><code class="shell">mvn [options] [&lt;goal(s)&gt;] [&lt;phase(s)&gt;]
+</code></pre>
+<p>使用 <code>mvn -h</code> 可以查看到 Maven 所有可用选项。Maven 三个标准生命周期常用的阶段包括：</p>
+<ul>
+<li><strong>clean</strong> - <code>clean</code></li>
+<li><strong>default</strong> - <code>validate, compile, test, package, verify, install, deploy</code></li>
+<li><strong>site</strong> - <code>site, site-deploy</code></li>
+</ul>
+<p>例如，打包项目、生成所有文档站点信息并将其部署至仓库的命令为：</p>
+<pre><code class="shell">mvn clean deploy site-deploy
+</code></pre>
+<p>常用 JAR 打包命令为：</p>
+<pre><code class="shell">mvn clean package -Dmaven.test.skip=true
+-- 跳过测试打包
+mvn clean install -Dmaven.test.skip=true
+-- 跳过测试打包，并把打好的包上传到本地仓库
+mvn clean deploy -Dmaven.test.skip=true
+-- 跳过测试打包，并把打好的包上传到远程仓库
+</code></pre>
+<p>Maven 是一款项目管理工具，通过 POM（Project Object Model）文件来定义项目的结构、依赖和构建过程。下面需要应用其两个方面的内容：</p>
+<ol>
+<li>包依赖管理：Maven使用POM文件中的<dependencies>元素来管理项目的依赖关系。通过配置依赖项，Maven能够自动下载并集成项目所需的第三方库。</li>
+<li>仓库配置：Maven仓库是用来存储和管理构建过程中所需库文件的地方。下面将学习如何配置Maven仓库，以便Maven能正确下载项目所需依赖。</li>
+</ol>
+<h3 id="Maven-Archetype"><a href="#Maven-Archetype" class="headerlink" title="Maven  Archetype"></a>Maven  Archetype</h3><p>Archetype 是 Maven 工程的模板工具包，定义了要做的一类项目的基本模型或架构。通过 <code>mvn archetype:generate</code> 命令，开发人员可以很方便地将一类项目的最佳实践应用到自己的项目中。在 Maven 项目中，开发者可以通过 archetype 提供的范例快速入门并了解该项目的结构与特点。一些常见的 Archetype 如下：</p>
+<ul>
+<li><strong>maven-archetype-quickstart</strong>：默认的 archetype，Maven 工程项目的样例原型；</li>
+<li><strong>maven-archetype-j2ee-simple</strong>：简单的 J2EE 应用程序样例；</li>
+<li><strong>maven-archetype-mojo</strong>：Maven 插件项目的示例样例；</li>
+<li><strong>maven-archetype-webapp</strong>：Maven 的 Webapp 工程样例。</li>
+</ul>
+<p><code>mvn archetype:generate</code> 命令执行示例如下：</p>
+<p>bash</p>
+<pre><code class="shell">$ mvn archetype:generate \
+  -DgroupId=cc.synx \
+  -DartifactId=my-project \
+  -DarchetypeArtifactId=maven-archetype-quickstart \
+  -DinteractiveMode=false
+</code></pre>
+<p>值得一提的是，与 Spring Boot 项目框架最相近的 Archetype 是 <code>maven-archetype-webapp</code>，Spring Initializr（<a target="_blank" rel="noopener" href="https://start.spring.io/%EF%BC%89%E6%89%A7%E8%A1%8C%E4%B8%8E">https://start.spring.io/）执行与</a> Archetype 相同的操作，而且对用户更加友好，因此推荐直接使用 Spring Initializr 来创建 SpringBoot 工程。</p>
+<h3 id="Settings-xml"><a href="#Settings-xml" class="headerlink" title="Settings.xml"></a>Settings.xml</h3><p><code>settings.xml</code> 文件是 Maven 的配置文件之一，它用于配置 Maven 的全局设置，包括仓库、代理、镜像、插件等。这个文件位于 Maven 的安装目录下的 <code>conf</code> 文件夹中，或者在用户的 Maven 主目录下的 <code>.m2</code> 文件夹中。该文件是可选的，如果用户没有在 Maven 中指定该文件的位置，Maven 会使用默认的设置。以下是 <code>settings.xml</code> 中一些常见配置选项：</p>
+<ul>
+<li><code>&lt;localRepository/&gt;</code>：指定本地仓库的路径。默认情况下，Maven 会在用户主目录下的 <code>.m2</code> 文件夹中创建一个 <code>repository</code> 文件夹来存储下载的依赖。</li>
+<li><code>&lt;mirrors/&gt;</code>：用于配置镜像，可以提高构建速度并减轻官方仓库的负载。镜像可以指向其他 Maven 仓库，以加速依赖下载。</li>
+<li><code>&lt;proxies/&gt;</code>：用于配置代理，网络环境需要使用代理来连接 Maven 中央仓库或其他远程仓库时，可以在这里配置代理信息。</li>
+<li><code>&lt;profiles/&gt;</code>：定义一系列的配置文件激活条件，比如根据环境、操作系统等条件来加载不同的配置文件。</li>
+<li><code>&lt;servers/&gt;</code>：用于配置远程仓库的身份验证信息，包括用户名、密码等。这些信息在访问受保护的仓库时需要用到。</li>
+</ul>
+<h3 id="Maven私有仓库"><a href="#Maven私有仓库" class="headerlink" title="Maven私有仓库"></a>Maven私有仓库</h3><h5 id="软件组件"><a href="#软件组件" class="headerlink" title="软件组件"></a>软件组件</h5><p>在软件工程中，“软件组件”通常指的是构成软件系统的独立且可重用的模块或部分。这些组件可以是库、框架、模块、插件等，用于实现特定的功能或服务。</p>
+<ul>
+<li><strong>库（Library）</strong>：一个库是一组已经编写好并被打包成可重用形式的代码，提供一组特定的功能。开发者可以在其应用程序中使用这些库，而不必重新实现相同的功能。</li>
+<li><strong>框架（Framework）</strong>：框架是一个更大范围的组件，通常包含一组库、工具和指导，用于帮助开发者构建特定类型的应用程序。框架提供了应用程序的基本结构，开发者通过扩展或配置框架来实现具体的业务逻辑。</li>
+<li><strong>模块（Module）</strong>：模块是软件系统中的一个独立单元，具有特定的功能。模块可以包含代码、数据、配置等，并且通常设计为可独立开发和测试的单元。</li>
+<li><strong>插件（Plugin）</strong>：插件是一种可动态加载到应用程序中以扩展其功能的组件。插件通常是独立开发的，可以根据需要添加到主应用程序中。</li>
+</ul>
+<h5 id="Maven仓库管理工具"><a href="#Maven仓库管理工具" class="headerlink" title="Maven仓库管理工具"></a>Maven仓库管理工具</h5><p>Maven 仓库管理工具主要用于管理 Maven 仓库中的各种构件（如 JAR 文件、WAR 文件等）和元数据。以下是一些常见的 Maven 仓库管理工具：</p>
+<ul>
+<li><strong>Nexus Repository Manager</strong>：Nexus 是一个由 Sonatype 提供的强大的仓库管理和仓库代理工具。它支持 Maven、Docker、npm、NuGet 等多种仓库格式。Nexus 有开源版本（Nexus Repository OSS）和专业版（Nexus Repository Pro）。截至2024年1月，Nexus 运行环境仅支持 JDK 8。</li>
+<li><strong>JFrog Artifactory</strong>：Artifactory 是由 JFrog 提供的仓库管理工具，支持 Maven、Gradle、Ivy、Docker、npm、NuGet 等多种仓库格式。Artifactory 有开源版（Artifactory OSS）和付费版本（Artifactory Pro、Artifactory Enterprise）。</li>
+<li><strong>Apache Archiva</strong>：Archiva 是 Apache 基金会提供的开源 Maven 仓库管理工具。它支持 Maven 仓库的基本功能，适用于小型项目和团队。</li>
+<li><strong>JitPack</strong>：JitPack 是一个基于 Git 的仓库管理服务，它可以将 GitHub 上的项目直接转换为 Maven 仓库。你可以通过 JitPack 将 GitHub 项目发布到 Maven 仓库，以便其他项目可以依赖这些构建产物。</li>
+</ul>
+<h5 id="Sonatype-Nexus"><a href="#Sonatype-Nexus" class="headerlink" title="Sonatype  Nexus"></a>Sonatype  Nexus</h5><p>Sonatype Nexus 是一个用于管理和组织软件构件（例如 JAR 包、WAR 包等）的开源仓库管理系统。它是一个用于构建、部署和管理软件组件的仓库管理器，主要用于帮助团队有效地共享和管理软件构件。Sonatype Nexus 中的一些常见术语包括：</p>
+<ul>
+<li><strong>Repository（仓库）</strong>：仓库是 Nexus 存储软件构件的地方。Nexus 支持多种类型的仓库，包括 Maven、npm、NuGet、Docker 等。</li>
+<li><strong>Proxy Repository（代理仓库）</strong>：代理仓库是一个与远程仓库关联的本地缓存。当从远程仓库下载构件时，代理仓库会缓存这些构件，以便在将来的构建中快速访问。</li>
+<li><strong>Group Repository（组合仓库）</strong>：组合仓库允许将多个仓库组合在一起，并将它们看作一个单独的仓库。这使得在构建中引用多个仓库变得更加简单，同时也提供了对不同类型的仓库的统一访问。</li>
+<li><strong>Lifecycle Management（生命周期管理）</strong>：Nexus 提供了丰富的生命周期管理功能，包括对构件的版本控制、审计、发布、存储等管理。</li>
+</ul>
+<h3 id="雪花算法"><a href="#雪花算法" class="headerlink" title="雪花算法"></a>雪花算法</h3><p>雪花算法（Snowflake Algorithm）是由 Twitter 开源的 64 位分布式 ID 生成算法。雪花算法的名称来源于其生成的唯一标识的形状，看起来像雪花的晶体结构。雪花算法的核心思想是利用一个 64 位的整数，其中包含了时间戳、数据中心的标识、机器的标识和一些序列号，以保证在分布式系统中生成的每个 ID 都是唯一的。</p>
+<ul>
+<li><strong>符号位</strong>：1 位，通常为 0。</li>
+<li><strong>时间戳</strong>：41 位，毫秒级时间戳，通过时间戳来保证 ID 的递增性。</li>
+<li><strong>机器 ID</strong>：10 位，存储机器码，5 位 Data Center ID + 5 位 Worker ID，最多可标识集群内 1024 台机器。</li>
+<li><strong>序列号</strong>：12 位，单台机器每毫秒可生成的 ID 数。当同一毫秒内生成的 ID 数量超过了 4096，会等待下一毫秒再生成。</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8EMaven%E7%9A%84%E5%8C%85%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86%E4%B8%8E%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-08%20153903.png" alt="屏幕截图 2024-11-08 153903"></p>
+<p>雪花算法的优点是简单且高效，能在分布式环境中生成唯一ID。然而，其依赖于系统时钟，如果系统时钟不稳定或发生回拨，可能会导致ID生成重复或不连续。实际应用时需根据系统特点和需求选择合适的ID生成算法。</p>
+<h2 id="实验过程"><a href="#实验过程" class="headerlink" title="实验过程"></a>实验过程</h2><h3 id="Maven安装"><a href="#Maven安装" class="headerlink" title="Maven安装"></a>Maven安装</h3><h5 id="JDK17下载安装"><a href="#JDK17下载安装" class="headerlink" title="JDK17下载安装"></a>JDK17下载安装</h5><p>Maven 编译运行离不开 JDK，在安装 Apache Maven 之前，需要先在系统中安装 JDK，并设置 java 环境变量。Maven 3.9+ 需要 JDK 8 及以上版本支持，本节介绍在 Ubuntu 22.04 LTS 上安装 JDK 17。</p>
+<ul>
+<li>在 Oracle 官网或使用 wget 在当前目录获取 <code>jdk-17_linux-x64_bin.tar.gz</code> 压缩包，解压后移至 <code>/usr/local/</code> 文件夹下。</li>
+</ul>
+<pre><code class="bash">$ wget https://download.oracle.com/java/17/latest/jdk-17_linux-x64_bin.tar.gz
+
+$ ls
+
+$ sudo tar zxvf jdk-17_linux-x64_bin.tar.gz
+
+$ ls
+
+$ sudo mv jdk-17.0.10/ /usr/local/jdk-17
+$ cd /usr/local
+$ ls
+</code></pre>
+<ul>
+<li>在配置文件 <code>/etc/profile</code> 中配置环境变量 <code>JAVA_HOME</code>、<code>CLASSPATH</code>。配置完成后执行 <code>java -version</code> 查看是否正确安装了 Java。</li>
+</ul>
+<p><code>JAVA_HOME</code>: JAVA 的安装目录，配置后可通过 <code>$JAVA_HOME</code> 直接获取；</p>
+<p><code>CLASSPATH</code>: 告知 JVM 在哪些目录下可以找到 JAVA 执行程序所需要的类或者包，供类加载时使用。</p>
+<pre><code class="shell">$ sudo echo &quot;export JAVA_HOME=/usr/local/jdk-17&quot; &gt;&gt; /etc/profile
+$ sudo echo &quot;export PATH=\$PATH:\$JAVA_HOME/bin&quot; &gt;&gt; /etc/profile
+$ sudo echo &quot;export CLASSPATH=.:\$JAVA_HOME/lib&quot; &gt;&gt; /etc/profile
+$ source /etc/profile  # 使配置文件生效
+$ java -version
+java version &quot;17.0.10&quot; 2024-01-16 LTS
+Java(TM) SE Runtime Environment (build 17.0.10+11-LTS-240)
+Java HotSpot(TM) 64-Bit Server VM (build 17.0.10+11-LTS-240, mixed mode, sharing)
+</code></pre>
+<h5 id="Maven下载安装"><a href="#Maven下载安装" class="headerlink" title="Maven下载安装"></a>Maven下载安装</h5><p>Maven 下载网址：<a target="_blank" rel="noopener" href="https://maven.apache.org/download.cgi">https://maven.apache.org/download.cgi</a></p>
+<ul>
+<li>在终端输入 <code>mvn -v</code> 查看本地是否已存在 Maven，若 Maven 已安装，该命令会输出 Maven 版本号。在 Maven 官网或使用 wget 在当前目录下载最新版本的 Maven 压缩包，解压后移至 <code>/usr/local/</code> 文件夹下。</li>
+</ul>
+<pre><code class="shell">$ mvn -v
+
+$ wget https://dlcdn.apache.org/maven/maven-3/3.9.6/binaries/apache-maven-3.9.6-bin.tar.gz
+
+$ sudo tar zxvf apache-maven-3.9.6-bin.tar.gz
+
+$ ls
+
+$ mv apache-maven-3.9.6 /usr/local/apache-maven-3.9
+</code></pre>
+<ul>
+<li>在 <code>/etc/profile</code> 文件中配置 maven 环境变量 <code>M2_HOME</code>，配置完成后执行 <code>mvn -version</code> 查看是否正确安装了 Maven。</li>
+</ul>
+<pre><code class="shell">$ sudo echo &quot;export M2_HOME=/usr/local/apache-maven-3.9&quot; &gt;&gt; /etc/profile
+$ sudo echo &quot;PATH=\$M2_HOME/bin:\$PATH&quot; &gt;&gt; /etc/profile
+$ source /etc/profile  # 使配置文件生效
+$ mvn -v
+# 需要使用 java
+</code></pre>
+<h5 id="Maven仓库配置"><a href="#Maven仓库配置" class="headerlink" title="Maven仓库配置"></a>Maven仓库配置</h5><ul>
+<li>修改本地仓库地址，Maven 默认仓库地址为 <code>~/.m2/repository</code>。推荐将本地仓库配置至 Maven 安装目录下，需要在文件 <code>$&#123;M2_HOME&#125;/conf/settings.xml</code> 中配置 <code>&lt;localRepository&gt;</code>。</li>
+</ul>
+<pre><code class="shell">$ pwd
+
+$ sudo mkdir local_repository
+$ sudo vim conf/settings.xml
+
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+...
+&lt;localRepository&gt;/usr/local/apache-maven-3.9/local_repository&lt;/localRepository&gt;  
+# 在 settings.xml 53行左右
+</code></pre>
+<ul>
+<li>Maven 远程仓库默认为 Maven Central Repository，可以在 <code>settings.xml</code> 中配置远程镜像仓库为国内阿里云镜像仓库，提高 Jar 包下载的速度和稳定性。配置 <code>settings.xml</code> 完成后保存退出。</li>
+</ul>
+<pre><code class="xml"># 在 settings.xml 160行处添加镜像源，需要保证镜像源标签在原仓库标签之前
+&lt;mirror&gt;
+  &lt;id&gt;alimaven&lt;/id&gt;
+  &lt;name&gt;aliyun maven&lt;/name&gt;
+  &lt;url&gt;https://maven.aliyun.com/repository/public&lt;/url&gt;
+  &lt;mirrorOf&gt;central&lt;/mirrorOf&gt;
+&lt;/mirror&gt;
+</code></pre>
+<h3 id="基于Maven构建雪花算法组件"><a href="#基于Maven构建雪花算法组件" class="headerlink" title="基于Maven构建雪花算法组件"></a>基于Maven构建雪花算法组件</h3><h5 id="创建Java项目"><a href="#创建Java项目" class="headerlink" title="创建Java项目"></a>创建Java项目</h5><ul>
+<li>使用 Maven Archetype 创建一个基本的 Java 项目，本节将基于该项目实现雪花算法并将其构建成组件发布。创建项目时需要配置 <code>groupId</code>、<code>artifactId</code>。</li>
+</ul>
+<pre><code class="shell">$ mvn archetype:generate -DgroupId=cc.synx -DartifactId=snowflake -DarchetypeArtifactId=maven-archetype-quickstart -DinteractiveMode=false
+
+$ ls -F
+
+$ cd snowflake
+$ tree
+</code></pre>
+<ul>
+<li>pom.xml 中 package 标签为 jar，使用 Maven 可以将该项目打为 JAR 包使用。注意，当前pom.xml中没有打包插件<code>&lt;build/&gt;</code>，生成的 JAR 包需要指定主启动类方可运行。</li>
+</ul>
+<pre><code class="xml">&lt;project xmlns=&quot;http://maven.apache.org/POM/4.0.0&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+         xsi:schemaLocation=&quot;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd&quot;&gt;
+    &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+    &lt;groupId&gt;cc.synx&lt;/groupId&gt;
+    &lt;artifactId&gt;snowflake&lt;/artifactId&gt;
+    &lt;packaging&gt;jar&lt;/packaging&gt;
+    &lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;
+    &lt;name&gt;snowflake&lt;/name&gt;
+    &lt;url&gt;http://maven.apache.org&lt;/url&gt;
+    &lt;dependencies&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;junit&lt;/groupId&gt;
+            &lt;artifactId&gt;junit&lt;/artifactId&gt;
+            &lt;version&gt;3.8.1&lt;/version&gt;
+            &lt;scope&gt;test&lt;/scope&gt;
+        &lt;/dependency&gt;
+    &lt;/dependencies&gt;
+&lt;/project&gt;
+</code></pre>
+<h5 id="实现雪花算法"><a href="#实现雪花算法" class="headerlink" title="实现雪花算法"></a>实现雪花算法</h5><ul>
+<li>在<code>App.java</code>同级目录下创建<code>SnowflakeUtil.java</code>，添加如下代码：</li>
+</ul>
+<pre><code class="java">package cc.synx;
+
+public class SnowflakeUtil &#123;
+    private static final long EPOCH = 1704038400000L; // 设置起始时间戳（2024-01-01 00:00:00）
+
+    private long workerId;
+    private long sequence = 0L;
+    private long lastTimestamp = -1L;
+
+    public SnowflakeUtil(long workerId) &#123;
+        this.workerId = workerId;
+    &#125;
+
+    public synchronized long nextId() &#123;
+        long timestamp = System.currentTimeMillis();
+
+        if (timestamp &lt; lastTimestamp) &#123;
+            throw new RuntimeException(&quot;Clock moved backwards. Refusing to generate id for &quot;);
+        &#125;
+
+        if (lastTimestamp == timestamp) &#123;
+            sequence = (sequence + 1) &amp; 4095;
+            if (sequence == 0) &#123;
+                timestamp = tilNextMillis(lastTimestamp);
+            &#125;
+        &#125; else &#123;
+            sequence = 0L;
+        &#125;
+
+        lastTimestamp = timestamp;
+    
+        return ((timestamp - EPOCH) &lt;&lt; 22) | (workerId &lt;&lt; 12) | sequence;
+    &#125;
+
+    private long tilNextMillis(long lastTimestamp) &#123;
+        long timestamp = System.currentTimeMillis();
+        while (timestamp &lt;= lastTimestamp) &#123;
+            timestamp = System.currentTimeMillis();
+        &#125;
+        return timestamp;
+    &#125;  
+&#125;
+</code></pre>
+<ul>
+<li>编辑<code>App.java</code>的<code>main</code>方法，调用<code>SnowflakeUtil</code>的<code>nextId()</code>方法。</li>
+</ul>
+<pre><code class="java">package cc.synx;
+
+public class App &#123;
+    public static void main(String[] args) &#123;
+        SnowflakeUtil snowflakeUtil = new SnowflakeUtil(11);
+        System.out.println(&quot;first snowflake id is:&quot; + snowflakeUtil.nextId());
+    &#125;
+&#125;
+</code></pre>
+<h5 id="构建运行项目"><a href="#构建运行项目" class="headerlink" title="构建运行项目"></a>构建运行项目</h5><ul>
+<li>在<code>pom.xml</code>同级目录下，通过Maven工具构建项目并打包成JAR。</li>
+</ul>
+<pre><code class="shell">ls -F
+
+mvn clean
+
+mvn package
+</code></pre>
+<ul>
+<li>成功执行<code>mvn clean package</code>命令后，在<code>pom.xml</code>同级目录下生成了<code>target</code>目录，包括Java字节码文件和生成的JAR包<code>snowflake-1.0-SNAPSHOT.jar</code>。</li>
+</ul>
+<pre><code class="shell">ls -F
+
+cd target
+ls -F
+</code></pre>
+<ul>
+<li>使用<code>java -jar xxx.jar</code>命令运行JAR包，发现该JAR包没有指定主执行类，因此运行时需要指定Java MainClass。</li>
+</ul>
+<pre><code class="shell">java -jar snowflake-1.0-SNAPSHOT.jar
+
+java -cp snowflake-1.0-SNAPSHOT.jar cc.syns.App
+</code></pre>
+<ul>
+<li>执行如下Maven命令也可运行Java项目：</li>
+</ul>
+<pre><code class="shell">mvn exec:java -Dexec.mainClass=&quot;cc.synx.App&quot;
+</code></pre>
+<h5 id="将JAR包存储至本地仓库"><a href="#将JAR包存储至本地仓库" class="headerlink" title="将JAR包存储至本地仓库"></a>将JAR包存储至本地仓库</h5><ul>
+<li>在<code>pom.xml</code>同级目录下执行<code>mvn install</code>命令，将JAR包安装至本地仓库中。</li>
+</ul>
+<pre><code class="shell">mvn install:install-file -Dfile=target/snowflake-1.0-SNAPSHOT.jar -DgroupId=cc.synx -DartifactId=snowflake -Dversion=1.0 -Dpackaging=jar
+</code></pre>
+<p>上述命令各参数解释如下：<br>-<code>Dfile</code>：指定要安装的 JAR 文件的路径。<br>-<code>DgroupId</code>：指定组 ID。<br>-<code>DartifactId</code>：指定 artifact ID。<br>-<code>Dversion</code>：指定版本号。<br>-<code>Dpackaging</code>：指定打包类型（在这种情况下是 JAR）。</p>
+<ul>
+<li>查看 Maven 本地仓库是否存在 Snowflake 组件包。</li>
+</ul>
+<pre><code class="shell">$ cd /usr/local/apache-maven-3.9/local_repository/
+$ ls -F
+cc/ ...  # snowflake 组件在 cc/synx 目录下
+</code></pre>
+<ul>
+<li><code>Snowflake</code> 组件在本地仓库安装成功后，其他Maven项目在<code>pom.xml</code>文件中可以通过<code>&lt;dependency&gt;&lt;/dependency&gt;</code>标签引入该组件。</li>
+</ul>
+<pre><code class="xml">&lt;dependency&gt;
+    &lt;groupId&gt;cc.synx&lt;/groupId&gt;
+    &lt;artifactId&gt;snowflake&lt;/artifactId&gt;
+    &lt;version&gt;1.0&lt;/version&gt;
+&lt;/dependency&gt;
+</code></pre>
+<h3 id="配置Maven私有仓库"><a href="#配置Maven私有仓库" class="headerlink" title="配置Maven私有仓库"></a>配置Maven私有仓库</h3><h5 id="构建Maven私有仓库"><a href="#构建Maven私有仓库" class="headerlink" title="构建Maven私有仓库"></a>构建Maven私有仓库</h5><blockquote>
+<p>[!NOTE]</p>
+<p>Nexus 官网：<a target="_blank" rel="noopener" href="https://www.sonatype.com/">https://www.sonatype.com/</a><br>sonatype&#x2F;nexus 镜像网址：<a target="_blank" rel="noopener" href="https://hub.docker.com/r/sonatype/nexus3/">https://hub.docker.com/r/sonatype/nexus3/</a></p>
+</blockquote>
+<ul>
+<li>本节将使用 Nexus Repository Manager 3 仓库管理工具来搭建独立的 Maven 私有仓库。安装 Nexus 的机器（必须有 JDK8，Nexus 3.x 只能在 JDK8 环境下运行）和构建 Maven 项目的机器不要求一致，若通过官网下载 tar.gz 包来安装 nexus，参考第二、三步。若没有 JDK8 环境或其他诉求，参考第四步使用 Docker 安装。</li>
+<li>下载官网提供的 Nexus 压缩包，解压并移动至 &#x2F;usr&#x2F;local 目录。</li>
+</ul>
+<pre><code class="shell">$ ls
+
+$ sudo tar xxzvf nexus-3.64.0-04-unix.tar.gz
+
+$ sudo mv nexus-3.64.0-04 /usr/local/nexus3
+$ cd /usr/local
+$ ls -F
+</code></pre>
+<ul>
+<li>Nexus 使用 Java 开发，运行 Nexus 3.x 前需要确保系统中安装了 JDK8，并根据系统硬件配置调整 Nexus 的运行时内存区大小。</li>
+</ul>
+<pre><code class="shell">$ cd /usr/local/bin
+$ sudo vim nexus.rc
+
+$ ./nexus start
+</code></pre>
+<ul>
+<li>使用Docker安装Nexus时，须确保系统中安装了Docker，安装完成后使用docker ps查看Nexus容器是否正常运行。</li>
+</ul>
+<pre><code class="shell">$ sudo docker run -d -p 8081:8081 -e INSTALL4J_ADD_VM_PARAMS=&quot;-Xms128m -Xmx1024m&quot; --name nexus sonatype/nexus3
+</code></pre>
+<ul>
+<li>Nexus默认以8081端口开放，访问<code>http://&lt;server-ip&gt;:8081</code>查看Nexus的页面，勿开启安全检查。</li>
+<li>点击Sign in，Username输入admin，password则位于<code>$&#123;nexus安装目录&#125;/sonatype-work/nexus/admin.password</code>文件中，首次登录成功后需要修改密码。</li>
+</ul>
+<pre><code class="shell">$ cat sonatype-work/nexus/admin.password
+# Admin首次登录密码，登陆成功修改密码并删除该文件
+</code></pre>
+<ul>
+<li>Nexus登陆成功后，点击Create repository新建Maven私有仓库。</li>
+<li>仓库类型选择<code>maven2(hosted)</code>类型，仓库名填入<code>my-maven-repo</code>，仓库制品类型选择<code>Release</code>，完成创建。</li>
+</ul>
+<h5 id="将组件上传至Maven私有仓库"><a href="#将组件上传至Maven私有仓库" class="headerlink" title="将组件上传至Maven私有仓库"></a>将组件上传至Maven私有仓库</h5><ul>
+<li>编辑Maven的<code>setting.xml</code>文件，添加私有仓库的配置信息。在<code>&lt;servers/&gt;</code>标签中添加仓库名、账号密码，在<code>&lt;mirrors/&gt;</code>和<code>&lt;profiles/&gt;</code>标签中添加仓库URL、仓库ID等，最后在<code>&lt;activeProfiles/&gt;</code>标签中使私有仓库生效。</li>
+</ul>
+<pre><code class="xml">&lt;servers&gt;
+    &lt;server&gt;
+        &lt;id&gt;my-maven-repo&lt;/id&gt;
+        &lt;username&gt;admin&lt;/username&gt;
+        &lt;password&gt;password&lt;/password&gt;  &lt;!-- 仓库密码 --&gt;
+    &lt;/server&gt;
+    &lt;!-- 其他服务器 --&gt;
+&lt;/servers&gt;
+&lt;mirrors&gt;
+    &lt;mirror&gt;
+        &lt;id&gt;my-maven-repo&lt;/id&gt;
+        &lt;url&gt;http://server-id:8081/repository/my-maven-repo/&lt;/url&gt;
+        &lt;mirrorOf&gt;*&lt;/mirrorOf&gt;
+    &lt;/mirror&gt;
+    &lt;!-- 其他镜像仓库 --&gt;
+&lt;/mirrors&gt;
+&lt;profiles&gt;
+    &lt;profile&gt;
+        &lt;id&gt;my-maven-repo&lt;/id&gt;
+        &lt;repositories&gt;
+            &lt;repository&gt;
+                &lt;id&gt;my-maven-repo&lt;/id&gt;
+                &lt;url&gt;http://server-id:8081/repository/my-maven-repo/&lt;/url&gt;
+            &lt;/repository&gt;
+        &lt;/repositories&gt;
+    &lt;/profile&gt;
+&lt;/profiles&gt;
+&lt;activeProfiles&gt;
+    &lt;activeProfile&gt;my-maven-repo&lt;/activeProfile&gt;
+&lt;/activeProfiles&gt;
+</code></pre>
+<ul>
+<li>保存退出后，在snowflake项目的pom.xml中添加上传远程仓库的配置。</li>
+</ul>
+<pre><code class="xml">$ cat snowflake/pom.xml
+&lt;project xmlns=&quot;http://maven.apache.org/POM/4.0.0&quot;
+         xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+         xsi:schemaLocation=&quot;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd&quot;&gt;
+    &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+    &lt;groupId&gt;cc.synx&lt;/groupId&gt;
+    &lt;artifactId&gt;snowflake&lt;/artifactId&gt;
+    &lt;packaging&gt;jar&lt;/packaging&gt;
+    &lt;version&gt;1.0&lt;/version&gt;  &lt;!-- 将version中snapshot去掉 --&gt;
+    &lt;name&gt;snowflake&lt;/name&gt;
+    &lt;url&gt;http://maven.apache.org&lt;/url&gt;
+    &lt;dependencies&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;junit&lt;/groupId&gt;
+            &lt;artifactId&gt;junit&lt;/artifactId&gt;
+            &lt;version&gt;3.8.1&lt;/version&gt;
+            &lt;scope&gt;test&lt;/scope&gt;
+        &lt;/dependency&gt;
+    &lt;/dependencies&gt;
+    &lt;distributionManagement&gt;
+        &lt;repository&gt;
+            &lt;id&gt;my-maven-repo&lt;/id&gt;
+            &lt;url&gt;http://server-id:8081/repository/my-maven-repo/&lt;/url&gt;
+        &lt;/repository&gt;
+    &lt;/distributionManagement&gt;
+&lt;/project&gt;
+</code></pre>
+<ul>
+<li>将之前构建的Java组件上传至私有仓库。</li>
+</ul>
+<pre><code class="shell">$ mvn deploy
+</code></pre>
+<ul>
+<li>上传完成后，在Nexus页面上可以查看到已上传的<code>snowflake-1.0</code>组件。</li>
+</ul>
+<h5 id="基于私有仓库构建项目"><a href="#基于私有仓库构建项目" class="headerlink" title="基于私有仓库构建项目"></a>基于私有仓库构建项目</h5><ul>
+<li>参考前文，构建新的Maven项目，在pom.xml中引入snowflake依赖，并在main方法中使用SnowflakeUtil工具类。</li>
+</ul>
+<pre><code class="xml">&lt;dependencies&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;cc.synx&lt;/groupId&gt;
+        &lt;artifactId&gt;snowflake&lt;/artifactId&gt;
+        &lt;version&gt;1.0&lt;/version&gt;
+    &lt;/dependency&gt;
+    ...
+&lt;/dependencies&gt;
+</code></pre>
+<p>main 方法内容如下：</p>
+<pre><code class="java">public static void main(String[] args) &#123;
+    SnowflakeUtil snowflakeUtil = new SnowflakeUtil(11);
+    System.out.println(&quot;snowflakeId:&quot; + snowflakeUtil.nextId());
+&#125;
+</code></pre>
+<p>构建 Maven 的 settings.xml 与 前文给定的 settings.xml 一致即可。</p>
+<p>不要求使用同一台设备，如果使用同一台设备，为更好的展示效果，尝试先将 Maven 本地仓库的 snowflake 依赖移除，命令如下：</p>
+<pre><code class="shell">$ sudo mvn dependency:purge-local-repository -DmanualIncludes=&quot;cc.synx:snowflake:1.0&quot;
+</code></pre>
+<ul>
+<li>完成新项目的构建运行。以下是输出格式：</li>
+</ul>
+<pre><code class="markdown">snowflakeId:405200000000000000
+</code></pre>
+
     </div>
     
     
