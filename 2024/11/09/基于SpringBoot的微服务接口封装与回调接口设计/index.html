@@ -182,7 +182,7 @@
             
             <span class="tag">
                 
-                <a href="/tags/DevOps/" style="color: #ff9e81">
+                <a href="/tags/DevOps/" style="color: #ffa2c4">
                     DevOps
                 </a>
             </span>
@@ -194,11 +194,275 @@
     <div class="content" v-pre>
         <h1 id="基于SpringBoot的微服务接口封装与回调接口设计"><a href="#基于SpringBoot的微服务接口封装与回调接口设计" class="headerlink" title="基于SpringBoot的微服务接口封装与回调接口设计"></a>基于SpringBoot的微服务接口封装与回调接口设计</h1><hr>
 <h2 id="基本要求"><a href="#基本要求" class="headerlink" title="基本要求"></a>基本要求</h2><ul>
-<li>理解微服务架构的基本概念、原则和优势</li>
-<li>掌握微服务间交互的基本流程及常用工具</li>
-<li>具备在分布式系统开发中设计、调试和优化微服务通信的能力</li>
+<li>理解掌握SpringBoot框架基本知识</li>
+<li>熟悉微服务间调用的基本流程和类型</li>
+<li>掌握RestTemplate、FeignClient和WebClient等服务调用工具的使用方式</li>
 </ul>
-<h2 id="实验原理"><a href="#实验原理" class="headerlink" title="实验原理"></a>实验原理</h2><h3 id="服务接口封装"><a href="#服务接口封装" class="headerlink" title="服务接口封装"></a>服务接口封装</h3><h3 id="服务调用"><a href="#服务调用" class="headerlink" title="服务调用"></a>服务调用</h3><h5 id="正向调用"><a href="#正向调用" class="headerlink" title="正向调用"></a>正向调用</h5><h5 id="服务回调"><a href="#服务回调" class="headerlink" title="服务回调"></a>服务回调</h5><h5 id="异步调用"><a href="#异步调用" class="headerlink" title="异步调用"></a>异步调用</h5><h3 id="服务调用工具"><a href="#服务调用工具" class="headerlink" title="服务调用工具"></a>服务调用工具</h3><h5 id="RestTemplate"><a href="#RestTemplate" class="headerlink" title="RestTemplate"></a>RestTemplate</h5><h5 id="WebClient"><a href="#WebClient" class="headerlink" title="WebClient"></a>WebClient</h5><h3 id="MyBatis-Plus"><a href="#MyBatis-Plus" class="headerlink" title="MyBatis-Plus"></a>MyBatis-Plus</h3><h5 id="MyBatis-MyBatis-Plus框架介绍"><a href="#MyBatis-MyBatis-Plus框架介绍" class="headerlink" title="MyBatis&amp;MyBatis-Plus框架介绍"></a>MyBatis&amp;MyBatis-Plus框架介绍</h5><h5 id="MyBatis-Plus接入方式"><a href="#MyBatis-Plus接入方式" class="headerlink" title="MyBatis-Plus接入方式"></a>MyBatis-Plus接入方式</h5><h2 id="实验过程"><a href="#实验过程" class="headerlink" title="实验过程"></a>实验过程</h2><h3 id="服务交互流程介绍"><a href="#服务交互流程介绍" class="headerlink" title="服务交互流程介绍"></a>服务交互流程介绍</h3><h3 id="构建用户管理服务"><a href="#构建用户管理服务" class="headerlink" title="构建用户管理服务"></a>构建用户管理服务</h3>
+<h2 id="实验原理"><a href="#实验原理" class="headerlink" title="实验原理"></a>实验原理</h2><h3 id="服务接口封装"><a href="#服务接口封装" class="headerlink" title="服务接口封装"></a>服务接口封装</h3><p>服务接口封装是指将业务逻辑封装在服务中，并通过接口暴露给其他模块或系统使用的过程。通过将业务逻辑封装在服务中，并提供统一的接口给外部调用，实现了业务逻辑的模块化、解耦合，是构建可扩展、可维护的应用的重要手段。</p>
+<p>以业务服务安全调用用户服务为例，通过封装用户身份验证的接口，可以实现统一的安全性和权限控制策略。其他服务在调用该接口时，可以统一通过用户服务登录接口进行身份验证，确保系统的安全性和数据的完整性。</p>
+<p>此外，从服务解耦的角度看，接口封装可以将声明与实现解耦，服务间只需要通过接口声明来进行业务操作，无需了解服务具体实现细节。单个服务内部实现变化不会影响其他服务正常运行，从而实现服务之间的解耦。</p>
+<h3 id="服务调用"><a href="#服务调用" class="headerlink" title="服务调用"></a>服务调用</h3><p><a target="_blank" rel="noopener" href="https://sookocheff.com/post/api/marrying-restful-http-with-asynchronous-design/">https://sookocheff.com/post/api/marrying-restful-http-with-asynchronous-design/</a></p>
+<p>下面服务调用图示中，横轴表示同步或异步，纵轴表示单个接收者或多个接收者，横纵轴将服务调用类型划分为以下四类，请求调用方式包括 HTTP（同步&#x2F;异步、单接收者）、RPC（异步单接收者）、P2P（同步单接收者）、Webhooks（异步回调多接收者）、消息队列（同步&#x2F;异步、多接收者）等。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8EMaven%E7%9A%84%E5%8C%85%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86%E4%B8%8E%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-10%20161220.png" alt="屏幕截图 2024-11-10 161220"></p>
+<h5 id="正向调用"><a href="#正向调用" class="headerlink" title="正向调用"></a>正向调用</h5><p>正向调用是指一个服务同步调用另一个服务的过程，即调用方发出请求后并等待被调用方的响应，被调用方没有响应前调用方参与阻塞状态。正向调用方式是一种常见的服务间通信方式，在分布式系统和微服务架构中被广泛应用。在正向调用过程中，通常包括以下几个步骤：</p>
+<p>a. 调用方发起请求：调用方向被调用方发送请求，请求通常包含了所需的参数、方法名等信息。</p>
+<p>b. 请求到达被调用方：请求被传递到被调用方所在的服务，被调用方根据请求的内容进行处理。</p>
+<p>c. 被调用方处理请求：被调用方根据请求的内容执行相应的操作，可能包括数据查询、业务逻辑处理等。</p>
+<p>d. 被调用方返回响应：被调用方处理完请求后，将处理结果封装成响应返回给调用方。</p>
+<p>e. 调用方接收响应：调用方接收到被调用方的响应，根据响应内容进行相应的处理，可能是数据解析、错误处理等。</p>
+<h5 id="服务回调"><a href="#服务回调" class="headerlink" title="服务回调"></a>服务回调</h5><p>回调是一种常见的编程模式，通常用于异步操作的处理。在这种模式下，一个函数（回调函数）作为参数传递给另一个函数，当特定的事件发生时，另一个函数会调用传递的回调函数来处理事件。</p>
+<p>服务回调在分布式系统和微服务架构中经常用到，用于处理服务之间的通信和协作。例如，一个服务可能需要调用另一个服务来获取数据，但由于网络延迟等原因，获取数据的过程是异步的。在这种情况下，调用方可以传递一个回调函数给被调用方，在数据准备好之后，被调用方会调用回调函数来将数据返回给调用方。</p>
+<p>服务回调的优点包括异步处理以提供系统并发性能、解耦处理逻辑与触发逻辑、支持复杂业务逻辑处理等，存在的问题则是代码可读性差、调试困难等。</p>
+<h5 id="异步调用"><a href="#异步调用" class="headerlink" title="异步调用"></a>异步调用</h5><p>异步调用是指调用方不必等待被调用方的返回响应就可以继续执行其他操作。实现异步调用的方式有很多，以下是常见的几种类型：</p>
+<ol>
+<li>消息队列：使用消息队列作为异步通信的中间件。当一个微服务需要调用另一个微服务时，它将请求封装成消息并发送到消息队列中，然后继续处理其他任务。接收方微服务从消息队列中获取消息并进行处理。这种方式可以实现解耦和异步处理。</li>
+<li>异步HTTP调用：在微服务之间使用异步的HTTP调用。调用方微服务发送HTTP请求给目标微服务，但不等待响应，而是继续处理其他任务。目标微服务接收到请求后进行处理，并将响应返回给调用方微服务。这种方式可以提高并发性能和系统的可伸缩性。</li>
+<li>事件驱动架构：使用事件驱动的方式进行异步调用。当一个微服务发生某个事件时，它将事件发布到事件总线或消息队列中。其他订阅了该事件的微服务将接收到事件并进行相应的处理。这种方式可以实现松耦合和异步处理。</li>
+</ol>
+<h3 id="服务调用工具"><a href="#服务调用工具" class="headerlink" title="服务调用工具"></a>服务调用工具</h3><p><a target="_blank" rel="noopener" href="https://docs.spring.io/spring-framework/reference/integration/rest-clients.html#rest-http-interface">https://docs.spring.io/spring-framework/reference/integration/rest-clients.html#rest-http-interface</a></p>
+<h5 id="RestTemplate"><a href="#RestTemplate" class="headerlink" title="RestTemplate"></a>RestTemplate</h5><p>在 Spring Framework 中，RestTemplate 是一个用于进行 RESTful 服务调用的模板类。它封装了大量的 HTTP 请求和响应操作，使得在 Java 应用程序中进行 HTTP 调用变得更加简单和便捷。RestTemplate 有如下特点：</p>
+<ul>
+<li>支持多种 HTTP 方法：RestTemplate 支持常见的 HTTP 方法，如 GET、POST、PUT、DELETE 等，以及对应的请求体和响应体处理。</li>
+<li>灵活的请求响应处理：RestTemplate 支持多种请求和响应处理方式，包括将请求参数映射为 URI 模板、将请求体映射为对象、将响应体映射为对象等。</li>
+<li>集成 HTTP 客户端：RestTemplate 集成了 Apache HttpClient、OkHttp 或者 HttpComponents Client 等 HTTP 客户端实现，可以通过设置选择不同的客户端。</li>
+</ul>
+<p>RestTemplate 集成在 spring-boot-starter-web 依赖中，以下是 RestTemplate 的示例代码：</p>
+<pre><code class="java">public class RestTemplateExample &#123;
+    public static void main(String[] args) &#123;
+        RestTemplate restTemplate = new RestTemplate(); // 创建 RestTemplate 实例
+        String url = &quot;https://www.api.com/examples&quot;; // 定义要请求的 URL
+
+        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(url)
+            .queryParam(&quot;name&quot;, &quot;Alice&quot;) // 构建请求参数
+            .queryParam(&quot;id&quot;, &quot;4873423211&quot;);
+
+        HttpHeaders headers = new HttpHeaders(); // 构建请求头
+        headers.add(&quot;Content-Type&quot;, &quot;application/json&quot;);
+
+        // 发起带参数和 header 的 GET 请求，并将响应结果转换为指定类型的对象
+        String response = restTemplate.getForObject(builder.toUriString(), String.class, headers);
+
+        // 输出响应结果
+        System.out.println(&quot;Response: &quot; + response);
+    &#125;
+&#125;
+</code></pre>
+<h5 id="WebClient"><a href="#WebClient" class="headerlink" title="WebClient"></a>WebClient</h5><p>WebClient 是 Spring Web Reactive 模块的一个非阻塞的响应式 Web 请求客户端，用于取代经典的 <code>RestTemplate</code>。当前 Spring Framework 服务调用的最佳实践形式是利用 WebClient 和 Spring 6.0 提出的 HTTP Interface 协同提供服务调用功能。WebClient 也可以独立执行 HTTP 调用。</p>
+<p>在 Spring Boot 应用中，只需要添加 <code>spring-boot-starter-webflux</code> 依赖即可获得响应式 Web 的支持。</p>
+<pre><code class="xml">&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-webflux&lt;/artifactId&gt;
+&lt;/dependency&gt;
+</code></pre>
+<p>创建和使用 WebClient 实例的方式如下：</p>
+<pre><code class="java">WebClient client = webClient.builder()
+    .baseUrl(&quot;https://www.api.com/examples&quot;)
+    .defaultCookie(&quot;cookieKey&quot;, &quot;cookieValue&quot;)
+    .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+    .build();
+
+// 执行 GET 请求
+UriSpec&lt;RequestBodySpec&gt; uriSpec = client.get();
+// 获取响应数据
+String response = uriSpec.retrieve().bodyToMono(String.class).block();
+</code></pre>
+<p>WebClient 和 HTTP Interface 协同使用时能够实现声明式调用 API，以下示例展示了具体用法：</p>
+<ul>
+<li>定义接口，在接口中声明 HTTP API。</li>
+</ul>
+<pre><code class="java">@Component
+public interface UserClient &#123;
+
+    // 与 Controller 编写 HTTP API 格式相同
+    @GetMapping(&quot;/users&quot;)
+    List&lt;User&gt; queryUsers(@RequestParam(required = false) String id,
+                          @RequestParam(required = false) String name);
+&#125;
+</code></pre>
+<ul>
+<li>创建 WebClient 示例，通过 WebClient 注册接口，之后该接口就可以注入使用了。</li>
+</ul>
+<pre><code class="java">@Bean
+UserClient initWebClient() &#123;
+    WebClient client = WebClient.builder().baseUrl(&quot;http://localhost:8080/&quot;).build();
+    HttpServiceProxyFactory factory =
+            HttpSessionProxyFactory.builderFor(WebClientAdapter.create(client)).build();
+    return factory.createClient(UserClient.class);
+&#125;
+</code></pre>
+<p>Spring Cloud Netflix 提供的 Feign HTTP 客户端，也是声明式 Web 服务客户端，其工作方式与 HTTP Interface 类似，是 Spring Cloud 中用于简化服务间通信的重要组件。</p>
+<h3 id="MyBatis-Plus"><a href="#MyBatis-Plus" class="headerlink" title="MyBatis-Plus"></a>MyBatis-Plus</h3><h5 id="MyBatis-MyBatis-Plus框架介绍"><a href="#MyBatis-MyBatis-Plus框架介绍" class="headerlink" title="MyBatis&amp;MyBatis-Plus框架介绍"></a>MyBatis&amp;MyBatis-Plus框架介绍</h5><p>MyBatis 是一个基于 Java 的持久层框架，它通过 XML 描述符或注解将对象与 SQL 语句进行映射，帮助开发者进行数据库操作。MyBatis 的核心思想是通过 SQL 语句完成数据库操作，同时提供了一系列映射配置，将数据库表的记录映射为 Java 对象。MyBatis-Plus 是 MyBatis 的增强工具包，提供了一系列更便捷、更强大的功能，使得使用 MyBatis 更加高效。MyBatis-Plus 的目标是简化 MyBatis 的开发，提供更多的便利特性。</p>
+<p>MyBatis-Plus 主要特点和优点：</p>
+<ul>
+<li>自动生成代码：提供了代码生成器，可以根据数据库表生成实体类、Mapper 接口和 XML 映射文件。</li>
+<li>内置通用 CRUD 方法：提供了通用的增删改查方法，减少了手写基础 CRUD 操作的工作。</li>
+<li>支持 Lambda 查询：提供了 Lambda 表达式的支持，使得查询条件更加灵活。</li>
+<li>内置分页插件：支持简单的分页查询，方便进行分页操作。</li>
+<li>自动注入：提供了自动注入的功能，无需手动实例化 Mapper 接口。</li>
+</ul>
+<p>MyBatis 和 MyBatis-Plus 在 Java 后端开发项目中得到广泛应用，为开发者提供了便捷、灵活的数据库操作方式。</p>
+<h5 id="MyBatis-Plus接入方式"><a href="#MyBatis-Plus接入方式" class="headerlink" title="MyBatis-Plus接入方式"></a>MyBatis-Plus接入方式</h5><p>在接入 MySQL 的基础上，Spring Boot 需要使用 mybatis-plus-boot-starter 依赖支持 MyBatis-Plus 正常工作。</p>
+<pre><code class="xml">&lt;dependency&gt;
+    &lt;groupId&gt;com.baomidou&lt;/groupId&gt;
+    &lt;artifactId&gt;mybatis-plus-boot-starter&lt;/artifactId&gt;
+    &lt;version&gt;latest_version&lt;/version&gt;
+&lt;/dependency&gt;
+</code></pre>
+<p>使用MyBatis-Plus步骤如下：</p>
+<ul>
+<li>引入MyBatis-Plus及MySQL依赖，配置数据源；</li>
+<li>编写实体类和Mapper接口，实体类需要使用@TableName和具体数据库表名关联，Mapper接口继承BaseMapper。</li>
+<li>在Service层注入Mapper接口，执行BaseMapper提供的数据表操作方法，如selectOne()、selectAll()、selectById()等。</li>
+</ul>
+<h2 id="实验过程"><a href="#实验过程" class="headerlink" title="实验过程"></a>实验过程</h2><h3 id="服务交互流程介绍"><a href="#服务交互流程介绍" class="headerlink" title="服务交互流程介绍"></a>服务交互流程介绍</h3><p>本实验通过构建简易的用户管理服务和业务服务来说明服务间调用的工具及方式。用户管理服务使用数据库，提供用户管理接口，包括查询用户和新增用户的接口。业务服务仅调用用户管理服务的接口，不使用数据库。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8ESpringBoot%E7%9A%84%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%8E%A5%E5%8F%A3%E5%B0%81%E8%A3%85%E4%B8%8E%E5%9B%9E%E8%B0%83%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-11%20110828.png" alt="屏幕截图 2024-11-11 110828"></p>
+<h3 id="构建用户管理服务"><a href="#构建用户管理服务" class="headerlink" title="构建用户管理服务"></a>构建用户管理服务</h3><h5 id="数据库设计实现"><a href="#数据库设计实现" class="headerlink" title="数据库设计实现"></a>数据库设计实现</h5><p>为简单起见，用户管理服务的数据库中仅包括系统用户表一张数据表，数据库和数据表命名分别为 db_user、tbl_user。用户表结构如下：</p>
+<p><strong>tbl_user：</strong></p>
+<table>
+<thead>
+<tr>
+<th align="left">字段</th>
+<th align="left">类型</th>
+<th align="left">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">id</td>
+<td align="left">varchar(20)</td>
+<td align="left">用户编号，采用雪花算法 ID</td>
+</tr>
+<tr>
+<td align="left">mobile_phone</td>
+<td align="left">varchar(11)</td>
+<td align="left">手机号</td>
+</tr>
+<tr>
+<td align="left">name</td>
+<td align="left">varchar(50)</td>
+<td align="left">姓名</td>
+</tr>
+</tbody></table>
+<ol>
+<li>在 Linux 或 Windows 系统中安装并启动 MySQL，安装过程参考 <a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/mysql-installation-excerpt/8.0%E3%80%82">https://dev.mysql.com/doc/mysql-installation-excerpt/8.0。</a></li>
+<li>基于以上用户表结构编写 SQL 语句，并导入至 MySQL 数据库，完成库表创建。</li>
+</ol>
+<pre><code class="sql">mysql&gt; USE db_user;
+Database changed
+mysql&gt; DESCRIBE tbl_user;
++--------+--------------+------+-----+---------+-------+
+| Field  | Type         | Null | Key | Default | Extra |
++--------+--------------+------+-----+---------+-------+
+| id     | varchar(20)  | NO   | PRI | NULL    |       |
+| mobile_phone | varchar(11) | YES  | UNI | NULL    |       |
+| name   | varchar(50)  | YES  |     | NULL    |       |
++--------+--------------+------+-----+---------+-------+
+3 rows in set (0.01 sec)
+
+mysql&gt;
+</code></pre>
+<h5 id="搭建项目框架"><a href="#搭建项目框架" class="headerlink" title="搭建项目框架"></a>搭建项目框架</h5><ul>
+<li>基于 Spring Initializer 搭建 Spring Boot 项目 userService，在 <code>pom.xml</code> 中添加 web、mysql、mybatis-plus 及 Snowflake 等依赖。</li>
+</ul>
+<pre><code class="xml">&lt;dependencies&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;com.mysql&lt;/groupId&gt;
+        &lt;artifactId&gt;mysql-connector-j&lt;/artifactId&gt;
+        &lt;scope&gt;runtime&lt;/scope&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;com.baomidou&lt;/groupId&gt;
+        &lt;artifactId&gt;mybatis-plus-spring-boot-starter&lt;/artifactId&gt;
+        &lt;version&gt;3.5.5&lt;/version&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;cc.synx&lt;/groupId&gt;
+        &lt;artifactId&gt;snowflake&lt;/artifactId&gt;
+        &lt;version&gt;1.0&lt;/version&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-test&lt;/artifactId&gt;
+        &lt;scope&gt;test&lt;/scope&gt;
+    &lt;/dependency&gt;
+&lt;/dependencies&gt;
+</code></pre>
+<ul>
+<li>在 <code>src/main/resources</code> 目录下将 <code>application.properties</code> 文件改名为 <code>application.yml</code>，添加连接 MySQL 的驱动配置。本次实验不配置额外的数据库连接池，使用 Spring Boot 默认提供的数据库连接池 <code>Hikari</code>。</li>
+</ul>
+<pre><code class="yaml">server:
+  port: 8080
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://&lt;server-id&gt;:3306/db_user?useUnicode=true&amp;characterEncoding=utf8&amp;useSSL=false
+    username: &lt;mysql_username&gt;
+    password: &lt;mysql_password&gt;
+  mybatis-plus:
+    configuration:
+      log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+      map-underscore-to-camel-case: true  # 驼峰转化
+      call-setters-on-nulls: true
+</code></pre>
+<ul>
+<li>搭建项目骨架，在启动类同级目录上创建 mapper、service、entity 及 controller 包。并在启动类上添加 MyBatis 扫描 Mapper 包的注解 <code>@MapperScan(&quot;cc.synx.mapper&quot;)</code>。</li>
+</ul>
+<pre><code class="shell">$ tree
+.
+├── .mvn
+├── src
+│   ├── main
+│   │   ├── java
+│   │   │   └── cc
+│   │   │       └── synx
+│   │   │           ├── controller  # 控制层
+│   │   │           ├── mapper      # 持久层
+│   │   │           ├── service     # 服务层
+│   │   │           └── entity      # 服务实体包
+│   │   │               └── UserServiceApplication.java
+│   │   └── resources
+│   │       └── application.yml
+│   └── test
+│       ├── java
+│       └── cc
+│           └── synx
+└── pom.xml
+</code></pre>
+<ul>
+<li>在 entity 包中创建 User 类，字段与数据表 <code>tbl_user</code> 保证一致。</li>
+</ul>
+<pre><code class="java">package cc.synx.entity;
+
+/**
+ * 用户类
+ * @version 1.0
+ * @ClassName User
+ **/
+@Data
+@TableName(&quot;tbl_user&quot;)
+public class User &#123;
+
+    // 用户标识，采用雪花算法
+    private String id;
+    // 电话号码
+    private String mobilePhone;
+    // 用户姓名
+    private String name;
+
+    public User(String id, String mobilePhone, String name) &#123;
+        this.id = id;
+        this.mobilePhone = mobilePhone;
+        this.name = name;
+    &#125;
+&#125;
+</code></pre>
+<ul>
+<li>在 mapper 包中创建 UserMapper 接口，实现 Mybatis-Plus 提供的 BaseMapper 接口后能够调用 MyBatis-plus 提供的数据库执行方法。</li>
+</ul>
+<h5 id="服务接口编写"><a href="#服务接口编写" class="headerlink" title="服务接口编写"></a>服务接口编写</h5><h3 id="微服务同步调用"><a href="#微服务同步调用" class="headerlink" title="微服务同步调用"></a>微服务同步调用</h3><h5 id="搭建业务服务框架"><a href="#搭建业务服务框架" class="headerlink" title="搭建业务服务框架"></a>搭建业务服务框架</h5><h5 id="服务正向调用"><a href="#服务正向调用" class="headerlink" title="服务正向调用"></a>服务正向调用</h5><h5 id="设计和实现服务回调"><a href="#设计和实现服务回调" class="headerlink" title="设计和实现服务回调"></a>设计和实现服务回调</h5><h3 id="微服务异步调用"><a href="#微服务异步调用" class="headerlink" title="微服务异步调用"></a>微服务异步调用</h3>
     </div>
     
     

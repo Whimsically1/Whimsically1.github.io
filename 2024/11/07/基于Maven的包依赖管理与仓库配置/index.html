@@ -175,14 +175,14 @@
             
             <span class="tag">
                 
-                <a href="/tags/SpringBoot/" style="color: #00a596">
+                <a href="/tags/SpringBoot/" style="color: #ff7d73">
                     SpringBoot
                 </a>
             </span>
             
             <span class="tag">
                 
-                <a href="/tags/DevOps/" style="color: #ffe4d6">
+                <a href="/tags/DevOps/" style="color: #ff9e81">
                     DevOps
                 </a>
             </span>
@@ -277,36 +277,44 @@ mvn clean deploy -Dmaven.test.skip=true
 </ul>
 <p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8EMaven%E7%9A%84%E5%8C%85%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86%E4%B8%8E%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-08%20153903.png" alt="屏幕截图 2024-11-08 153903"></p>
 <p>雪花算法的优点是简单且高效，能在分布式环境中生成唯一ID。然而，其依赖于系统时钟，如果系统时钟不稳定或发生回拨，可能会导致ID生成重复或不连续。实际应用时需根据系统特点和需求选择合适的ID生成算法。</p>
-<h2 id="实验过程"><a href="#实验过程" class="headerlink" title="实验过程"></a>实验过程</h2><h3 id="Maven安装"><a href="#Maven安装" class="headerlink" title="Maven安装"></a>Maven安装</h3><h5 id="JDK17下载安装"><a href="#JDK17下载安装" class="headerlink" title="JDK17下载安装"></a>JDK17下载安装</h5><p>Maven 编译运行离不开 JDK，在安装 Apache Maven 之前，需要先在系统中安装 JDK，并设置 java 环境变量。Maven 3.9+ 需要 JDK 8 及以上版本支持，本节介绍在 Ubuntu 22.04 LTS 上安装 JDK 17。</p>
+<h2 id="实验过程"><a href="#实验过程" class="headerlink" title="实验过程"></a>实验过程</h2><h3 id="Maven安装"><a href="#Maven安装" class="headerlink" title="Maven安装"></a>Maven安装</h3><h5 id="JDK23下载安装"><a href="#JDK23下载安装" class="headerlink" title="JDK23下载安装"></a>JDK23下载安装</h5><p>Maven 编译运行离不开 JDK，在安装 Apache Maven 之前，需要先在系统中安装 JDK，并设置 java 环境变量。Maven 3.9+ 需要 JDK 8 及以上版本支持，本节介绍在 Ubuntu 22.04 LTS 上安装 JDK 17。</p>
+<blockquote>
+<p>[!WARNING]</p>
+<p>由于Oracle官网已不再提供JDK17的下载，故我们选择使用JDK23。</p>
+</blockquote>
 <ul>
-<li>在 Oracle 官网或使用 wget 在当前目录获取 <code>jdk-17_linux-x64_bin.tar.gz</code> 压缩包，解压后移至 <code>/usr/local/</code> 文件夹下。</li>
+<li>在 Oracle 官网或使用 wget 在当前目录获取 <code>jdk-23_linux-x64_bin.tar.gz</code> 压缩包，解压后移至 <code>/usr/local/</code> 文件夹下。</li>
 </ul>
-<pre><code class="bash">$ wget https://download.oracle.com/java/17/latest/jdk-17_linux-x64_bin.tar.gz
+<pre><code class="bash">$ wget https://download.oracle.com/java/23/latest/jdk-23_linux-x64_bin.tar.gz
 
 $ ls
 
-$ sudo tar zxvf jdk-17_linux-x64_bin.tar.gz
+$ sudo tar zxvf jdk-23_linux-x64_bin.tar.gz
 
 $ ls
 
-$ sudo mv jdk-17.0.10/ /usr/local/jdk-17
+$ sudo mv jdk-23.0.1/ /usr/local/jdk-23
 $ cd /usr/local
 $ ls
 </code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8EMaven%E7%9A%84%E5%8C%85%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86%E4%B8%8E%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-10%20102146.png" alt="屏幕截图 2024-11-10 102146"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8EMaven%E7%9A%84%E5%8C%85%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86%E4%B8%8E%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-10%20102159.png" alt="屏幕截图 2024-11-10 102159"></p>
 <ul>
 <li>在配置文件 <code>/etc/profile</code> 中配置环境变量 <code>JAVA_HOME</code>、<code>CLASSPATH</code>。配置完成后执行 <code>java -version</code> 查看是否正确安装了 Java。</li>
 </ul>
 <p><code>JAVA_HOME</code>: JAVA 的安装目录，配置后可通过 <code>$JAVA_HOME</code> 直接获取；</p>
 <p><code>CLASSPATH</code>: 告知 JVM 在哪些目录下可以找到 JAVA 执行程序所需要的类或者包，供类加载时使用。</p>
-<pre><code class="shell">$ sudo echo &quot;export JAVA_HOME=/usr/local/jdk-17&quot; &gt;&gt; /etc/profile
+<pre><code class="shell">$ sudo echo &quot;export JAVA_HOME=/usr/local/jdk-23&quot; &gt;&gt; /etc/profile
 $ sudo echo &quot;export PATH=\$PATH:\$JAVA_HOME/bin&quot; &gt;&gt; /etc/profile
 $ sudo echo &quot;export CLASSPATH=.:\$JAVA_HOME/lib&quot; &gt;&gt; /etc/profile
 $ source /etc/profile  # 使配置文件生效
 $ java -version
-java version &quot;17.0.10&quot; 2024-01-16 LTS
-Java(TM) SE Runtime Environment (build 17.0.10+11-LTS-240)
-Java HotSpot(TM) 64-Bit Server VM (build 17.0.10+11-LTS-240, mixed mode, sharing)
 </code></pre>
+<blockquote>
+<p>[!NOTE]</p>
+<p>编辑系统变量需要root权限！</p>
+</blockquote>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8EMaven%E7%9A%84%E5%8C%85%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86%E4%B8%8E%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-10%20102853.png" alt="屏幕截图 2024-11-10 102853"></p>
 <h5 id="Maven下载安装"><a href="#Maven下载安装" class="headerlink" title="Maven下载安装"></a>Maven下载安装</h5><p>Maven 下载网址：<a target="_blank" rel="noopener" href="https://maven.apache.org/download.cgi">https://maven.apache.org/download.cgi</a></p>
 <ul>
 <li>在终端输入 <code>mvn -v</code> 查看本地是否已存在 Maven，若 Maven 已安装，该命令会输出 Maven 版本号。在 Maven 官网或使用 wget 在当前目录下载最新版本的 Maven 压缩包，解压后移至 <code>/usr/local/</code> 文件夹下。</li>
@@ -321,6 +329,8 @@ $ ls
 
 $ mv apache-maven-3.9.6 /usr/local/apache-maven-3.9
 </code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8EMaven%E7%9A%84%E5%8C%85%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86%E4%B8%8E%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-10%20103004.png" alt="屏幕截图 2024-11-10 103004"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8EMaven%E7%9A%84%E5%8C%85%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86%E4%B8%8E%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-10%20103033.png" alt="屏幕截图 2024-11-10 103033"></p>
 <ul>
 <li>在 <code>/etc/profile</code> 文件中配置 maven 环境变量 <code>M2_HOME</code>，配置完成后执行 <code>mvn -version</code> 查看是否正确安装了 Maven。</li>
 </ul>
@@ -330,6 +340,7 @@ $ source /etc/profile  # 使配置文件生效
 $ mvn -v
 # 需要使用 java
 </code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8EMaven%E7%9A%84%E5%8C%85%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86%E4%B8%8E%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-10%20103214.png" alt="屏幕截图 2024-11-10 103214"></p>
 <h5 id="Maven仓库配置"><a href="#Maven仓库配置" class="headerlink" title="Maven仓库配置"></a>Maven仓库配置</h5><ul>
 <li>修改本地仓库地址，Maven 默认仓库地址为 <code>~/.m2/repository</code>。推荐将本地仓库配置至 Maven 安装目录下，需要在文件 <code>$&#123;M2_HOME&#125;/conf/settings.xml</code> 中配置 <code>&lt;localRepository&gt;</code>。</li>
 </ul>
@@ -343,6 +354,9 @@ $ sudo vim conf/settings.xml
 &lt;localRepository&gt;/usr/local/apache-maven-3.9/local_repository&lt;/localRepository&gt;  
 # 在 settings.xml 53行左右
 </code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8EMaven%E7%9A%84%E5%8C%85%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86%E4%B8%8E%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-10%20103655.png" alt="屏幕截图 2024-11-10 103655"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8EMaven%E7%9A%84%E5%8C%85%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86%E4%B8%8E%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-10%20103553.png" alt="屏幕截图 2024-11-10 103553"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8EMaven%E7%9A%84%E5%8C%85%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86%E4%B8%8E%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-10%20103638.png" alt="屏幕截图 2024-11-10 103638"></p>
 <ul>
 <li>Maven 远程仓库默认为 Maven Central Repository，可以在 <code>settings.xml</code> 中配置远程镜像仓库为国内阿里云镜像仓库，提高 Jar 包下载的速度和稳定性。配置 <code>settings.xml</code> 完成后保存退出。</li>
 </ul>
@@ -354,6 +368,8 @@ $ sudo vim conf/settings.xml
   &lt;mirrorOf&gt;central&lt;/mirrorOf&gt;
 &lt;/mirror&gt;
 </code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8EMaven%E7%9A%84%E5%8C%85%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86%E4%B8%8E%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-10%20104028.png" alt="屏幕截图 2024-11-10 104028"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8EMaven%E7%9A%84%E5%8C%85%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86%E4%B8%8E%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-10%20104152.png" alt="屏幕截图 2024-11-10 104152"></p>
 <h3 id="基于Maven构建雪花算法组件"><a href="#基于Maven构建雪花算法组件" class="headerlink" title="基于Maven构建雪花算法组件"></a>基于Maven构建雪花算法组件</h3><h5 id="创建Java项目"><a href="#创建Java项目" class="headerlink" title="创建Java项目"></a>创建Java项目</h5><ul>
 <li>使用 Maven Archetype 创建一个基本的 Java 项目，本节将基于该项目实现雪花算法并将其构建成组件发布。创建项目时需要配置 <code>groupId</code>、<code>artifactId</code>。</li>
 </ul>
@@ -364,6 +380,9 @@ $ ls -F
 $ cd snowflake
 $ tree
 </code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8EMaven%E7%9A%84%E5%8C%85%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86%E4%B8%8E%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-10%20104648.png" alt="屏幕截图 2024-11-10 104648"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8EMaven%E7%9A%84%E5%8C%85%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86%E4%B8%8E%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-10%20104715.png" alt="屏幕截图 2024-11-10 104715"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8EMaven%E7%9A%84%E5%8C%85%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86%E4%B8%8E%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-10%20104722.png" alt="屏幕截图 2024-11-10 104722"></p>
 <ul>
 <li>pom.xml 中 package 标签为 jar，使用 Maven 可以将该项目打为 JAR 包使用。注意，当前pom.xml中没有打包插件<code>&lt;build/&gt;</code>，生成的 JAR 包需要指定主启动类方可运行。</li>
 </ul>
@@ -432,6 +451,7 @@ public class SnowflakeUtil &#123;
     &#125;  
 &#125;
 </code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8EMaven%E7%9A%84%E5%8C%85%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86%E4%B8%8E%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-10%20110801.png" alt="屏幕截图 2024-11-10 110801"></p>
 <ul>
 <li>编辑<code>App.java</code>的<code>main</code>方法，调用<code>SnowflakeUtil</code>的<code>nextId()</code>方法。</li>
 </ul>
@@ -444,15 +464,20 @@ public class App &#123;
     &#125;
 &#125;
 </code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8EMaven%E7%9A%84%E5%8C%85%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86%E4%B8%8E%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-10%20110752.png" alt="屏幕截图 2024-11-10 110752"></p>
 <h5 id="构建运行项目"><a href="#构建运行项目" class="headerlink" title="构建运行项目"></a>构建运行项目</h5><ul>
 <li>在<code>pom.xml</code>同级目录下，通过Maven工具构建项目并打包成JAR。</li>
 </ul>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8EMaven%E7%9A%84%E5%8C%85%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86%E4%B8%8E%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-10%20111112.png" alt="屏幕截图 2024-11-10 111112"></p>
 <pre><code class="shell">ls -F
 
 mvn clean
 
 mvn package
 </code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8EMaven%E7%9A%84%E5%8C%85%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86%E4%B8%8E%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-10%20111134.png" alt="屏幕截图 2024-11-10 111134"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8EMaven%E7%9A%84%E5%8C%85%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86%E4%B8%8E%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-10%20111210.png" alt="屏幕截图 2024-11-10 111210"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8EMaven%E7%9A%84%E5%8C%85%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86%E4%B8%8E%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-10%20111222.png" alt="屏幕截图 2024-11-10 111222"></p>
 <ul>
 <li>成功执行<code>mvn clean package</code>命令后，在<code>pom.xml</code>同级目录下生成了<code>target</code>目录，包括Java字节码文件和生成的JAR包<code>snowflake-1.0-SNAPSHOT.jar</code>。</li>
 </ul>
@@ -461,13 +486,15 @@ mvn package
 cd target
 ls -F
 </code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8EMaven%E7%9A%84%E5%8C%85%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86%E4%B8%8E%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-10%20111348.png" alt="屏幕截图 2024-11-10 111348"></p>
 <ul>
 <li>使用<code>java -jar xxx.jar</code>命令运行JAR包，发现该JAR包没有指定主执行类，因此运行时需要指定Java MainClass。</li>
 </ul>
 <pre><code class="shell">java -jar snowflake-1.0-SNAPSHOT.jar
 
-java -cp snowflake-1.0-SNAPSHOT.jar cc.syns.App
+java -cp snowflake-1.0-SNAPSHOT.jar cc.synx.App
 </code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8EMaven%E7%9A%84%E5%8C%85%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86%E4%B8%8E%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-10%20111647.png" alt="屏幕截图 2024-11-10 111647"></p>
 <ul>
 <li>执行如下Maven命令也可运行Java项目：</li>
 </ul>
@@ -479,6 +506,7 @@ java -cp snowflake-1.0-SNAPSHOT.jar cc.syns.App
 <pre><code class="shell">mvn install:install-file -Dfile=target/snowflake-1.0-SNAPSHOT.jar -DgroupId=cc.synx -DartifactId=snowflake -Dversion=1.0 -Dpackaging=jar
 </code></pre>
 <p>上述命令各参数解释如下：<br>-<code>Dfile</code>：指定要安装的 JAR 文件的路径。<br>-<code>DgroupId</code>：指定组 ID。<br>-<code>DartifactId</code>：指定 artifact ID。<br>-<code>Dversion</code>：指定版本号。<br>-<code>Dpackaging</code>：指定打包类型（在这种情况下是 JAR）。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8EMaven%E7%9A%84%E5%8C%85%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86%E4%B8%8E%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-10%20111856.png" alt="屏幕截图 2024-11-10 111856"></p>
 <ul>
 <li>查看 Maven 本地仓库是否存在 Snowflake 组件包。</li>
 </ul>
@@ -486,6 +514,7 @@ java -cp snowflake-1.0-SNAPSHOT.jar cc.syns.App
 $ ls -F
 cc/ ...  # snowflake 组件在 cc/synx 目录下
 </code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8EMaven%E7%9A%84%E5%8C%85%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86%E4%B8%8E%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-10%20112025.png" alt="屏幕截图 2024-11-10 112025"></p>
 <ul>
 <li><code>Snowflake</code> 组件在本地仓库安装成功后，其他Maven项目在<code>pom.xml</code>文件中可以通过<code>&lt;dependency&gt;&lt;/dependency&gt;</code>标签引入该组件。</li>
 </ul>
@@ -519,22 +548,47 @@ $ sudo vim nexus.rc
 
 $ ./nexus start
 </code></pre>
+<p><strong>我们使用阿里云ECS，在Docker中安装Nexus</strong></p>
+<ul>
+<li>首先需要确保阿里云ECS开放了8081端口。在安全组-&gt;管理规则中开放8081端口，然后最好重启实例。</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8EMaven%E7%9A%84%E5%8C%85%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86%E4%B8%8E%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-10%20134303.png" alt="屏幕截图 2024-11-10 134303"></p>
 <ul>
 <li>使用Docker安装Nexus时，须确保系统中安装了Docker，安装完成后使用docker ps查看Nexus容器是否正常运行。</li>
 </ul>
-<pre><code class="shell">$ sudo docker run -d -p 8081:8081 -e INSTALL4J_ADD_VM_PARAMS=&quot;-Xms128m -Xmx1024m&quot; --name nexus sonatype/nexus3
+<pre><code class="shell">$ docker run -d \
+  -p 8081:8081 \
+  -v /root/nexus-data:/var/nexus-data \
+  -e INSTALL4J_ADD_VM_PARAMS=&quot;-Xms128m -Xmx1024m&quot; \
+  --name nexus \
+  sonatype/nexus3
 </code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8EMaven%E7%9A%84%E5%8C%85%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86%E4%B8%8E%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-10%20144140.png" alt="屏幕截图 2024-11-10 144140"></p>
 <ul>
 <li>Nexus默认以8081端口开放，访问<code>http://&lt;server-ip&gt;:8081</code>查看Nexus的页面，勿开启安全检查。</li>
-<li>点击Sign in，Username输入admin，password则位于<code>$&#123;nexus安装目录&#125;/sonatype-work/nexus/admin.password</code>文件中，首次登录成功后需要修改密码。</li>
 </ul>
-<pre><code class="shell">$ cat sonatype-work/nexus/admin.password
-# Admin首次登录密码，登陆成功修改密码并删除该文件
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8EMaven%E7%9A%84%E5%8C%85%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86%E4%B8%8E%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-10%20144207.png" alt="屏幕截图 2024-11-10 144207"></p>
+<ul>
+<li><p>点击Sign in，Username输入admin</p>
+<blockquote>
+<p>[!NOTE]</p>
+<p>password查看方式：</p>
+<pre><code class="shell">docker exec -it nexus bash
+bash-4.4$ cd /opt/sonatype/sonatype-work/nexus3/
+bash-4.4$ cat admin.password
+868b44bb-8776-4dcf-9a65-09d6ace80ba4
 </code></pre>
+</blockquote>
+<p>首次登录成功后需要修改密码。</p>
+</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8EMaven%E7%9A%84%E5%8C%85%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86%E4%B8%8E%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-10%20144646.png" alt="屏幕截图 2024-11-10 144646"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8EMaven%E7%9A%84%E5%8C%85%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86%E4%B8%8E%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-10%20144659.png" alt="屏幕截图 2024-11-10 144659"></p>
 <ul>
 <li>Nexus登陆成功后，点击Create repository新建Maven私有仓库。</li>
 <li>仓库类型选择<code>maven2(hosted)</code>类型，仓库名填入<code>my-maven-repo</code>，仓库制品类型选择<code>Release</code>，完成创建。</li>
 </ul>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8EMaven%E7%9A%84%E5%8C%85%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86%E4%B8%8E%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-10%20152224.png" alt="屏幕截图 2024-11-10 152224"></p>
 <h5 id="将组件上传至Maven私有仓库"><a href="#将组件上传至Maven私有仓库" class="headerlink" title="将组件上传至Maven私有仓库"></a>将组件上传至Maven私有仓库</h5><ul>
 <li>编辑Maven的<code>setting.xml</code>文件，添加私有仓库的配置信息。在<code>&lt;servers/&gt;</code>标签中添加仓库名、账号密码，在<code>&lt;mirrors/&gt;</code>和<code>&lt;profiles/&gt;</code>标签中添加仓库URL、仓库ID等，最后在<code>&lt;activeProfiles/&gt;</code>标签中使私有仓库生效。</li>
 </ul>
@@ -569,6 +623,11 @@ $ ./nexus start
     &lt;activeProfile&gt;my-maven-repo&lt;/activeProfile&gt;
 &lt;/activeProfiles&gt;
 </code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8EMaven%E7%9A%84%E5%8C%85%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86%E4%B8%8E%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-10%20153310.png" alt="屏幕截图 2024-11-10 153310"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8EMaven%E7%9A%84%E5%8C%85%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86%E4%B8%8E%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-10%20152938.png" alt="屏幕截图 2024-11-10 152938"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8EMaven%E7%9A%84%E5%8C%85%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86%E4%B8%8E%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-10%20153042.png" alt="屏幕截图 2024-11-10 153042"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8EMaven%E7%9A%84%E5%8C%85%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86%E4%B8%8E%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-10%20153419.png" alt="屏幕截图 2024-11-10 153419"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8EMaven%E7%9A%84%E5%8C%85%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86%E4%B8%8E%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-10%20153426.png" alt="屏幕截图 2024-11-10 153426"></p>
 <ul>
 <li>保存退出后，在snowflake项目的pom.xml中添加上传远程仓库的配置。</li>
 </ul>
@@ -599,16 +658,24 @@ $ ./nexus start
     &lt;/distributionManagement&gt;
 &lt;/project&gt;
 </code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8EMaven%E7%9A%84%E5%8C%85%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86%E4%B8%8E%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-10%20153801.png" alt="屏幕截图 2024-11-10 153801"></p>
 <ul>
 <li>将之前构建的Java组件上传至私有仓库。</li>
 </ul>
 <pre><code class="shell">$ mvn deploy
 </code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8EMaven%E7%9A%84%E5%8C%85%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86%E4%B8%8E%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-10%20153902.png" alt="屏幕截图 2024-11-10 153902"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8EMaven%E7%9A%84%E5%8C%85%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86%E4%B8%8E%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-10%20153908.png" alt="屏幕截图 2024-11-10 153908"></p>
 <ul>
 <li>上传完成后，在Nexus页面上可以查看到已上传的<code>snowflake-1.0</code>组件。</li>
 </ul>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8EMaven%E7%9A%84%E5%8C%85%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86%E4%B8%8E%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-10%20153953.png" alt="屏幕截图 2024-11-10 153953"></p>
 <h5 id="基于私有仓库构建项目"><a href="#基于私有仓库构建项目" class="headerlink" title="基于私有仓库构建项目"></a>基于私有仓库构建项目</h5><ul>
-<li>参考前文，构建新的Maven项目，在pom.xml中引入snowflake依赖，并在main方法中使用SnowflakeUtil工具类。</li>
+<li>参考前文，构建新的Maven项目</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8EMaven%E7%9A%84%E5%8C%85%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86%E4%B8%8E%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-10%20155114.png" alt="屏幕截图 2024-11-10 155114"></p>
+<ul>
+<li>在pom.xml中引入snowflake依赖，并在main方法中使用SnowflakeUtil工具类。</li>
 </ul>
 <pre><code class="xml">&lt;dependencies&gt;
     &lt;dependency&gt;
@@ -619,21 +686,33 @@ $ ./nexus start
     ...
 &lt;/dependencies&gt;
 </code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8EMaven%E7%9A%84%E5%8C%85%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86%E4%B8%8E%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-10%20160106.png" alt="屏幕截图 2024-11-10 160106"></p>
 <p>main 方法内容如下：</p>
 <pre><code class="java">public static void main(String[] args) &#123;
     SnowflakeUtil snowflakeUtil = new SnowflakeUtil(11);
     System.out.println(&quot;snowflakeId:&quot; + snowflakeUtil.nextId());
 &#125;
 </code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8EMaven%E7%9A%84%E5%8C%85%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86%E4%B8%8E%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-10%20160233.png" alt="屏幕截图 2024-11-10 160233"></p>
 <p>构建 Maven 的 settings.xml 与 前文给定的 settings.xml 一致即可。</p>
 <p>不要求使用同一台设备，如果使用同一台设备，为更好的展示效果，尝试先将 Maven 本地仓库的 snowflake 依赖移除，命令如下：</p>
 <pre><code class="shell">$ sudo mvn dependency:purge-local-repository -DmanualIncludes=&quot;cc.synx:snowflake:1.0&quot;
 </code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8EMaven%E7%9A%84%E5%8C%85%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86%E4%B8%8E%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-10%20154754.png" alt="屏幕截图 2024-11-10 154754"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8EMaven%E7%9A%84%E5%8C%85%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86%E4%B8%8E%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-10%20154852.png" alt="屏幕截图 2024-11-10 154852"></p>
 <ul>
-<li>完成新项目的构建运行。以下是输出格式：</li>
+<li>完成新项目的构建运行。</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8EMaven%E7%9A%84%E5%8C%85%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86%E4%B8%8E%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-10%20160331.png" alt="屏幕截图 2024-11-10 160331"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8EMaven%E7%9A%84%E5%8C%85%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86%E4%B8%8E%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-10%20160338.png" alt="屏幕截图 2024-11-10 160338"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8EMaven%E7%9A%84%E5%8C%85%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86%E4%B8%8E%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-10%20160344.png" alt="屏幕截图 2024-11-10 160344"></p>
+<ul>
+<li>以下是输出格式：</li>
 </ul>
 <pre><code class="markdown">snowflakeId:405200000000000000
 </code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8EMaven%E7%9A%84%E5%8C%85%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86%E4%B8%8E%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-10%20160624.png" alt="屏幕截图 2024-11-10 160624"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8EMaven%E7%9A%84%E5%8C%85%E4%BE%9D%E8%B5%96%E7%AE%A1%E7%90%86%E4%B8%8E%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-10%20160632.png" alt="屏幕截图 2024-11-10 160632"></p>
 
     </div>
     
