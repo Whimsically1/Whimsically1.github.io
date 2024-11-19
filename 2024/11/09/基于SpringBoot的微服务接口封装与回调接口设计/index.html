@@ -175,15 +175,15 @@
             
             <span class="tag">
                 
-                <a href="/tags/SpringBoot/" style="color: #ff7d73">
-                    SpringBoot
+                <a href="/tags/DevOps/" style="color: #ffa2c4">
+                    DevOps
                 </a>
             </span>
             
             <span class="tag">
                 
-                <a href="/tags/DevOps/" style="color: #ffa2c4">
-                    DevOps
+                <a href="/tags/SpringBoot/" style="color: #00a596">
+                    SpringBoot
                 </a>
             </span>
             
@@ -344,11 +344,30 @@ UserClient initWebClient() &#123;
 </tbody></table>
 <ol>
 <li>在 Linux 或 Windows 系统中安装并启动 MySQL，安装过程参考 <a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/mysql-installation-excerpt/8.0%E3%80%82">https://dev.mysql.com/doc/mysql-installation-excerpt/8.0。</a></li>
+</ol>
+<blockquote>
+<p>[!NOTE]</p>
+<p>（Windows）如果安装过其他版本的MySQL，先确保完全卸载后再安装！</p>
+<p>附：MySQL彻底卸载教程：<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_56952690/article/details/129678685">教你彻底卸载MySQL 并重装（保姆级教程 ）_mysql怎么卸载干净重装-CSDN博客</a></p>
+<p>MySQL8.0安装教程：<a target="_blank" rel="noopener" href="https://blog.csdn.net/m0_52559040/article/details/121843945">2024 年 MySQL 8.0 安装 配置 教程 最简易（保姆级）_mysql安装-CSDN博客</a></p>
+</blockquote>
+<p>下载安装包到本地安装即可。</p>
+<p>注意配置环境变量！</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8ESpringBoot%E7%9A%84%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%8E%A5%E5%8F%A3%E5%B0%81%E8%A3%85%E4%B8%8E%E5%9B%9E%E8%B0%83%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-12%20193513.png" alt="屏幕截图 2024-11-12 193513"></p>
+<ol>
 <li>基于以上用户表结构编写 SQL 语句，并导入至 MySQL 数据库，完成库表创建。</li>
 </ol>
-<pre><code class="sql">mysql&gt; USE db_user;
+<pre><code class="sql">CREATE DATABASE db_user;
+USE db_user;
 Database changed
-mysql&gt; DESCRIBE tbl_user;
+
+CREATE TABLE tbl_user (
+    id VARCHAR(20) NOT NULL,
+    mobile_phone VARCHAR(11) UNIQUE,
+    name VARCHAR(50),
+    PRIMARY KEY (id)
+);
+DESCRIBE tbl_user;
 +--------+--------------+------+-----+---------+-------+
 | Field  | Type         | Null | Key | Default | Extra |
 +--------+--------------+------+-----+---------+-------+
@@ -360,7 +379,14 @@ mysql&gt; DESCRIBE tbl_user;
 
 mysql&gt;
 </code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8ESpringBoot%E7%9A%84%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%8E%A5%E5%8F%A3%E5%B0%81%E8%A3%85%E4%B8%8E%E5%9B%9E%E8%B0%83%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-12%20204106.png" alt="屏幕截图 2024-11-12 204106"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8ESpringBoot%E7%9A%84%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%8E%A5%E5%8F%A3%E5%B0%81%E8%A3%85%E4%B8%8E%E5%9B%9E%E8%B0%83%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-12%20204113.png" alt="屏幕截图 2024-11-12 204113"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8ESpringBoot%E7%9A%84%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%8E%A5%E5%8F%A3%E5%B0%81%E8%A3%85%E4%B8%8E%E5%9B%9E%E8%B0%83%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-12%20204210.png" alt="屏幕截图 2024-11-12 204210"></p>
 <h5 id="搭建项目框架"><a href="#搭建项目框架" class="headerlink" title="搭建项目框架"></a>搭建项目框架</h5><ul>
+<li>下载maven在本地完成配置，教程：<a target="_blank" rel="noopener" href="https://blog.csdn.net/aaxzsuj/article/details/130524829">Maven 3.9.1下载安装配置一条龙（无压力）亲测_maven3.9-CSDN博客</a></li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8ESpringBoot%E7%9A%84%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%8E%A5%E5%8F%A3%E5%B0%81%E8%A3%85%E4%B8%8E%E5%9B%9E%E8%B0%83%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-13%20155650.png" alt="屏幕截图 2024-11-13 155650"></p>
+<ul>
 <li>基于 Spring Initializer 搭建 Spring Boot 项目 userService，在 <code>pom.xml</code> 中添加 web、mysql、mybatis-plus 及 Snowflake 等依赖。</li>
 </ul>
 <pre><code class="xml">&lt;dependencies&gt;
@@ -375,7 +401,7 @@ mysql&gt;
     &lt;/dependency&gt;
     &lt;dependency&gt;
         &lt;groupId&gt;com.baomidou&lt;/groupId&gt;
-        &lt;artifactId&gt;mybatis-plus-spring-boot-starter&lt;/artifactId&gt;
+        &lt;artifactId&gt;mybatis-plus-spring-boot3-starter&lt;/artifactId&gt;
         &lt;version&gt;3.5.5&lt;/version&gt;
     &lt;/dependency&gt;
     &lt;dependency&gt;
@@ -390,6 +416,13 @@ mysql&gt;
     &lt;/dependency&gt;
 &lt;/dependencies&gt;
 </code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8ESpringBoot%E7%9A%84%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%8E%A5%E5%8F%A3%E5%B0%81%E8%A3%85%E4%B8%8E%E5%9B%9E%E8%B0%83%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-12%20204803.png" alt="屏幕截图 2024-11-12 204803"></p>
+<blockquote>
+<p>[!NOTE]</p>
+<p>雪花组件我选择在之前搭建的私有仓库中导入，设置如下：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8ESpringBoot%E7%9A%84%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%8E%A5%E5%8F%A3%E5%B0%81%E8%A3%85%E4%B8%8E%E5%9B%9E%E8%B0%83%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-14%20091333.png" alt="屏幕截图 2024-11-14 091333"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8ESpringBoot%E7%9A%84%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%8E%A5%E5%8F%A3%E5%B0%81%E8%A3%85%E4%B8%8E%E5%9B%9E%E8%B0%83%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-14%20091735.png" alt="屏幕截图 2024-11-14 091735"></p>
+</blockquote>
 <ul>
 <li>在 <code>src/main/resources</code> 目录下将 <code>application.properties</code> 文件改名为 <code>application.yml</code>，添加连接 MySQL 的驱动配置。本次实验不配置额外的数据库连接池，使用 Spring Boot 默认提供的数据库连接池 <code>Hikari</code>。</li>
 </ul>
@@ -398,7 +431,7 @@ mysql&gt;
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://&lt;server-id&gt;:3306/db_user?useUnicode=true&amp;characterEncoding=utf8&amp;useSSL=false
+    url: jdbc:mysql://&lt;server-id&gt;:3306/db_user?useUnicode=true&amp;characterEncoding=utf8&amp;useSSL=false&amp;serverTimezone=GMT%2B8
     username: &lt;mysql_username&gt;
     password: &lt;mysql_password&gt;
   mybatis-plus:
@@ -407,6 +440,8 @@ spring:
       map-underscore-to-camel-case: true  # 驼峰转化
       call-setters-on-nulls: true
 </code></pre>
+<p>（记得修改成本地ip，自己的MySQL登录用户名root和密码）</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8ESpringBoot%E7%9A%84%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%8E%A5%E5%8F%A3%E5%B0%81%E8%A3%85%E4%B8%8E%E5%9B%9E%E8%B0%83%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-12%20210411.png" alt="屏幕截图 2024-11-12 210411"></p>
 <ul>
 <li>搭建项目骨架，在启动类同级目录上创建 mapper、service、entity 及 controller 包。并在启动类上添加 MyBatis 扫描 Mapper 包的注解 <code>@MapperScan(&quot;cc.synx.mapper&quot;)</code>。</li>
 </ul>
@@ -422,15 +457,17 @@ spring:
 │   │   │           ├── mapper      # 持久层
 │   │   │           ├── service     # 服务层
 │   │   │           └── entity      # 服务实体包
-│   │   │               └── UserServiceApplication.java
+│   │   │           └── UserServiceApplication.java
 │   │   └── resources
 │   │       └── application.yml
 │   └── test
 │       ├── java
-│       └── cc
-│           └── synx
+│       	└── cc
+│           	└── synx
 └── pom.xml
 </code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8ESpringBoot%E7%9A%84%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%8E%A5%E5%8F%A3%E5%B0%81%E8%A3%85%E4%B8%8E%E5%9B%9E%E8%B0%83%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-12%20211809.png" alt="屏幕截图 2024-11-12 211809"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8ESpringBoot%E7%9A%84%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%8E%A5%E5%8F%A3%E5%B0%81%E8%A3%85%E4%B8%8E%E5%9B%9E%E8%B0%83%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-12%20212228.png" alt="屏幕截图 2024-11-12 212228"></p>
 <ul>
 <li>在 entity 包中创建 User 类，字段与数据表 <code>tbl_user</code> 保证一致。</li>
 </ul>
@@ -459,10 +496,282 @@ public class User &#123;
     &#125;
 &#125;
 </code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8ESpringBoot%E7%9A%84%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%8E%A5%E5%8F%A3%E5%B0%81%E8%A3%85%E4%B8%8E%E5%9B%9E%E8%B0%83%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-14%20104904.png" alt="屏幕截图 2024-11-14 104904"></p>
 <ul>
 <li>在 mapper 包中创建 UserMapper 接口，实现 Mybatis-Plus 提供的 BaseMapper 接口后能够调用 MyBatis-plus 提供的数据库执行方法。</li>
 </ul>
-<h5 id="服务接口编写"><a href="#服务接口编写" class="headerlink" title="服务接口编写"></a>服务接口编写</h5><h3 id="微服务同步调用"><a href="#微服务同步调用" class="headerlink" title="微服务同步调用"></a>微服务同步调用</h3><h5 id="搭建业务服务框架"><a href="#搭建业务服务框架" class="headerlink" title="搭建业务服务框架"></a>搭建业务服务框架</h5><h5 id="服务正向调用"><a href="#服务正向调用" class="headerlink" title="服务正向调用"></a>服务正向调用</h5><h5 id="设计和实现服务回调"><a href="#设计和实现服务回调" class="headerlink" title="设计和实现服务回调"></a>设计和实现服务回调</h5><h3 id="微服务异步调用"><a href="#微服务异步调用" class="headerlink" title="微服务异步调用"></a>微服务异步调用</h3>
+<blockquote>
+<p>[!NOTE]</p>
+<p>多多导入类！</p>
+</blockquote>
+<pre><code class="java">@Mapper
+public interface UserMapper extends BaseMapper&lt;User&gt; &#123;
+    
+&#125;
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8ESpringBoot%E7%9A%84%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%8E%A5%E5%8F%A3%E5%B0%81%E8%A3%85%E4%B8%8E%E5%9B%9E%E8%B0%83%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-12%20214100.png" alt="屏幕截图 2024-11-12 214100"></p>
+<h5 id="服务接口编写"><a href="#服务接口编写" class="headerlink" title="服务接口编写"></a>服务接口编写</h5><ul>
+<li>用户管理服务需要实现查询用户和新增用户两个接口，接口声明如下：</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th align="left">接口名称</th>
+<th align="left">方法名</th>
+<th align="left">URI</th>
+<th align="left">请求方式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">查询用户</td>
+<td align="left">queryUsers</td>
+<td align="left">&#x2F;users</td>
+<td align="left">GET</td>
+</tr>
+<tr>
+<td align="left">新增用户</td>
+<td align="left">addUsers</td>
+<td align="left">&#x2F;users</td>
+<td align="left">POST</td>
+</tr>
+</tbody></table>
+<ul>
+<li>在 service 包中创建 UserServiceImpl 类，实现查询用户和新增用户两个方法。</li>
+</ul>
+<pre><code class="java">@Service
+public class UserServiceImpl extends ServiceImpl&lt;UserMapper, User&gt; &#123;
+
+    /**
+     * 查询用户，支持id精确查询、name模糊查询
+     */
+    public List&lt;User&gt; queryUsers(String id, String name) &#123;
+        LambdaQueryChainWrapper&lt;User&gt; queryWrapper = new LambdaQueryChainWrapper&lt;&gt;(User.class);
+        queryWrapper.eq(id != null &amp;&amp; !id.isEmpty(), User::getId, id);
+        queryWrapper.like(name != null &amp;&amp; !name.isEmpty(), User::getName, name);
+        return queryWrapper.list();
+    &#125;
+
+    /**
+     * 新增用户
+     */
+    public boolean addUsers(List&lt;User&gt; users) &#123;
+        SnowflakeUtil snowflakeUtil = new SnowflakeUtil(1L);
+        for (User user : users) &#123;
+            user.setId(String.valueOf(snowflakeUtil.nextId()));
+        &#125;
+        return saveBatch(users);
+    &#125;
+&#125;
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8ESpringBoot%E7%9A%84%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%8E%A5%E5%8F%A3%E5%B0%81%E8%A3%85%E4%B8%8E%E5%9B%9E%E8%B0%83%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-14%20105003.png" alt="屏幕截图 2024-11-14 105003"></p>
+<ul>
+<li>在 controller 包中创建 UserController 类，在该类中编写服务对外暴露的两个接口。</li>
+</ul>
+<pre><code class="java">@RestController
+@RequestMapping(&quot;/users&quot;)
+public class UserController &#123;
+
+    private UserServiceImpl userService;
+
+    public UserController(UserServiceImpl userService) &#123; // 构造器注入 userService
+        this.userService = userService;
+    &#125;
+
+    /**
+     * 查询用户
+     */
+    @GetMapping(&quot;&quot;)
+    public List&lt;User&gt; queryUsers(@RequestParam(required = false) String id, @RequestParam(required = false) String  name) &#123;
+        return userService.queryUsers(id, name);
+    &#125;
+
+    /**
+     * 新增用户
+     */
+    @PostMapping(&quot;&quot;)
+    public boolean addUsers(@RequestBody List&lt;User&gt; users) &#123;
+        return userService.addUsers(users);
+    &#125;
+&#125;
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8ESpringBoot%E7%9A%84%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%8E%A5%E5%8F%A3%E5%B0%81%E8%A3%85%E4%B8%8E%E5%9B%9E%E8%B0%83%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-12%20214514.png" alt="屏幕截图 2024-11-12 214514"></p>
+<ul>
+<li>使用 Maven 打包或在 IDE 中直接启动服务。这里选择直接启动服务。Maven打包代码如下：</li>
+</ul>
+<pre><code class="shell">$ mvn clean package
+
+$ java -jar target/userService-0.0.1-SNAPSHOT.jar
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8ESpringBoot%E7%9A%84%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%8E%A5%E5%8F%A3%E5%B0%81%E8%A3%85%E4%B8%8E%E5%9B%9E%E8%B0%83%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-14%20151117.png" alt="屏幕截图 2024-11-14 151117"></p>
+<h3 id="微服务同步调用"><a href="#微服务同步调用" class="headerlink" title="微服务同步调用"></a>微服务同步调用</h3><h5 id="搭建业务服务框架"><a href="#搭建业务服务框架" class="headerlink" title="搭建业务服务框架"></a>搭建业务服务框架</h5><ul>
+<li>与搭建用户管理服务类似，新建业务服务 bizService，业务服务不使用数据库，仅添加 Web 依赖即可。在 <code>application.yml</code> 中将业务服务启动的接口改为 8081。</li>
+</ul>
+<pre><code class="yaml">server:
+  port: 8081
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8ESpringBoot%E7%9A%84%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%8E%A5%E5%8F%A3%E5%B0%81%E8%A3%85%E4%B8%8E%E5%9B%9E%E8%B0%83%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-14%20153217.png" alt="屏幕截图 2024-11-14 153217"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8ESpringBoot%E7%9A%84%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%8E%A5%E5%8F%A3%E5%B0%81%E8%A3%85%E4%B8%8E%E5%9B%9E%E8%B0%83%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-14%20154448.png" alt="屏幕截图 2024-11-14 154448"></p>
+<ul>
+<li>在启动类同级目录创建 controller、entity 包，将用户管理服务的 User 类复制到 entity 包中，并在 controller 包中新建 BizController 类，类中唯一的接口用于组合调用用户管理服务的两个接口，实现新增用户并返回新增后的用户列表，内容如下：</li>
+</ul>
+<pre><code class="java">@RestController
+@RequestMapping(&quot;/biz&quot;)
+public class BizController &#123;
+
+    /**
+     * 新增用户并返回新增后的用户列表
+     * @param users
+     * @return
+     */
+    @PostMapping
+    public Map&lt;String, Object&gt; addAndGetUsers(@RequestBody List&lt;User&gt; users) &#123;
+        return null;
+    &#125;
+&#125;
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8ESpringBoot%E7%9A%84%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%8E%A5%E5%8F%A3%E5%B0%81%E8%A3%85%E4%B8%8E%E5%9B%9E%E8%B0%83%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-14%20163631.png" alt="屏幕截图 2024-11-14 163631"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8ESpringBoot%E7%9A%84%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%8E%A5%E5%8F%A3%E5%B0%81%E8%A3%85%E4%B8%8E%E5%9B%9E%E8%B0%83%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-14%20163638.png" alt="屏幕截图 2024-11-14 163638"></p>
+<h5 id="服务正向调用"><a href="#服务正向调用" class="headerlink" title="服务正向调用"></a>服务正向调用</h5><p>本节将使用前文提出的 WebClient + HTTP Interfaces 声明式调用工具来完成上述接口的编写。通过使用 HTTP 接口声明创建客户端代理来执行 HTTP 请求。</p>
+<ul>
+<li>在 <code>pom.xml</code> 中添加 <code>spring-boot-starter-webflux</code>。</li>
+</ul>
+<pre><code class="xml">&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-webflux&lt;/artifactId&gt;
+&lt;/dependency&gt;
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8ESpringBoot%E7%9A%84%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%8E%A5%E5%8F%A3%E5%B0%81%E8%A3%85%E4%B8%8E%E5%9B%9E%E8%B0%83%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-14%20162149.png" alt="屏幕截图 2024-11-14 162149"></p>
+<ul>
+<li>在启动类同级目录创建 api 包，新增 UserClient 接口，添加 User 服务的两个接口声明。</li>
+</ul>
+<pre><code class="java">public interface UserClient &#123;
+
+    @GetExchange(&quot;/users&quot;)
+    List&lt;User&gt; queryUsers(@RequestParam(required = false) String id, @RequestParam(required = false) String name);
+
+    @PostExchange(&quot;/users&quot;)
+    boolean addUsers(@RequestBody List&lt;User&gt; users);
+&#125;
+</code></pre>
+<p>![屏幕截图 2024-11-19 165917](<a target="_blank" rel="noopener" href="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8ESpringBoot%E7%9A%84%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%8E%A5%E5%8F%A3%E5%B0%81%E8%A3%85%E4%B8%8E%E5%9B%9E%E8%B0%83%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE">https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/基于SpringBoot的微服务接口封装与回调接口设计/屏幕截图</a> 2024-11-19 165917.png)</p>
+<ul>
+<li>在启动类中使用 WebClient 注册 UserClient Bean，ip地址和端口需要替换为启动用户管理服务的ip和port。</li>
+</ul>
+<pre><code class="java">@Bean
+UserClient initWebClient() &#123;
+    WebClient client = WebClient.builder().baseUrl(&quot;http://localhost:8080/&quot;).build();
+    HttpServiceProxyFactory factory =
+            HttpServiceProxyFactory.builderFor(WebClientAdapter.create(client)).build();
+    return factory.createClient(UserClient.class);
+&#125;
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8ESpringBoot%E7%9A%84%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%8E%A5%E5%8F%A3%E5%B0%81%E8%A3%85%E4%B8%8E%E5%9B%9E%E8%B0%83%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-14%20164501.png" alt="屏幕截图 2024-11-14 164501"></p>
+<ul>
+<li>补充 BizController 类的代码。</li>
+</ul>
+<pre><code class="java">@RestController
+@RequestMapping(&quot;/biz&quot;)
+public class BizController &#123;
+    private final UserClient userClient;
+
+    public BizController(UserClient userClient)&#123;
+        this.userClient = userClient;
+    &#125;
+
+    /**
+     * 新增用户并返回新增后的用户列表
+     * @param users
+     * @return
+     */
+    @PostMapping
+    public List&lt;User&gt; addAndGetUsers(@RequestBody List&lt;User&gt; users)&#123;
+        boolean b = userClient.addUsers(users);
+        if(b)&#123;
+            return userClient.queryUsers(null, null);
+        &#125;
+        return null;
+    &#125;
+&#125;
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8ESpringBoot%E7%9A%84%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%8E%A5%E5%8F%A3%E5%B0%81%E8%A3%85%E4%B8%8E%E5%9B%9E%E8%B0%83%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-19%20170101.png" alt="屏幕截图 2024-11-19 170101"></p>
+<ul>
+<li>打包部署 BizService，使用接口访问工具请求 <a target="_blank" rel="noopener" href="http://127.0.0.1:8081/biz">http://127.0.0.1:8081/biz</a> 接口，传入新增用户信息，查看返回结果。</li>
+</ul>
+<blockquote>
+<p>[!WARNING]</p>
+<p>500</p>
+</blockquote>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8ESpringBoot%E7%9A%84%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%8E%A5%E5%8F%A3%E5%B0%81%E8%A3%85%E4%B8%8E%E5%9B%9E%E8%B0%83%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-19%20170205.png" alt="屏幕截图 2024-11-19 170205"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8ESpringBoot%E7%9A%84%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%8E%A5%E5%8F%A3%E5%B0%81%E8%A3%85%E4%B8%8E%E5%9B%9E%E8%B0%83%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-19%20170331.png" alt="屏幕截图 2024-11-19 170331"></p>
+<h5 id="设计和实现服务回调"><a href="#设计和实现服务回调" class="headerlink" title="设计和实现服务回调"></a>设计和实现服务回调</h5><p>目前为确保用户信息的完整准确性，新增用户完成后，业务服务需要将这些用户的信息送往第三方数据校验中心进行姓名和电话号码校验，validate 服务基于数据中心的数据检测用户信息是否正常，检测完成后回调业务服务接口将用户 ID 传回，由业务服务进行处理。在正常工业场景中，业务服务调用 validate 服务的操作通常是异步非阻塞的，这里简化为同步回调模式。本小节简述上述场景实现思路，具体操作请自行完成。</p>
+<ul>
+<li>构建 Validate 服务，提供 validateUsers 接口，接收用户列表、回调URL等参数，当该接口执行完成后，将正常用户ID和异常用户ID调用回调URL传回业务服务。</li>
+</ul>
+<pre><code class="java">@PostMapping(&quot;/validate&quot;)
+public boolean validateUsers(@RequestBody List&lt;User&gt; users, @RequestParam String url)&#123;
+    // 1. 遍历users，验证用户信息
+    // 2. 获取正常用户ID列表和异常用户ID列表
+    // 3. 请求URL将用户ID列表传回
+    return true;
+&#125;
+</code></pre>
+<ul>
+<li>在业务服务中需要提供对正常用户、异常用户的操作方法，该方法URL将作为业务服务调用 Validate 服务的 validateUsers 接口参数传入。以下方法需要添加 fastjson2 依赖。</li>
+</ul>
+<pre><code class="java">@PutMapping(&quot;/callback-user-info&quot;)
+public boolean updateUserInfo(@RequestBody String jsonString)&#123;
+    JSONObject jsonObject = new JSONObject(jsonString);
+    List&lt;String&gt; normalUserIds = jsonObject.getJSONArray(&quot;normal&quot;).toList(String.class);
+    List&lt;String&gt; abnormalUserIds = jsonObject.getJSONArray(&quot;abnormal&quot;).toList(String.class);
+    // 对正常用户和异常用户进行处理
+    return true;
+&#125;
+</code></pre>
+<ul>
+<li>在业务服务的 addAndGetUsers 方法中调用 ValidateUsers 接口，validateClient 与 userClient 实现方式类似。</li>
+</ul>
+<pre><code class="java">@PostMapping
+public List&lt;User&gt; addAndGetUsers(@RequestBody List&lt;User&gt; users) &#123;
+    boolean b = userClient.addUsers(users);
+    if (b) &#123;
+        validateClient.validateUsers(users, &quot;http://localhost:8081/biz/callback-user-info&quot;);
+        return userClient.queryUsers(null, null);
+    &#125;
+    return null;
+&#125;
+</code></pre>
+<h3 id="微服务异步调用"><a href="#微服务异步调用" class="headerlink" title="微服务异步调用"></a>微服务异步调用</h3><p>我们了解到，同步调用会阻塞请求方，HTTP 请求方只有获取到响应结果后方可继续执行。在微服务系统构建过程中，需要甄别哪些调用是必要同步的，哪些调用可以是异步的。如上所述，在业务系统同步调用第三方接口的场景中，当第三方接口执行时间长、报错、超时等情况会影响业务系统的正常运行，是否采用异步模式则取决于业务系统对第三方操作的容忍程度，如果业务系统严格要求每个用户的信息是准确无误的，采用同步模式，否则可以采用异步调用+重试机制加快请求效率。</p>
+<p>在 Spring 应用中，实现异步调用的方式通常采用 <code>AsyncTaskExecutor</code> 线程池，Spring Boot 提供了快速标记异步方法的注解 <code>@Async</code>，以业务服务异步调用 validate 服务接口为例，具体应用方式如下：</p>
+<ul>
+<li>在启动类中添加 <code>@EnableAsync</code> 注解，开启异步执行方法的能力。</li>
+</ul>
+<pre><code class="java">@EnableAsync
+@SpringBootApplication
+public class BizServiceApplication &#123;
+    // ...
+&#125;
+</code></pre>
+<ul>
+<li>在 ValidateClient 接口的 validateUsers 方法声明上添加 <code>@Async</code> 注解。</li>
+</ul>
+<pre><code class="java">public interface ValidateClient &#123;
+    @Async
+    @PostMapping(&quot;/validate&quot;)
+    public boolean validateUsers(@RequestBody List&lt;User&gt; users, @RequestParam String url);
+&#125;
+</code></pre>
+<ul>
+<li>再次访问 addAndGetUsers 接口时，发现 validateClient.validateUsers 方法没有返回结果前，业务服务便已经执行 userClient.queryUsers 返回用户信息了。</li>
+</ul>
+<blockquote>
+<p>[!NOTE]</p>
+<p><strong>@Async 使用注意事项</strong></p>
+<ul>
+<li>不要在同一个类中声明并使用异步方法，在同一个类中调用异步方法，无法通过代理机制工作，异步方法不生效。</li>
+<li>生产环境中使用 @Async 时，推荐根据生产机器的性能使用 ThreadPoolTaskExecutor 实现自定义线程池，避免引起性能不足问题。</li>
+</ul>
+</blockquote>
+
     </div>
     
     

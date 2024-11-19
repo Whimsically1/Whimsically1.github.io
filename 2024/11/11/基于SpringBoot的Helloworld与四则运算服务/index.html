@@ -1,0 +1,403 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>基于SpringBoot的Helloworld与四则运算服务 | Whimsically_&#39;s</title>
+    <meta name="author" content="UniqueZheng" />
+    <meta name="description" content="A UESTCer/A Liverpool Fan" />
+    <meta name="keywords" content="" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
+    />
+    <link rel="icon" href="/images/avatar.jpg" />
+    <link rel="preconnect" href="https://s4.zstatic.net" />
+<script src="https://s4.zstatic.net/ajax/libs/vue/3.3.7/vue.global.prod.min.js"></script>
+<link rel="stylesheet" href="https://s4.zstatic.net/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+<link rel="preconnect" href="https://fonts.googleapis.cn" />
+<link rel="preconnect" href="https://fonts.gstatic.cn" crossorigin />
+<link
+    rel="stylesheet"
+    href="https://fonts.googleapis.cn/css2?family=Fira+Code:wght@400;500;600;700&family=Lexend:wght@400;500;600;700;800;900&family=Noto+Sans+SC:wght@400;500;600;700;800;900&display=swap"
+/>
+<script> const mixins = {}; </script>
+
+<script src="https://polyfill.alicdn.com/v3/polyfill.min.js?features=default"></script>
+
+
+<script src="https://s4.zstatic.net/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://s4.zstatic.net/ajax/libs/highlightjs-line-numbers.js/2.8.0/highlightjs-line-numbers.min.js"></script>
+<link
+    rel="stylesheet"
+    href="https://s4.zstatic.net/ajax/libs/highlight.js/11.9.0/styles/github.min.css"
+/>
+<script src="/js/lib/highlight.js"></script>
+
+
+
+<script src="/js/lib/preview.js"></script>
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/css/main.css" />
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+<body>
+    <div id="layout">
+        <transition name="fade">
+            <div id="loading" v-show="loading">
+                <div id="loading-circle">
+                    <h2>LOADING</h2>
+                    <p>加载过慢请开启缓存 浏览器默认开启</p>
+                    <img src="/images/loading.gif" />
+                </div>
+            </div>
+        </transition>
+        <div id="menu" :class="{ hidden: hiddenMenu, 'menu-color': menuColor}">
+    <nav id="desktop-menu">
+        <a class="title" href="/">
+            <span>WHIMSICALLY_&#39;S</span>
+        </a>
+        
+        <a href="/">
+            <i class="fa-solid fa-house fa-fw"></i>
+            <span>&ensp;Home</span>
+        </a>
+        
+        <a href="/about">
+            <i class="fa-solid fa-id-card fa-fw"></i>
+            <span>&ensp;About</span>
+        </a>
+        
+        <a href="/archives">
+            <i class="fa-solid fa-box-archive fa-fw"></i>
+            <span>&ensp;Archives</span>
+        </a>
+        
+        <a href="/categories">
+            <i class="fa-solid fa-bookmark fa-fw"></i>
+            <span>&ensp;Categories</span>
+        </a>
+        
+        <a href="/tags">
+            <i class="fa-solid fa-tags fa-fw"></i>
+            <span>&ensp;Tags</span>
+        </a>
+        
+    </nav>
+    <nav id="mobile-menu">
+        <div class="title" @click="showMenuItems = !showMenuItems">
+            <i class="fa-solid fa-bars fa-fw"></i>
+            <span>&emsp;WHIMSICALLY_&#39;S</span>
+        </div>
+        <transition name="slide">
+            <div class="items" v-show="showMenuItems">
+                
+                <a href="/">
+                    <div class="item">
+                        <div style="min-width: 20px; max-width: 50px; width: 10%">
+                            <i class="fa-solid fa-house fa-fw"></i>
+                        </div>
+                        <div style="min-width: 100px; max-width: 150%; width: 20%">Home</div>
+                    </div>
+                </a>
+                
+                <a href="/about">
+                    <div class="item">
+                        <div style="min-width: 20px; max-width: 50px; width: 10%">
+                            <i class="fa-solid fa-id-card fa-fw"></i>
+                        </div>
+                        <div style="min-width: 100px; max-width: 150%; width: 20%">About</div>
+                    </div>
+                </a>
+                
+                <a href="/archives">
+                    <div class="item">
+                        <div style="min-width: 20px; max-width: 50px; width: 10%">
+                            <i class="fa-solid fa-box-archive fa-fw"></i>
+                        </div>
+                        <div style="min-width: 100px; max-width: 150%; width: 20%">Archives</div>
+                    </div>
+                </a>
+                
+                <a href="/categories">
+                    <div class="item">
+                        <div style="min-width: 20px; max-width: 50px; width: 10%">
+                            <i class="fa-solid fa-bookmark fa-fw"></i>
+                        </div>
+                        <div style="min-width: 100px; max-width: 150%; width: 20%">Categories</div>
+                    </div>
+                </a>
+                
+                <a href="/tags">
+                    <div class="item">
+                        <div style="min-width: 20px; max-width: 50px; width: 10%">
+                            <i class="fa-solid fa-tags fa-fw"></i>
+                        </div>
+                        <div style="min-width: 100px; max-width: 150%; width: 20%">Tags</div>
+                    </div>
+                </a>
+                
+            </div>
+        </transition>
+    </nav>
+</div>
+<transition name="fade">
+    <div id="menu-curtain" @click="showMenuItems = !showMenuItems" v-show="showMenuItems"></div>
+</transition>
+
+        <div id="main" :class="loading ? 'into-enter-from': 'into-enter-active'">
+            <div class="article">
+    <div>
+        <h1>基于SpringBoot的Helloworld与四则运算服务</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2024/11/11
+        </span>
+        
+        
+        <span class="tags">
+            <span class="icon">
+                <i class="fa-solid fa-tags fa-fw"></i>
+            </span>
+            
+            
+            <span class="tag">
+                
+                <a href="/tags/DevOps/" style="color: #ff9e81">
+                    DevOps
+                </a>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/tags/SpringBoot/" style="color: #ffe4d6">
+                    SpringBoot
+                </a>
+            </span>
+            
+        </span>
+        
+    </div>
+    
+    <div class="content" v-pre>
+        <h1 id="基于SpringBoot的Helloworld与四则运算服务"><a href="#基于SpringBoot的Helloworld与四则运算服务" class="headerlink" title="基于SpringBoot的Helloworld与四则运算服务"></a>基于SpringBoot的Helloworld与四则运算服务</h1><hr>
+<h2 id="基本要求"><a href="#基本要求" class="headerlink" title="基本要求"></a>基本要求</h2><ul>
+<li>理解掌握SpringBoot结合Maven的工程搭建流程</li>
+<li>理解掌握SpringBoot如何应用于Web领域</li>
+<li>理解具备基于SpringBoot设计编写简单接口的能力</li>
+</ul>
+<h2 id="实验过程"><a href="#实验过程" class="headerlink" title="实验过程"></a>实验过程</h2><h3 id="导入SpringBoot工程"><a href="#导入SpringBoot工程" class="headerlink" title="导入SpringBoot工程"></a>导入SpringBoot工程</h3><p>将下面Springboot项目解压并导入IDE，实现项目初始化：</p>
+<h5 id="使用IntelliJ-IDEA导入SpringBoot工程"><a href="#使用IntelliJ-IDEA导入SpringBoot工程" class="headerlink" title="使用IntelliJ IDEA导入SpringBoot工程"></a>使用IntelliJ IDEA导入SpringBoot工程</h5><ul>
+<li><p>在欢迎屏幕中点击“Open”，或选择“File | Open”，在弹出的“Open File or Project”窗口中找到 Spring Boot 工程目录：</p>
+</li>
+<li><p>IntelliJ IDEA 会自动解析 Maven 项目、下载相关依赖，解析完成后，使用快捷键 <code>Shift+F10</code> 即可运行空白项目：</p>
+</li>
+</ul>
+<p>当出现与如图类似的输出，则表示项目导入成功。</p>
+<h5 id="使用-Visual-Studio-Code-导入-Spring-Boot-工程"><a href="#使用-Visual-Studio-Code-导入-Spring-Boot-工程" class="headerlink" title="使用 Visual Studio Code 导入 Spring Boot 工程"></a>使用 Visual Studio Code 导入 Spring Boot 工程</h5><ul>
+<li><p>要在 Visual Studio Code 中编译、调试 Spring Boot 工程，需要安装 Java 插件扩展包“Extension Pack for Java”，该插件扩展包包含对 Java 语言、Java 调试、Maven 等的支持。要安装该插件扩展包，需先转到 “Extensions”窗口（使用快捷键 <code>Ctrl+Shift+X</code>），键入“java”过滤插件列表，找到对应的插件包并选择安装：</p>
+</li>
+<li><p>使用快捷键 <code>Ctrl+K Ctrl+O</code> 打开对应的项目文件夹，Visual Studio Code 将自动导入、解析项目。解析完成后，进入 <code>src/main/java/tech/synx/arithmetic/ArithmeticApplication.java</code> 文件中，此时 <code>main()</code> 函数上方将出现“Run | Debug”按钮，点击“Run”按钮即可运行空白项目：</p>
+</li>
+</ul>
+<p>当出现与如图类似的输出，则表示项目导入成功。</p>
+<h3 id="接口定义与实现"><a href="#接口定义与实现" class="headerlink" title="接口定义与实现"></a>接口定义与实现</h3><p>在 Spring 模型中，Controller 层用于拦截传入请求，将请求的数据转换成项目内部的数据结构，并将数据发送给 Model 层进行进一步处理。在 Model 层处理完成后，Controller 层将结果回送。这些操作在 Spring Boot 中实现了自动配置，简化了开发流程，接口的实现仅需使用基于注解的 Controller 类即可，Spring Boot 默认使用 Jackson 包实现 JSON 与 Java 对象之间的自动转换。</p>
+<p>Spring Boot 常使用按层的组织，即将所有 Controller 类放在 <code>controller</code> 包下、所有 Service 类放在 <code>service</code> 包下，所有实体类放在 <code>domain</code> &#x2F; <code>model</code> 包下等。本实验的计算操作较为简单，因此无需进行 Service 类的设计。</p>
+<h3 id="接口规范"><a href="#接口规范" class="headerlink" title="接口规范"></a>接口规范</h3><h5 id="求和接口"><a href="#求和接口" class="headerlink" title="求和接口"></a>求和接口</h5><p>求和接口，返回两整数之和</p>
+<pre><code class="json">URI: POST /v1/arithmetic/operation/add
+请求头：Content-type:application/json
+请求参数：
+op1: 第一个操作数；int；必填
+op2: 第二个操作数；int；必填
+请求示例：
+&#123;
+    &quot;op1&quot;: 3,
+    &quot;op2&quot;: 4
+&#125;
+响应参数：
+status: 状态；1表示成功，0表示调用失败
+data: 结果；object
+result: 计算结果；int
+响应示例：
+&#123;
+    &quot;status&quot;: 1,
+    &quot;data&quot;: &#123;
+        &quot;result&quot;: 7
+    &#125;
+&#125;
+</code></pre>
+<h5 id="求差接口"><a href="#求差接口" class="headerlink" title="求差接口"></a>求差接口</h5><p>返回两数之差</p>
+<pre><code class="json">URI: POST /v1/arithmetic/operation/subtract
+请求头：Content-type:application/json
+请求参数：
+op1: 第一个操作数；int；必填
+op2: 第二个操作数；int；必填
+请求示例：
+&#123;
+    &quot;op1&quot;: 3,
+    &quot;op2&quot;: 6
+&#125;
+响应参数：
+status: 状态；1表示成功，0表示调用失败
+data: 结果；object
+result: 计算结果；int
+响应示例：
+&#123;
+    &quot;status&quot;: 1,
+    &quot;data&quot;: &#123;
+        &quot;result&quot;: -3
+    &#125;
+&#125;
+</code></pre>
+<h5 id="求积接口"><a href="#求积接口" class="headerlink" title="求积接口"></a>求积接口</h5><p>返回两数之积</p>
+<pre><code class="json">URI: POST /v1/arithmetic/operation/multiply
+请求头：Content-type:application/json
+请求参数：
+op1: 第一个操作数；int；必填
+op2: 第二个操作数；int；必填
+请求示例：
+&#123;
+    &quot;op1&quot;: 3,
+    &quot;op2&quot;: 4
+&#125;
+响应参数：
+status: 状态；1表示成功，0表示调用失败
+data: 结果；object
+result: 计算结果；int
+响应示例：
+&#123;
+    &quot;status&quot;: 1,
+    &quot;data&quot;: &#123;
+        &quot;result&quot;: 12
+    &#125;
+&#125;
+</code></pre>
+<h5 id="求商接口"><a href="#求商接口" class="headerlink" title="求商接口"></a>求商接口</h5><p>返回两数的商和余数。当除数为0，返回 JSON 中 <code>status</code> 字段设置为0</p>
+<pre><code class="json">URI: POST /v1/arithmetic/operation/divide
+请求头：Content-type:application/json
+请求参数：
+op1: 第一个操作数；int；必填
+op2: 第二个操作数；int；必填
+请求示例：
+&#123;
+    &quot;op1&quot;: 3,
+    &quot;op2&quot;: 4
+&#125;
+响应参数：
+status: 状态；1表示成功，0表示调用失败
+data: 结果；object
+remainder: 余数；int
+quotient: 商；int
+响应示例：
+&#123;
+    &quot;status&quot;: 1,
+    &quot;data&quot;: &#123;
+        &quot;remainder&quot;: 3,
+        &quot;quotient&quot;: 0
+    &#125;
+&#125;
+</code></pre>
+<h3 id="服务器程序测评要求"><a href="#服务器程序测评要求" class="headerlink" title="服务器程序测评要求"></a>服务器程序测评要求</h3><h5 id="日志输出要求"><a href="#日志输出要求" class="headerlink" title="日志输出要求"></a>日志输出要求</h5><p>日志输出采用 Spring Boot 默认的输出模式：</p>
+<ul>
+<li>日期与时间</li>
+<li>日志等级，包括 <code>ERROR</code>，<code>WARN</code>，<code>INFO</code>，<code>DEBUG</code> 与 <code>TRACE</code></li>
+<li>进程 ID</li>
+<li><code>---</code> 字符串分隔符</li>
+<li>方括号包围的线程名</li>
+<li>日志器名，默认是类名</li>
+<li>实际日志信息</li>
+</ul>
+<p>所有用户日志均以 <code>INFO</code> 等级输出</p>
+<h5 id="服务器接收客户端请求"><a href="#服务器接收客户端请求" class="headerlink" title="服务器接收客户端请求"></a>服务器接收客户端请求</h5><p>服务器程序中对应处理函数在收到客户端的 HTTP 请求后<strong>必须</strong>在日志文件中输出客户端请求的数据。</p>
+<p>格式为：<code>[srv] [req] (&lt;HTTP_method&gt; &lt;endpoint&gt;) &lt;json_string&gt;</code></p>
+<p>例如：<code>[srv] [req] (POST /divide) &#123;&quot;op1&quot;:34,&quot;op2&quot;:12&#125;</code></p>
+<h5 id="服务器回送响应"><a href="#服务器回送响应" class="headerlink" title="服务器回送响应"></a>服务器回送响应</h5><p>处理函数在处理用户请求后向客户端回送响应，在回送消息前在日志文件中输出向客户端发送的数据。</p>
+<p>格式为：<code>[srv] [resp] (&lt;HTTP_method&gt; &lt;endpoint&gt;) &lt;json_string&gt;</code></p>
+<p>例如：<code>[srv] [req] (POST /divide) &#123;&quot;status&quot;:1,&quot;data&quot;:&#123;&quot;quotient&quot;:2,&quot;remainder&quot;:10&#125;&#125;</code></p>
+<h3 id="输入输出"><a href="#输入输出" class="headerlink" title="输入输出"></a>输入输出</h3><h5 id="服务器端输入"><a href="#服务器端输入" class="headerlink" title="服务器端输入"></a>服务器端输入</h5><h5 id="服务器端输出"><a href="#服务器端输出" class="headerlink" title="服务器端输出"></a>服务器端输出</h5><h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><ul>
+<li>Restful 接口设计规范：<a target="_blank" rel="noopener" href="http://www.restfulapi.nl/">http://www.restfulapi.nl/</a></li>
+</ul>
+
+    </div>
+    
+    
+    
+    
+    <div id="comment">
+        <div id="giscus-container" class="giscus"></div>
+    </div>
+    
+    
+    
+    
+</div>
+
+            <footer id="footer">
+    <div id="footer-wrap">
+        <div>
+            &copy;
+            2024 - 2024 Whimsically_&#39;s
+            <span id="footer-icon">
+                <i class="fa-solid fa-font-awesome fa-fw"></i>
+            </span>
+            &commat;UniqueZheng
+        </div>
+        <div>
+            Based on the <a target="_blank" rel="noopener" href="https://hexo.io">Hexo Engine</a> &amp;
+            <a target="_blank" rel="noopener" href="https://github.com/theme-particlex/hexo-theme-particlex">ParticleX Theme</a>
+        </div>
+        
+    </div>
+</footer>
+
+        </div>
+        
+        <transition name="fade">
+            <div id="preview" ref="preview" v-show="previewShow">
+                <img id="preview-content" ref="previewContent" />
+            </div>
+        </transition>
+        
+    </div>
+    <script src="/js/main.js"></script>
+    
+    
+<script
+    src="https://giscus.app/client.js"
+    data-repo="Whimsically1/Whimsically1.github.io"
+    data-repo-id="R_kgDONAidog"
+    data-category="General"
+    data-category-id="DIC_kwDONAidos4CjdjK"
+    data-mapping="pathname"
+    data-strict="0"
+    data-reactions-enabled="1"
+    data-emit-metadata="0"
+    data-input-position="bottom"
+    data-theme="preferred_color_scheme"
+    data-lang="zh-CN"
+    crossorigin
+    async
+></script>
+
+
+
+
+
+    
+</body>
+</html>
+
+<script src="/js/fireworks.min.js"></script>
+

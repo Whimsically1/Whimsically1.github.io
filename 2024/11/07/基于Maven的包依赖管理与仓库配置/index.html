@@ -175,15 +175,15 @@
             
             <span class="tag">
                 
-                <a href="/tags/SpringBoot/" style="color: #ff7d73">
-                    SpringBoot
+                <a href="/tags/DevOps/" style="color: #00a596">
+                    DevOps
                 </a>
             </span>
             
             <span class="tag">
                 
-                <a href="/tags/DevOps/" style="color: #ff9e81">
-                    DevOps
+                <a href="/tags/SpringBoot/" style="color: #ffe4d6">
+                    SpringBoot
                 </a>
             </span>
             
@@ -425,7 +425,7 @@ public class SnowflakeUtil &#123;
         long timestamp = System.currentTimeMillis();
 
         if (timestamp &lt; lastTimestamp) &#123;
-            throw new RuntimeException(&quot;Clock moved backwards. Refusing to generate id for &quot;);
+            throw new RuntimeException(&quot;Clock moved backwards. Refusing to generate id for &quot; + (lastTimestamp - timestamp) + &quot; milliseconds.&quot;);
         &#125;
 
         if (lastTimestamp == timestamp) &#123;

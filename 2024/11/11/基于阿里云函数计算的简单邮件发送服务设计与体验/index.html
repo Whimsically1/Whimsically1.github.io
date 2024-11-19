@@ -1,0 +1,500 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>基于阿里云函数计算的简单邮件发送服务设计与体验 | Whimsically_&#39;s</title>
+    <meta name="author" content="UniqueZheng" />
+    <meta name="description" content="A UESTCer/A Liverpool Fan" />
+    <meta name="keywords" content="" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
+    />
+    <link rel="icon" href="/images/avatar.jpg" />
+    <link rel="preconnect" href="https://s4.zstatic.net" />
+<script src="https://s4.zstatic.net/ajax/libs/vue/3.3.7/vue.global.prod.min.js"></script>
+<link rel="stylesheet" href="https://s4.zstatic.net/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+<link rel="preconnect" href="https://fonts.googleapis.cn" />
+<link rel="preconnect" href="https://fonts.gstatic.cn" crossorigin />
+<link
+    rel="stylesheet"
+    href="https://fonts.googleapis.cn/css2?family=Fira+Code:wght@400;500;600;700&family=Lexend:wght@400;500;600;700;800;900&family=Noto+Sans+SC:wght@400;500;600;700;800;900&display=swap"
+/>
+<script> const mixins = {}; </script>
+
+<script src="https://polyfill.alicdn.com/v3/polyfill.min.js?features=default"></script>
+
+
+<script src="https://s4.zstatic.net/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://s4.zstatic.net/ajax/libs/highlightjs-line-numbers.js/2.8.0/highlightjs-line-numbers.min.js"></script>
+<link
+    rel="stylesheet"
+    href="https://s4.zstatic.net/ajax/libs/highlight.js/11.9.0/styles/github.min.css"
+/>
+<script src="/js/lib/highlight.js"></script>
+
+
+
+<script src="/js/lib/preview.js"></script>
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/css/main.css" />
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+<body>
+    <div id="layout">
+        <transition name="fade">
+            <div id="loading" v-show="loading">
+                <div id="loading-circle">
+                    <h2>LOADING</h2>
+                    <p>加载过慢请开启缓存 浏览器默认开启</p>
+                    <img src="/images/loading.gif" />
+                </div>
+            </div>
+        </transition>
+        <div id="menu" :class="{ hidden: hiddenMenu, 'menu-color': menuColor}">
+    <nav id="desktop-menu">
+        <a class="title" href="/">
+            <span>WHIMSICALLY_&#39;S</span>
+        </a>
+        
+        <a href="/">
+            <i class="fa-solid fa-house fa-fw"></i>
+            <span>&ensp;Home</span>
+        </a>
+        
+        <a href="/about">
+            <i class="fa-solid fa-id-card fa-fw"></i>
+            <span>&ensp;About</span>
+        </a>
+        
+        <a href="/archives">
+            <i class="fa-solid fa-box-archive fa-fw"></i>
+            <span>&ensp;Archives</span>
+        </a>
+        
+        <a href="/categories">
+            <i class="fa-solid fa-bookmark fa-fw"></i>
+            <span>&ensp;Categories</span>
+        </a>
+        
+        <a href="/tags">
+            <i class="fa-solid fa-tags fa-fw"></i>
+            <span>&ensp;Tags</span>
+        </a>
+        
+    </nav>
+    <nav id="mobile-menu">
+        <div class="title" @click="showMenuItems = !showMenuItems">
+            <i class="fa-solid fa-bars fa-fw"></i>
+            <span>&emsp;WHIMSICALLY_&#39;S</span>
+        </div>
+        <transition name="slide">
+            <div class="items" v-show="showMenuItems">
+                
+                <a href="/">
+                    <div class="item">
+                        <div style="min-width: 20px; max-width: 50px; width: 10%">
+                            <i class="fa-solid fa-house fa-fw"></i>
+                        </div>
+                        <div style="min-width: 100px; max-width: 150%; width: 20%">Home</div>
+                    </div>
+                </a>
+                
+                <a href="/about">
+                    <div class="item">
+                        <div style="min-width: 20px; max-width: 50px; width: 10%">
+                            <i class="fa-solid fa-id-card fa-fw"></i>
+                        </div>
+                        <div style="min-width: 100px; max-width: 150%; width: 20%">About</div>
+                    </div>
+                </a>
+                
+                <a href="/archives">
+                    <div class="item">
+                        <div style="min-width: 20px; max-width: 50px; width: 10%">
+                            <i class="fa-solid fa-box-archive fa-fw"></i>
+                        </div>
+                        <div style="min-width: 100px; max-width: 150%; width: 20%">Archives</div>
+                    </div>
+                </a>
+                
+                <a href="/categories">
+                    <div class="item">
+                        <div style="min-width: 20px; max-width: 50px; width: 10%">
+                            <i class="fa-solid fa-bookmark fa-fw"></i>
+                        </div>
+                        <div style="min-width: 100px; max-width: 150%; width: 20%">Categories</div>
+                    </div>
+                </a>
+                
+                <a href="/tags">
+                    <div class="item">
+                        <div style="min-width: 20px; max-width: 50px; width: 10%">
+                            <i class="fa-solid fa-tags fa-fw"></i>
+                        </div>
+                        <div style="min-width: 100px; max-width: 150%; width: 20%">Tags</div>
+                    </div>
+                </a>
+                
+            </div>
+        </transition>
+    </nav>
+</div>
+<transition name="fade">
+    <div id="menu-curtain" @click="showMenuItems = !showMenuItems" v-show="showMenuItems"></div>
+</transition>
+
+        <div id="main" :class="loading ? 'into-enter-from': 'into-enter-active'">
+            <div class="article">
+    <div>
+        <h1>基于阿里云函数计算的简单邮件发送服务设计与体验</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2024/11/11
+        </span>
+        
+        
+        <span class="tags">
+            <span class="icon">
+                <i class="fa-solid fa-tags fa-fw"></i>
+            </span>
+            
+            
+            <span class="tag">
+                
+                <a href="/tags/%E4%BA%91%E8%AE%A1%E7%AE%97/" style="color: #ff9e81">
+                    云计算
+                </a>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" style="color: #ff7d73">
+                    云原生
+                </a>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/tags/DevOps/" style="color: #ffe4d6">
+                    DevOps
+                </a>
+            </span>
+            
+        </span>
+        
+    </div>
+    
+    <div class="content" v-pre>
+        <h1 id="基于阿里云函数计算的简单邮件发送服务设计与体验"><a href="#基于阿里云函数计算的简单邮件发送服务设计与体验" class="headerlink" title="基于阿里云函数计算的简单邮件发送服务设计与体验"></a>基于阿里云函数计算的简单邮件发送服务设计与体验</h1><hr>
+<h2 id="基本要求"><a href="#基本要求" class="headerlink" title="基本要求"></a>基本要求</h2><ul>
+<li>理解掌握函数计算FC的设计部署过程</li>
+<li>理解体验函数计算FC的弹性伸缩能力</li>
+</ul>
+<h2 id="实验原理"><a href="#实验原理" class="headerlink" title="实验原理"></a>实验原理</h2><h3 id="Serverless技术与无服务器模式"><a href="#Serverless技术与无服务器模式" class="headerlink" title="Serverless技术与无服务器模式"></a>Serverless技术与无服务器模式</h3><p> 云计算是继传统CS架构之后的新一代互联网应用架构，是一种基于互联网的计算方式，用户不再需要了解硬件基础设施的细节，也不需直接进行控制。云计算通过互联网将算力以按需使用、按量付费的形式提供给用户，其两个最明显的优势是弹性和敏捷：弹性即按需使用各类服务，灵活扩缩容，应对业务流量的不确定性；敏捷即能快速部署应用而无需购买任何物理资源。</p>
+<p>Serverless是一种云计算执行模型，使得开发者不用过多考虑服务器的问题，允许在服务部署级别而不是服务器部署级别来管理应用部署。与传统架构的不同之处在于，服务的提供完全由第三方管理。服务以函数的方式托管在Serverless框架下，当请求到达时会启动一个容器运行代码，无请求时不存在容器实例。</p>
+<p>2017年国内三大云服务厂商均推出了自己的Serverless服务：阿里云FC、华为云FG、腾讯云SCF，现已发展成熟，服务稳定、社区活跃、教程丰富。</p>
+<p>无服务器模式即将业务逻辑以Serverless执行模型部署在云上。无服务器指的是部署时根本不关注服务器，不需要用户提供服务器或者购买云服务器，而不是没有服务器。使用Serverless云计算执行模型时，用户一般只需要将代码上传到指定仓库，云厂商就会自动完成编译、部署等流水线工作，服务直接可用。</p>
+<p>与传统架构的不同之处在于，服务器和集群都由云厂商提供、分配、维护，这些计算平台对用户透明。它的好处是稳定可靠、减少服务器运维工作量，且相比云服务器成本更低。</p>
+<h3 id="阿里云函数计算FC"><a href="#阿里云函数计算FC" class="headerlink" title="阿里云函数计算FC"></a>阿里云函数计算FC</h3><p>函数计算是 Serverless 架构的一种形态，面向函数编程，基于事件驱动提供阿里云服务之间端到端的解决方案。借助函数计算，开发者可以快速构建任何类型的应用和函数，并且只需为任务实际消耗的资源付费。</p>
+<p>阿里云函数计算是事件驱动的全托管计算服务。通过函数计算，开发者无需管理服务器等基础设施，只需专注于业务代码。函数计算服务会准备好计算资源，以弹性、可靠的方式运行代码，并提供日志查询、性能监控、按需报警等功能。</p>
+<h5 id="架构"><a href="#架构" class="headerlink" title="架构"></a>架构</h5><p>函数计算涉及函数、实例、运行环境、触发器、层、应用中心等功能组件，具体产品组件架构图如下图所示。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E7%AE%80%E5%8D%95%E9%82%AE%E4%BB%B6%E5%8F%91%E9%80%81%E6%9C%8D%E5%8A%A1%E8%AE%BE%E8%AE%A1%E4%B8%8E%E4%BD%93%E9%AA%8C/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-11%20153344.png" alt="屏幕截图 2024-11-11 153344"></p>
+<h5 id="基本术语"><a href="#基本术语" class="headerlink" title="基本术语"></a>基本术语</h5><ul>
+<li>FC函数</li>
+</ul>
+<p>函数计算的资源调度与运行是以函数为单位。FC函数由函数代码和函数配置构成。</p>
+<ul>
+<li>版本</li>
+</ul>
+<p>版本相当于函数的快照，包括函数的配置和函数代码，不包括触发器。版本类似于 Git 里的一次 commit，该 commit 包含了一个或者多个代码文件及其配置变更，是当前仓库的一次快照。</p>
+<ul>
+<li>层</li>
+</ul>
+<p>层可以为您提供自定义的公共依赖库、运行时环境及函数扩展等发布与部署能力。您可以将函数依赖的公共库提炼到层，以减少部署、更新时的代码包体积，也可以将自定义的运行时，以层部署在多个函数间共享。</p>
+<ul>
+<li>触发器</li>
+</ul>
+<p>触发器是触发函数执行的方式。在事件驱动的计算模型中，事件源是事件的生产者，函数是事件的处理者，而触发器提供了一种集中、统一的方式来管理不同的事件源。在事件源中，当事件发生时，如果满足触发器定义的规则，事件源会自动调用触发器所对应的函数。</p>
+<ul>
+<li>运行时</li>
+</ul>
+<p>函数运行环境，函数计算提供多种语言的运行环境。可以构建自己的运行时，或者自行构建容器运行环境。</p>
+<ul>
+<li>冷启动</li>
+</ul>
+<p>冷启动是指在函数调用链路中的代码下载、启动函数实例、进程初始化及代码初始化等环节。当冷启动完成后，函数实例就绪，后续请求就能直接被函数执行。</p>
+<ul>
+<li>按量模式</li>
+</ul>
+<p>按量模式下，函数计算系统自动为函数分配和释放实例。</p>
+<ul>
+<li>预留模式</li>
+</ul>
+<p>预留模式是将函数实例的分配和释放交由您管理。当您预留了函数实例，函数计算系统收到函数调用请求时，会优先将请求转发给您预留的函数实例。当函数请求的峰值超过预留的函数实例处理能力时，剩余的部分请求将会转发给您的按量模式的实例。</p>
+<p>预留模式下实例的执行环境是长驻的，可以彻底消除冷启动对业务的影响。</p>
+<p>为了解决预留模式配置的固定预留实例利用不充分问题，您可以设置预留模式实例的弹性伸缩功能，支持定时弹性伸缩和指标追踪弹性伸缩两种方案。</p>
+<h5 id="函数类型"><a href="#函数类型" class="headerlink" title="函数类型"></a>函数类型</h5><table>
+<thead>
+<tr>
+<th align="left">对比项</th>
+<th align="left">事件函数</th>
+<th align="left">Web函数</th>
+<th align="left">容器镜像</th>
+<th>任务函数</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">适用场景</td>
+<td align="left">按照函数计算定义的接口编写程序处理事件</td>
+<td align="left">基于各个语言的流行框架（Java、SpringBoot、Node.js、Express、Python Flask、Golang Golang等）编写程序，或者迁移已有的框架应用</td>
+<td align="left">完全控制程序运行的环境，或者迁移已有的容器应用。使用GPU实例。</td>
+<td>对函数发起异步调用，且需要追踪并保存异步调用各个阶段的状态，可以选择创建任务函数。任务函数默认开启任务模式，您可以使用任务模式提交、查看、停止和重试异步任务。</td>
+</tr>
+<tr>
+<td align="left">冷启动</td>
+<td align="left">最快，代码包中不包含运行时，所以冷启动最快</td>
+<td align="left">较快。Web函数使用公共镜像，没有镜像拉取时间，所以冷启动会较快</td>
+<td align="left">较慢。需要拉取镜像，所以冷启动较慢</td>
+<td>最快。代码包中不包含运行时，所以冷启动最快。</td>
+</tr>
+<tr>
+<td align="left">代码包限制</td>
+<td align="left">500 MB未解压代码包</td>
+<td align="left">500 MB未解压代码包</td>
+<td align="left">10 GB未解压镜像</td>
+<td>500 MB未解压代码包</td>
+</tr>
+<tr>
+<td align="left">代码包格式</td>
+<td align="left">ZIP、JAR（Java）、文件夹</td>
+<td align="left">ZIP、JAR（Java）、文件夹</td>
+<td align="left">参见<a target="_blank" rel="noopener" href="https://help.aliyun.com/zh/acr/product-overview/what-is-container-registry#concept-2058233">什么是容器镜像服务ACR-阿里云帮助中心</a></td>
+<td>ZIP、JAR（Java）、文件夹</td>
+</tr>
+<tr>
+<td align="left">是否支持GPU实例</td>
+<td align="left">不支持</td>
+<td align="left">不支持</td>
+<td align="left">支持</td>
+<td>不支持</td>
+</tr>
+<tr>
+<td align="left">运行时环境</td>
+<td align="left">Node.js、Python、PHP、Java、.NET Core、Go</td>
+<td align="left">无限制</td>
+<td align="left">无限制</td>
+<td>Node.js、Python、PHP、Java、.NET Core、Go</td>
+</tr>
+</tbody></table>
+<h5 id="弹性伸缩"><a href="#弹性伸缩" class="headerlink" title="弹性伸缩"></a>弹性伸缩</h5><p>在现实世界的业务场景中，服务可能会遭遇突如其来的流量高峰，这种高峰可能是由于促销活动、新闻事件或任何其他不可预测的因素引起的。这种高峰期的并发请求对服务构成了巨大的冲击，可能导致服务响应缓慢甚至崩溃。为了应对这种冲击，需要一种解决方案能够快速响应并解决资源不足的问题。为了解决这一问题，可以利用阿里云函数计算（FC）的弹性伸缩能力。</p>
+<p>FC的弹性伸缩是一种自动化的资源管理机制，它可以根据实际的负载情况动态地调整资源分配，以确保服务的稳定性和响应速度。</p>
+<h2 id="实验过程"><a href="#实验过程" class="headerlink" title="实验过程"></a>实验过程</h2><h3 id="实验环境准备"><a href="#实验环境准备" class="headerlink" title="实验环境准备"></a>实验环境准备</h3><h5 id="获取函数计算免费额度"><a href="#获取函数计算免费额度" class="headerlink" title="获取函数计算免费额度"></a>获取函数计算免费额度</h5><p><a target="_blank" rel="noopener" href="https://fcnext.console.aliyun.com/%EF%BC%8C%E9%98%BF%E9%87%8C%E4%BA%91%E8%87%AA2024%E5%B9%B48%E6%9C%8827%E6%97%A5%E8%B5%B7%E4%B8%BA%E6%96%B0%E7%94%A8%E6%88%B7%E6%8F%90%E4%BE%9B%E4%BA%8612%E4%B8%AA%E6%9C%88%E5%85%8D%E8%B4%B9%E4%BD%BF%E7%94%A8%E9%A2%9D%E5%BA%A6%E3%80%82">https://fcnext.console.aliyun.com/，阿里云自2024年8月27日起为新用户提供了12个月免费使用额度。</a></p>
+<h5 id="创建自定义公共层，提供Python-Sanic依赖"><a href="#创建自定义公共层，提供Python-Sanic依赖" class="headerlink" title="创建自定义公共层，提供Python Sanic依赖"></a>创建自定义公共层，提供Python Sanic依赖</h5><p>在阿里云的函数计算（FC）环境中开发与本地环境开发有着显著的不同。在本地环境中，通常可以通过 <code>pip install xxx</code> 命令来安装所需的依赖。然而，在FC环境中，这种做法并不适用。FC环境下，应该将这些依赖项提炼成一个公共层，以便在多个函数之间共享，同时可以有效地减少部署和更新时的代码包大小。</p>
+<p>在构建公共依赖层时，首先应该检查阿里云官方提供的公共层列表（<a target="_blank" rel="noopener" href="https://github.com/awesome-fc/awesome-layers/blob/main/README.md%EF%BC%89%E3%80%82%E5%A6%82%E6%9E%9C%E6%89%80%E9%9C%80%E7%9A%84%E4%BE%9D%E8%B5%96%E5%B7%B2%E7%BB%8F%E5%AD%98%E5%9C%A8%E4%BA%8E%E5%AE%98%E6%96%B9%E5%88%97%E8%A1%A8%E4%B8%AD%EF%BC%8C%E9%82%A3%E4%B9%88%E5%B0%B1%E6%B2%A1%E6%9C%89%E5%BF%85%E8%A6%81%E5%88%9B%E5%BB%BA%E8%87%AA%E5%AE%9A%E4%B9%89%E7%9A%84%E5%85%AC%E5%85%B1%E5%B1%82%E3%80%82">https://github.com/awesome-fc/awesome-layers/blob/main/README.md）。如果所需的依赖已经存在于官方列表中，那么就没有必要创建自定义的公共层。</a></p>
+<p>在本实验中，将使用Sanic框架来编写接口。由于Sanic框架并未包含在阿里云的官方公共层列表中，因此需要创建一个自定义的公共层来满足需求。</p>
+<p>自定义公共层创建步骤如下：</p>
+<ul>
+<li>浏览器访问函数计算 FC 3.0控制台（<a target="_blank" rel="noopener" href="https://fcnext.console.aliyun.com/%EF%BC%89%EF%BC%8C%E8%BF%9B%E5%85%A5%60%E9%AB%98%E7%BA%A7%E5%8A%9F%E8%83%BD">https://fcnext.console.aliyun.com/），进入`高级功能</a> - 层管理<code>页面，点击</code>创建层&#96;按钮进行创建。</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E7%AE%80%E5%8D%95%E9%82%AE%E4%BB%B6%E5%8F%91%E9%80%81%E6%9C%8D%E5%8A%A1%E8%AE%BE%E8%AE%A1%E4%B8%8E%E4%BD%93%E9%AA%8C/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-19%20171937.png" alt="屏幕截图 2024-11-19 171937"></p>
+<ul>
+<li>参考下图所示及界面提示填写相关信息，点击创建按钮，会显示依赖层构建日志，构建完成后页面将自动跳转回层管理界面。</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E7%AE%80%E5%8D%95%E9%82%AE%E4%BB%B6%E5%8F%91%E9%80%81%E6%9C%8D%E5%8A%A1%E8%AE%BE%E8%AE%A1%E4%B8%8E%E4%BD%93%E9%AA%8C/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-19%20172054.png" alt="屏幕截图 2024-11-19 172054"></p>
+<h3 id="构建并部署告警邮件发送接口"><a href="#构建并部署告警邮件发送接口" class="headerlink" title="构建并部署告警邮件发送接口"></a>构建并部署告警邮件发送接口</h3><h5 id="创建Web函数"><a href="#创建Web函数" class="headerlink" title="创建Web函数"></a>创建Web函数</h5><ul>
+<li>浏览器访问函数计算 FC 3.0控制台(<a target="_blank" rel="noopener" href="https://fcnext.console.aliyun.com/)%EF%BC%8C%E8%BF%9B%E5%85%A5%E5%87%BD%E6%95%B0%E9%A1%B5%E9%9D%A2%EF%BC%8C%E7%82%B9%E5%87%BB%60%E5%88%9B%E5%BB%BA%E5%87%BD%E6%95%B0%60%E6%8C%89%E9%92%AE%E8%BF%9B%E8%A1%8C%E5%88%9B%E5%BB%BA%E3%80%82">https://fcnext.console.aliyun.com/)，进入函数页面，点击`创建函数`按钮进行创建。</a></li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E7%AE%80%E5%8D%95%E9%82%AE%E4%BB%B6%E5%8F%91%E9%80%81%E6%9C%8D%E5%8A%A1%E8%AE%BE%E8%AE%A1%E4%B8%8E%E4%BD%93%E9%AA%8C/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-19%20172136.png" alt="屏幕截图 2024-11-19 172136"></p>
+<ul>
+<li>勾选 <code>Web函数</code>，在基本设置中填写函数名称，函数代码配置部分保持默认，暂时使用FC提供的示例代码(在后续步骤中会对其修改)，并点击<code>创建</code>按钮。</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E7%AE%80%E5%8D%95%E9%82%AE%E4%BB%B6%E5%8F%91%E9%80%81%E6%9C%8D%E5%8A%A1%E8%AE%BE%E8%AE%A1%E4%B8%8E%E4%BD%93%E9%AA%8C/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-19%20172246.png" alt="屏幕截图 2024-11-19 172246"></p>
+<h5 id="基于Sanic框架编写接口代码"><a href="#基于Sanic框架编写接口代码" class="headerlink" title="基于Sanic框架编写接口代码"></a>基于Sanic框架编写接口代码</h5><p>上一步操作中创建好函数后，页面将自动跳转至函数详情页面，并使用在线IDE打开代码。将下面提供的范例代码替换原示例代码app.py文件的内容。</p>
+<pre><code class="python"># -*- coding: utf-8 -*-
+from sanic import Sanic
+from sanic.response import json
+from smtplib import SMTP
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+
+app = Sanic(&quot;EmailSender&quot;)
+
+# 邮件配置 需要自行修改。邮箱授权码(password)的获取，自行前往对应的邮件服务器官网获取。
+EMAIL_CONFIG = &#123;
+    &quot;host&quot;: &quot;smtp.example.com&quot;,
+    &quot;port&quot;: 587,
+    &quot;username&quot;: &quot;your-email@example.com&quot;,
+    &quot;password&quot;: &quot;your-password&quot;,
+    &quot;sender&quot;: &quot;your-email@example.com&quot;
+&#125;
+
+def send_email(recipient, subject, body):
+    # 创建邮件对象
+    msg = MIMEMultipart()
+    msg[&#39;from&#39;] = EMAIL_CONFIG[&#39;sender&#39;]
+    msg[&#39;to&#39;] = recipient
+    msg[&#39;subject&#39;] = subject
+
+    # 添加邮件正文
+    msg.attach(MIMEText(body, &#39;plain&#39;)
+               
+    # 连接SMTP服务器
+    server = SMTP(EMAIL_CONFIG[&quot;host&quot;], EMAIL_CONFIG[&quot;port&quot;])
+    server.starttls()  # 启动TLS加密
+    server.login(EMAIL_CONFIG[&quot;username&quot;], EMAIL_CONFIG[&quot;password&quot;])
+
+    # 发送邮件
+    server.send_message(msg)
+
+    # 关闭连接
+    server.quit()
+
+@app.route(&quot;/send&quot;, methods=[&quot;POST&quot;])
+def send_email_route(request):
+    data = request.json
+recipient = data.get(&quot;recipient&quot;)
+subject = data.get(&quot;subject&quot;)
+body = data.get(&quot;body&quot;)
+
+if not all([recipient, subject, body]):
+    return json(&#123;&quot;error&quot;: &quot;Missing required fields&quot;&#125;, status=400)
+
+try:
+    send_email(recipient, subject, body)
+    return json(&#123;&quot;message&quot;: &quot;Email sent successfully&quot;&#125;)
+except Exception as e:
+    return json(&#123;&quot;error&quot;: str(e)&#125;, status=500)
+
+if __name__ == &quot;__main__&quot;:
+    app.run(host=&quot;0.0.0.0&quot;, port=9000)               
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E7%AE%80%E5%8D%95%E9%82%AE%E4%BB%B6%E5%8F%91%E9%80%81%E6%9C%8D%E5%8A%A1%E8%AE%BE%E8%AE%A1%E4%B8%8E%E4%BD%93%E9%AA%8C/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-19%20172318.png" alt="屏幕截图 2024-11-19 172318"></p>
+<p>代码修改完成后，点击IDE右上角上面的<code>编辑层</code>按钮，修改默认的公共层配置。</p>
+<p>先删除现有的<code>官方公共层Flask</code>，再点击添加层-添加自定义层按钮选择之前创建的<code>sanic-c-custom-layer</code>层，最后点击<code>部署</code>按钮。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E7%AE%80%E5%8D%95%E9%82%AE%E4%BB%B6%E5%8F%91%E9%80%81%E6%9C%8D%E5%8A%A1%E8%AE%BE%E8%AE%A1%E4%B8%8E%E4%BD%93%E9%AA%8C/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-19%20172448.png" alt="屏幕截图 2024-11-19 172448"></p>
+<p>依赖层部署完成后，点击页面上的<code>部署代码</code>按钮，进行代码部署。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E7%AE%80%E5%8D%95%E9%82%AE%E4%BB%B6%E5%8F%91%E9%80%81%E6%9C%8D%E5%8A%A1%E8%AE%BE%E8%AE%A1%E4%B8%8E%E4%BD%93%E9%AA%8C/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-19%20172522.png" alt="屏幕截图 2024-11-19 172522"></p>
+<h5 id="获取函数外网访问地址"><a href="#获取函数外网访问地址" class="headerlink" title="获取函数外网访问地址"></a>获取函数外网访问地址</h5><p>在函数详情页面，将光标放在触发器矩形框上，将显示公网访问的地址，该域名由 CNCF SandBox项目 Serverless Devs 社区所提供，仅供学习和测试使用，社区会对该域名进行不定期地拨测，并在域名下发 30 天后进行回收。</p>
+<p>有条件可以参考 <code>函数计算 FC控制台-域名管理</code> 页面提示进行自定义域名配置。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E7%AE%80%E5%8D%95%E9%82%AE%E4%BB%B6%E5%8F%91%E9%80%81%E6%9C%8D%E5%8A%A1%E8%AE%BE%E8%AE%A1%E4%B8%8E%E4%BD%93%E9%AA%8C/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-19%20172630.png" alt="屏幕截图 2024-11-19 172630"></p>
+<h5 id="开启函数日志功能"><a href="#开启函数日志功能" class="headerlink" title="开启函数日志功能"></a>开启函数日志功能</h5><p>开启日志功能后，可以实时查看该函数中打印到控制台日志，从而便于进行代码测试、故障分析等操作。点击IDE左上角偏上部分的实时日志按钮，在弹出的页面中点击一键启用按钮开启日志服务。</p>
+<blockquote>
+<p>[!NOTE]</p>
+<p>注意：使用阿里云的日志服务SLS会产生一定的费用，详情参见日志服务计费方式(<a target="_blank" rel="noopener" href="https://help.aliyun.com/zh/sls/product-overview/billable-items)%E3%80%82">https://help.aliyun.com/zh/sls/product-overview/billable-items)。</a></p>
+</blockquote>
+<h5 id="测试告警邮件发送接口功能"><a href="#测试告警邮件发送接口功能" class="headerlink" title="测试告警邮件发送接口功能"></a>测试告警邮件发送接口功能</h5><blockquote>
+<p>[!NOTE]</p>
+<p>本小节采用Apifox工具进行接口测试，工具介绍参见其官方文档(<a target="_blank" rel="noopener" href="https://apifox.com/help/)%EF%BC%8C%E6%AD%A4%E5%A4%84%E4%B8%8D%E5%81%9A%E8%B5%98%E8%BF%B0%E3%80%82">https://apifox.com/help/)，此处不做赘述。</a></p>
+</blockquote>
+<p>利用Apifox工具编写对邮件发送接口发起HTTP接口。</p>
+<pre><code class="json">URL: https://&lt;先前获取的外网访问地址&gt;/send
+请求方式: POST
+请求参数:
+&#123;
+    &quot;recipient&quot;: &quot;synx@example.com&quot;, // 实际场景中应替换为相应告警管理员的邮箱
+    &quot;subject&quot;: &quot;告警邮件&quot;, // 根据实际情况填写，此处仅做模拟
+    &quot;body&quot;: &quot;告警邮件正文部分&quot; // 根据实际情况填写，此处仅做模拟
+&#125;
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E7%AE%80%E5%8D%95%E9%82%AE%E4%BB%B6%E5%8F%91%E9%80%81%E6%9C%8D%E5%8A%A1%E8%AE%BE%E8%AE%A1%E4%B8%8E%E4%BD%93%E9%AA%8C/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-10-12%20153803.png" alt="屏幕截图 2024-10-12 153803"></p>
+<p>稍等片刻，对应的收件邮箱将接收到对应告警邮件。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E7%AE%80%E5%8D%95%E9%82%AE%E4%BB%B6%E5%8F%91%E9%80%81%E6%9C%8D%E5%8A%A1%E8%AE%BE%E8%AE%A1%E4%B8%8E%E4%BD%93%E9%AA%8C/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-10-12%20153813.png" alt="屏幕截图 2024-10-12 153813"></p>
+<h3 id="体验函数计算FC的弹性伸缩能力"><a href="#体验函数计算FC的弹性伸缩能力" class="headerlink" title="体验函数计算FC的弹性伸缩能力"></a>体验函数计算FC的弹性伸缩能力</h3><p>进入之前创建的 <code>fun-alarm-email-send</code> 函数详情页面，点击实例按钮查看当前函数的实例（阿里云函数计算FC用来运行函数的最小单元，请求最终是由函数实例来进行处理的），将发现当前不存在任何函数实例。因为按量实例（默认创建的Web函数就是按量实例）在处理完请求后会被冻结，如果一段时间内（一般为3~5分钟）不再处理请求，会自动销毁。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E7%AE%80%E5%8D%95%E9%82%AE%E4%BB%B6%E5%8F%91%E9%80%81%E6%9C%8D%E5%8A%A1%E8%AE%BE%E8%AE%A1%E4%B8%8E%E4%BD%93%E9%AA%8C/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-19%20172915.png" alt="屏幕截图 2024-11-19 172915"></p>
+<p>为了更直观观察到自动扩缩容的过程，可以设置函数的<code>单实例并发度</code>为较低的值，并借助Apifox工具对<code>邮件发送接口/send</code>进行压力测试。其中，单实例并发度指每个应用实例能够同时处理的请求次数上限，当单个实例的并发请求数达到上限，才会创建新的实例。</p>
+<p>点击函数详情页面的<code>配置-运行时</code>按钮，在运行时配置展示页面点击<code>编辑</code>按钮，进入运行时的编辑页面，修改单实例并发度为2，最后点击<code>部署</code>按钮。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E7%AE%80%E5%8D%95%E9%82%AE%E4%BB%B6%E5%8F%91%E9%80%81%E6%9C%8D%E5%8A%A1%E8%AE%BE%E8%AE%A1%E4%B8%8E%E4%BD%93%E9%AA%8C/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-19%20173153.png" alt="屏幕截图 2024-11-19 173153"></p>
+<p>在Apifox工具上点击<code>自动化测试</code>按钮，并在配置页面新增测试场景。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E7%AE%80%E5%8D%95%E9%82%AE%E4%BB%B6%E5%8F%91%E9%80%81%E6%9C%8D%E5%8A%A1%E8%AE%BE%E8%AE%A1%E4%B8%8E%E4%BD%93%E9%AA%8C/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-19%20173330.png" alt="屏幕截图 2024-11-19 173330"></p>
+<p>在压力测试的配置界面点击<code>添加步骤-添加自定义请求</code>按钮，参考先前步骤填写请求信息，填写完成后点击保存按钮。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E7%AE%80%E5%8D%95%E9%82%AE%E4%BB%B6%E5%8F%91%E9%80%81%E6%9C%8D%E5%8A%A1%E8%AE%BE%E8%AE%A1%E4%B8%8E%E4%BD%93%E9%AA%8C/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-19%20173519.png" alt="屏幕截图 2024-11-19 173519"></p>
+<p>返回压力测试场景配置页面，将线程数设置为10，即同时并发执行的线程数一共10个。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E7%AE%80%E5%8D%95%E9%82%AE%E4%BB%B6%E5%8F%91%E9%80%81%E6%9C%8D%E5%8A%A1%E8%AE%BE%E8%AE%A1%E4%B8%8E%E4%BD%93%E9%AA%8C/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-19%20173603.png" alt="屏幕截图 2024-11-19 173603"></p>
+<p>点击运行按钮（模拟请求流量波峰），监控<code>fun-alarm-email-send</code>函数详情页面的实例列表，将发现实例从0个快速增长至5个实例（10 &#x2F; 2 &#x3D; 5），等待3-5分钟后（模拟请求流量波谷），5个函数实例都将销毁。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E7%AE%80%E5%8D%95%E9%82%AE%E4%BB%B6%E5%8F%91%E9%80%81%E6%9C%8D%E5%8A%A1%E8%AE%BE%E8%AE%A1%E4%B8%8E%E4%BD%93%E9%AA%8C/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-19%20173719.png" alt="屏幕截图 2024-11-19 173719"></p>
+
+    </div>
+    
+    
+    
+    
+    <div id="comment">
+        <div id="giscus-container" class="giscus"></div>
+    </div>
+    
+    
+    
+    
+</div>
+
+            <footer id="footer">
+    <div id="footer-wrap">
+        <div>
+            &copy;
+            2024 - 2024 Whimsically_&#39;s
+            <span id="footer-icon">
+                <i class="fa-solid fa-font-awesome fa-fw"></i>
+            </span>
+            &commat;UniqueZheng
+        </div>
+        <div>
+            Based on the <a target="_blank" rel="noopener" href="https://hexo.io">Hexo Engine</a> &amp;
+            <a target="_blank" rel="noopener" href="https://github.com/theme-particlex/hexo-theme-particlex">ParticleX Theme</a>
+        </div>
+        
+    </div>
+</footer>
+
+        </div>
+        
+        <transition name="fade">
+            <div id="preview" ref="preview" v-show="previewShow">
+                <img id="preview-content" ref="previewContent" />
+            </div>
+        </transition>
+        
+    </div>
+    <script src="/js/main.js"></script>
+    
+    
+<script
+    src="https://giscus.app/client.js"
+    data-repo="Whimsically1/Whimsically1.github.io"
+    data-repo-id="R_kgDONAidog"
+    data-category="General"
+    data-category-id="DIC_kwDONAidos4CjdjK"
+    data-mapping="pathname"
+    data-strict="0"
+    data-reactions-enabled="1"
+    data-emit-metadata="0"
+    data-input-position="bottom"
+    data-theme="preferred_color_scheme"
+    data-lang="zh-CN"
+    crossorigin
+    async
+></script>
+
+
+
+
+
+    
+</body>
+</html>
+
+<script src="/js/fireworks.min.js"></script>
+
