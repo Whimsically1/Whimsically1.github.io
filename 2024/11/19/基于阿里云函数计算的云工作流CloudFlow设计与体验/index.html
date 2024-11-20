@@ -1,0 +1,503 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>基于阿里云函数计算的云工作流CloudFlow设计与体验 | Whimsically_&#39;s</title>
+    <meta name="author" content="UniqueZheng" />
+    <meta name="description" content="A UESTCer/A Liverpool Fan" />
+    <meta name="keywords" content="" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
+    />
+    <link rel="icon" href="/images/avatar.jpg" />
+    <link rel="preconnect" href="https://s4.zstatic.net" />
+<script src="https://s4.zstatic.net/ajax/libs/vue/3.3.7/vue.global.prod.min.js"></script>
+<link rel="stylesheet" href="https://s4.zstatic.net/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+<link rel="preconnect" href="https://fonts.googleapis.cn" />
+<link rel="preconnect" href="https://fonts.gstatic.cn" crossorigin />
+<link
+    rel="stylesheet"
+    href="https://fonts.googleapis.cn/css2?family=Fira+Code:wght@400;500;600;700&family=Lexend:wght@400;500;600;700;800;900&family=Noto+Sans+SC:wght@400;500;600;700;800;900&display=swap"
+/>
+<script> const mixins = {}; </script>
+
+<script src="https://polyfill.alicdn.com/v3/polyfill.min.js?features=default"></script>
+
+
+<script src="https://s4.zstatic.net/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://s4.zstatic.net/ajax/libs/highlightjs-line-numbers.js/2.8.0/highlightjs-line-numbers.min.js"></script>
+<link
+    rel="stylesheet"
+    href="https://s4.zstatic.net/ajax/libs/highlight.js/11.9.0/styles/github.min.css"
+/>
+<script src="/js/lib/highlight.js"></script>
+
+
+
+<script src="/js/lib/preview.js"></script>
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/css/main.css" />
+
+<meta name="generator" content="Hexo 7.3.0"></head>
+<body>
+    <div id="layout">
+        <transition name="fade">
+            <div id="loading" v-show="loading">
+                <div id="loading-circle">
+                    <h2>LOADING</h2>
+                    <p>加载过慢请开启缓存 浏览器默认开启</p>
+                    <img src="/images/loading.gif" />
+                </div>
+            </div>
+        </transition>
+        <div id="menu" :class="{ hidden: hiddenMenu, 'menu-color': menuColor}">
+    <nav id="desktop-menu">
+        <a class="title" href="/">
+            <span>WHIMSICALLY_&#39;S</span>
+        </a>
+        
+        <a href="/">
+            <i class="fa-solid fa-house fa-fw"></i>
+            <span>&ensp;Home</span>
+        </a>
+        
+        <a href="/about">
+            <i class="fa-solid fa-id-card fa-fw"></i>
+            <span>&ensp;About</span>
+        </a>
+        
+        <a href="/archives">
+            <i class="fa-solid fa-box-archive fa-fw"></i>
+            <span>&ensp;Archives</span>
+        </a>
+        
+        <a href="/categories">
+            <i class="fa-solid fa-bookmark fa-fw"></i>
+            <span>&ensp;Categories</span>
+        </a>
+        
+        <a href="/tags">
+            <i class="fa-solid fa-tags fa-fw"></i>
+            <span>&ensp;Tags</span>
+        </a>
+        
+    </nav>
+    <nav id="mobile-menu">
+        <div class="title" @click="showMenuItems = !showMenuItems">
+            <i class="fa-solid fa-bars fa-fw"></i>
+            <span>&emsp;WHIMSICALLY_&#39;S</span>
+        </div>
+        <transition name="slide">
+            <div class="items" v-show="showMenuItems">
+                
+                <a href="/">
+                    <div class="item">
+                        <div style="min-width: 20px; max-width: 50px; width: 10%">
+                            <i class="fa-solid fa-house fa-fw"></i>
+                        </div>
+                        <div style="min-width: 100px; max-width: 150%; width: 20%">Home</div>
+                    </div>
+                </a>
+                
+                <a href="/about">
+                    <div class="item">
+                        <div style="min-width: 20px; max-width: 50px; width: 10%">
+                            <i class="fa-solid fa-id-card fa-fw"></i>
+                        </div>
+                        <div style="min-width: 100px; max-width: 150%; width: 20%">About</div>
+                    </div>
+                </a>
+                
+                <a href="/archives">
+                    <div class="item">
+                        <div style="min-width: 20px; max-width: 50px; width: 10%">
+                            <i class="fa-solid fa-box-archive fa-fw"></i>
+                        </div>
+                        <div style="min-width: 100px; max-width: 150%; width: 20%">Archives</div>
+                    </div>
+                </a>
+                
+                <a href="/categories">
+                    <div class="item">
+                        <div style="min-width: 20px; max-width: 50px; width: 10%">
+                            <i class="fa-solid fa-bookmark fa-fw"></i>
+                        </div>
+                        <div style="min-width: 100px; max-width: 150%; width: 20%">Categories</div>
+                    </div>
+                </a>
+                
+                <a href="/tags">
+                    <div class="item">
+                        <div style="min-width: 20px; max-width: 50px; width: 10%">
+                            <i class="fa-solid fa-tags fa-fw"></i>
+                        </div>
+                        <div style="min-width: 100px; max-width: 150%; width: 20%">Tags</div>
+                    </div>
+                </a>
+                
+            </div>
+        </transition>
+    </nav>
+</div>
+<transition name="fade">
+    <div id="menu-curtain" @click="showMenuItems = !showMenuItems" v-show="showMenuItems"></div>
+</transition>
+
+        <div id="main" :class="loading ? 'into-enter-from': 'into-enter-active'">
+            <div class="article">
+    <div>
+        <h1>基于阿里云函数计算的云工作流CloudFlow设计与体验</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2024/11/19
+        </span>
+        
+        
+        <span class="tags">
+            <span class="icon">
+                <i class="fa-solid fa-tags fa-fw"></i>
+            </span>
+            
+            
+            <span class="tag">
+                
+                <a href="/tags/DevOps/" style="color: #ffa2c4">
+                    DevOps
+                </a>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/tags/%E4%BA%91%E8%AE%A1%E7%AE%97/" style="color: #00a596">
+                    云计算
+                </a>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" style="color: #ffe4d6">
+                    云原生
+                </a>
+            </span>
+            
+        </span>
+        
+    </div>
+    
+    <div class="content" v-pre>
+        <h1 id="基于阿里云函数计算的云工作流CloudFlow设计与体验"><a href="#基于阿里云函数计算的云工作流CloudFlow设计与体验" class="headerlink" title="基于阿里云函数计算的云工作流CloudFlow设计与体验"></a>基于阿里云函数计算的云工作流CloudFlow设计与体验</h1><hr>
+<h2 id="基本要求"><a href="#基本要求" class="headerlink" title="基本要求"></a>基本要求</h2><ul>
+<li>理解掌握阿里云CloudFlow的基本概念，及其与函数计算的可视化编排工具，能够按需设计CloudFlow，通过编排多个函数计算的自动执行工作流，从而构建服务接口</li>
+</ul>
+<h2 id="实验原理"><a href="#实验原理" class="headerlink" title="实验原理"></a>实验原理</h2><h3 id="阿里云云工作流CloudFlow"><a href="#阿里云云工作流CloudFlow" class="headerlink" title="阿里云云工作流CloudFlow"></a>阿里云云工作流CloudFlow</h3><p>本小节主要介绍 CloudFlow的工作流模式、工作流状态及工作流中调用FC的过程。</p>
+<h5 id="云工作流模式"><a href="#云工作流模式" class="headerlink" title="云工作流模式"></a>云工作流模式</h5><p>阿里云的云工作流服务提供了两种不同的执行模式，以适应不同的业务需求：标准模式和快速模式。标准模式适合于需要长时间运行的离线业务流程，它提供了执行步骤状态的持久化存储和支持长时间工作流执行状态流转的能力。而快速模式则适用于在线业务流程编排和准实时业务流程，它以低延迟和大负载处理能力为特点，适合处理高并发和快速响应的业务场景。两种模式差异对比如下图所示：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E4%BA%91%E5%B7%A5%E4%BD%9C%E6%B5%81CloudFlow%E8%AE%BE%E8%AE%A1%E4%B8%8E%E4%BD%93%E9%AA%8C/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-19%20174909.png" alt="屏幕截图 2024-11-19 174909"></p>
+<h5 id="工作流状态"><a href="#工作流状态" class="headerlink" title="工作流状态"></a>工作流状态</h5><p>在工作流（Flow）的设计中，状态（State）是构成流程的基本单元。状态分为两大类：简单的原子状态和复杂的控制状态。本小节仅介绍工作流状态的基本概念，不同状态配置的差异参见阿里云云工作流官方文档 - 状态流转(<a target="_blank" rel="noopener" href="https://help.aliyun.com/document_detail/2402078.html)%E3%80%82">https://help.aliyun.com/document_detail/2402078.html)。</a></p>
+<p><strong>原子状态是构成流程的最小单位，包括：</strong></p>
+<ul>
+<li>集成任务（Task）：执行特定任务的操作，任务是编排工作流时使用频率最高的，也是功能最丰富的一种状态。例如 InvokeFunction、Request 等。</li>
+<li>成功（Succeed）：表示流程执行成功的状态。</li>
+<li>失败（Fail）：表示流程执行失败的状态。</li>
+<li>等待（Wait）：流程在此处暂停，直到满足特定条件。</li>
+<li>传递（Pass）：一个简单的状态，直接将控制权传递给下一个状态。</li>
+</ul>
+<p><strong>控制状态则用于实现更复杂的流程控制逻辑，包括：</strong></p>
+<ul>
+<li>选择（Choice）：根据条件判断，选择不同的执行路径。</li>
+<li>并行（Parallel）：同时执行多个分支，直到所有分支完成。</li>
+<li>循环（Map）：对集合中的每个元素重复执行相同的操作。</li>
+</ul>
+<h5 id="工作流状态间数据传递"><a href="#工作流状态间数据传递" class="headerlink" title="工作流状态间数据传递"></a>工作流状态间数据传递</h5><blockquote>
+<p>[!NOTE]</p>
+<p><a target="_blank" rel="noopener" href="https://help.aliyun.com/document_detail/2402077.html">https://help.aliyun.com/document_detail/2402077.html</a></p>
+</blockquote>
+<p>云工作流的各种状态（State）之间需要传递数据，每个状态（State）将接受前一状态的输入（Input），并返回输出（Output）并将此输出传递给下一个状态（State）。按输入输出时机不同可以分为以下四类：</p>
+<ul>
+<li>执行输入：也被称为流程输入，指调用工作流时传入的数据。在工作流中需要使用执行输入数据时，可以通过系统表达式 <code>$Context.Execution.Input</code> 进行调用。</li>
+<li>执行输出：也被称为流程输出，指工作流调用结束后的输出数据。当前流程编排规范设计中，在流程的编排过程中，无法通过系统变量访问流程执行的输出；</li>
+<li>状态输入：执行到指定工作流状态时的由上一状态输入的数据。配置时可以使用系统表达式 <code>$Context.Current.Input</code> 访问当前状态的输入，也可简写为 <code>$Input</code>。</li>
+<li>状态输出：指定状态执行结束后的输出数据。配置时可以使用系统表达式 <code>$Context.Current.Output</code> 访问当前状态的输入，也可简写为 <code>$OutPut</code>。</li>
+</ul>
+<h5 id="工作流调用FC过程"><a href="#工作流调用FC过程" class="headerlink" title="工作流调用FC过程"></a>工作流调用FC过程</h5><p>在云工作流中，当执行 InvokeFunction 任务以调用 FC Web 函数时，是 CloudFlow 在发起 InvokeFunction API 的调用过程。该过程中由 CloudFlow 和 FC 系统自动化完整 API 与 HTTP 请求的相互转换过程。转换流程如下图所示：</p>
+<p>a. CloudFlow 作为 Client，向 FC System 发起 InvokeFunction API 调用。</p>
+<p>b. FC 系统接收到这个调用，将 API 调用转换为 HTTP 请求（<code>POST /invoke</code>），并将该请求发送到用户编写的 HTTP Server（FC Web 函数）。</p>
+<p>c. HTTP Server（FC Web 函数）处理这个 HTTP 请求，执行业务逻辑，并将结果封装在 HTTP 响应中返回给 FC 系统。</p>
+<p>d. FC 系统将 HTTP 响应转换为 Result 对象，并将这个对象作为调用结果返回给 Client（云工作流 CloudFlow）。</p>
+<p>e. Client（云工作流 CloudFlow）接收到 Result 对象，可以根据这个结果继续执行工作流中的后续步骤。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E4%BA%91%E5%B7%A5%E4%BD%9C%E6%B5%81CloudFlow%E8%AE%BE%E8%AE%A1%E4%B8%8E%E4%BD%93%E9%AA%8C/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-20%20153607.png" alt="屏幕截图 2024-11-20 153607"></p>
+<blockquote>
+<p>[!NOTE]</p>
+<p>图片来源：<a target="_blank" rel="noopener" href="https://help.aliyun.com/zh/functioncompute/web-functions">https://help.aliyun.com/zh/functioncompute/web-functions</a></p>
+</blockquote>
+<h3 id="阿里云CloudFlow工作流调度"><a href="#阿里云CloudFlow工作流调度" class="headerlink" title="阿里云CloudFlow工作流调度"></a>阿里云CloudFlow工作流调度</h3><p>工作流调度是事件驱动计算模型中的关键组成部分，它定义了一组规则用以触发工作流的执行。当事件源产生的事件满足这些预设规则时，工作流调度便会自动调用关联的工作流。这种机制允许开发者通过集中和统一的方式管理不同的事件源，无需直接调用工作流，从而简化了开发流程。</p>
+<h5 id="工作流调度类型"><a href="#工作流调度类型" class="headerlink" title="工作流调度类型"></a>工作流调度类型</h5><p>工作流调度支持多种调度类型，例如HTTP调度和定时调度，每种类型都针对特定的事件源和触发条件进行了优化。此外，工作流调度还提供了同步和异步两种调用模式。同步调用模式在事件处理完成后立即返回结果，而异步调用模式则是在将事件写入内部队列后即返回结果。不同的工作流模式可能会采用不同的调度策略，具体的差异如图所示。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E4%BA%91%E5%B7%A5%E4%BD%9C%E6%B5%81CloudFlow%E8%AE%BE%E8%AE%A1%E4%B8%8E%E4%BD%93%E9%AA%8C/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-20%20153747.png" alt="屏幕截图 2024-11-20 153747"></p>
+<blockquote>
+<p>[!NOTE]</p>
+<p>图片来源：<a target="_blank" rel="noopener" href="https://help.aliyun.com/document_detail/2511791.html">https://help.aliyun.com/document_detail/2511791.html</a></p>
+</blockquote>
+<h5 id="阿里云事件总线EventBridge"><a href="#阿里云事件总线EventBridge" class="headerlink" title="阿里云事件总线EventBridge"></a>阿里云事件总线EventBridge</h5><blockquote>
+<p>[!NOTE]</p>
+<p><a target="_blank" rel="noopener" href="https://help.aliyun.com/zh/eventbridge">https://help.aliyun.com/zh/eventbridge</a></p>
+</blockquote>
+<p>事件是一种包含特定数据和上下文的信号，它描述了某个特定动作或状态的变化。例如，在电商平台中，一个事件可能表示一个订单的创建或支付成功。事件总线则是一个基础设施，它接收来自事件源的事件，并根据定义好的规则将这些事件路由到不同的目标，如函数计算、消息队列等。EventBridge 有两种类型的事件总线：</p>
+<ul>
+<li>云服务专用事件总线，用于接收阿里云官方事件源的事件；</li>
+<li>自定义事件总线，用于接收自定义应用或存量消息数据的事件。</li>
+</ul>
+<p>阿里云事件总线 EventBridge 在 CloudFlow 工作流调度中扮演着重要角色，将工作流调度使用事件总线的好处在于其解耦和自动化的特性。通过事件驱动的方式，工作流可以在特定的事件发生时自动触发，无需轮询或定时任务。这种方式提高了系统的响应性和可扩展性，因为工作流可以根据事件的实际发生来动态调整资源和处理流程。</p>
+<h2 id="实验过程"><a href="#实验过程" class="headerlink" title="实验过程"></a>实验过程</h2><h3 id="实验环境准备"><a href="#实验环境准备" class="headerlink" title="实验环境准备"></a>实验环境准备</h3><h5 id="获取云工作流免费额度"><a href="#获取云工作流免费额度" class="headerlink" title="获取云工作流免费额度"></a>获取云工作流免费额度</h5><p>点击链接进入云工作流产品界面(<a target="_blank" rel="noopener" href="https://www.aliyun.com/product/aliware/fnf)%EF%BC%8C%E4%BA%91%E5%B7%A5%E4%BD%9C%E6%B5%81">https://www.aliyun.com/product/aliware/fnf)，云工作流</a> CloudFlow 提供每月前 5000 次步骤免费转换的额度。超出此免费额度，将按照实际使用量进行计费，标准为 1.7 元&#x2F;万次步骤转换。</p>
+<h5 id="创建用于执行云工作流的角色"><a href="#创建用于执行云工作流的角色" class="headerlink" title="创建用于执行云工作流的角色"></a>创建用于执行云工作流的角色</h5><p>进入 RAM 访问控制台角色管理界面(<a target="_blank" rel="noopener" href="https://ram.console.aliyun.com/roles)%EF%BC%8C%E7%82%B9%E5%87%BB%E5%88%9B%E5%BB%BA%E6%8C%89%E9%92%AE%E3%80%82">https://ram.console.aliyun.com/roles)，点击创建按钮。</a></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E4%BA%91%E5%B7%A5%E4%BD%9C%E6%B5%81CloudFlow%E8%AE%BE%E8%AE%A1%E4%B8%8E%E4%BD%93%E9%AA%8C/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-19%20190154.png" alt="屏幕截图 2024-11-19 190154"></p>
+<p>该角色是为云工作流提供的，故角色类型勾选<code>阿里云服务</code>。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E4%BA%91%E5%B7%A5%E4%BD%9C%E6%B5%81CloudFlow%E8%AE%BE%E8%AE%A1%E4%B8%8E%E4%BD%93%E9%AA%8C/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-19%20190233.png" alt="屏幕截图 2024-11-19 190233"></p>
+<p>根据页面提示填写角色名称，如<code>cloud-flow-role</code>，受信服务选择<code>函数工作流</code>，填写完成后点击<code>完成</code>按钮，完成角色创建。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E4%BA%91%E5%B7%A5%E4%BD%9C%E6%B5%81CloudFlow%E8%AE%BE%E8%AE%A1%E4%B8%8E%E4%BD%93%E9%AA%8C/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-19%20190427.png" alt="屏幕截图 2024-11-19 190427"></p>
+<p>进入角色详情页面，点击新增授权按钮为该角色分配权限，分配的权限包括：<code>AliyunFCFullAccess</code>（管理函数计算，用于调用FC）、<code>AliyunFnFFullAccess</code>（管理函数工作流，用于操作工作流）和 <code>AliyunEventBridgeFullAccess</code>（管理事件总线，用于后续创建工作流调度），勾选好后点击<code>确认新增授权</code>。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E4%BA%91%E5%B7%A5%E4%BD%9C%E6%B5%81CloudFlow%E8%AE%BE%E8%AE%A1%E4%B8%8E%E4%BD%93%E9%AA%8C/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-19%20190518.png" alt="屏幕截图 2024-11-19 190518"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E4%BA%91%E5%B7%A5%E4%BD%9C%E6%B5%81CloudFlow%E8%AE%BE%E8%AE%A1%E4%B8%8E%E4%BD%93%E9%AA%8C/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-19%20190653.png" alt="屏幕截图 2024-11-19 190653"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E4%BA%91%E5%B7%A5%E4%BD%9C%E6%B5%81CloudFlow%E8%AE%BE%E8%AE%A1%E4%B8%8E%E4%BD%93%E9%AA%8C/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-19%20190750.png" alt="屏幕截图 2024-11-19 190750"></p>
+<h5 id="开通事件总线EventBridge"><a href="#开通事件总线EventBridge" class="headerlink" title="开通事件总线EventBridge"></a>开通事件总线EventBridge</h5><p>后续步骤中创建的工作流调度需要利用 EventBridge 的事件调度能力，根据预设的事件规则自动触发关联的工作流执行，因此需要开通事件总线 EventBridge。</p>
+<p>进入事件总线控制台 (<a target="_blank" rel="noopener" href="https://eventbridge.console.aliyun.com/overview">https://eventbridge.console.aliyun.com/overview</a>) 进行免费开通。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E4%BA%91%E5%B7%A5%E4%BD%9C%E6%B5%81CloudFlow%E8%AE%BE%E8%AE%A1%E4%B8%8E%E4%BD%93%E9%AA%8C/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-19%20190842.png" alt="屏幕截图 2024-11-19 190842"></p>
+<p>开通后将要求对EventBridge进行授权，才能正常收取事件。点击页面底部的<code>一键授权</code>按钮完成授权。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E4%BA%91%E5%B7%A5%E4%BD%9C%E6%B5%81CloudFlow%E8%AE%BE%E8%AE%A1%E4%B8%8E%E4%BD%93%E9%AA%8C/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-19%20190938.png" alt="屏幕截图 2024-11-19 190938"></p>
+<h3 id="构建并部署数据上报接口"><a href="#构建并部署数据上报接口" class="headerlink" title="构建并部署数据上报接口"></a>构建并部署数据上报接口</h3><p>首先设计部署一个新的 FC，用于接收上报的数据，参见上文《基于阿里云函数计算的简单邮件发送服务设计与体验》。鼓励自行实现数据上报接口的代码。</p>
+<p>在此提供一份数据上报接口的 Python Sanic 示例代码。</p>
+<pre><code class="python"># -*- coding: utf-8 -*-
+import datetime
+
+from sanic import Sanic
+from sanic.response import json
+
+app = Sanic(&quot;MyApp&quot;)
+
+# 温度阈值
+t_threshold = (25, 28)
+# 湿度阈值
+h_threshold = (30, 33)
+
+@app.route(&quot;/upload&quot;, methods=[&quot;POST&quot;])
+def data_upload(request):
+    try:
+        data = request.json
+        sn = data.get(&quot;sn&quot;)
+        temperature = data.get(&quot;temperature&quot;)
+        humidity = data.get(&quot;humidity&quot;)
+
+        if not all([sn, temperature, humidity]):
+            return json(&#123;&quot;error&quot;: &quot;Missing required fields&quot;&#125;, status=400)
+
+        # 判断温湿度是否超出阈值
+        t_out_flag = not (t_threshold[0] &lt;= temperature &lt;= t_threshold[1])
+        h_out_flag = not (h_threshold[0] &lt;= humidity &lt;= h_threshold[1])
+        
+        email_body = generate_email_body(
+            sn, temperature, humidity, t_threshold, h_threshold
+        )
+
+        res = &#123;
+            &quot;status&quot;: 1 if t_out_flag or h_out_flag else 0,
+            &quot;message&quot;: &quot;异常&quot; if t_out_flag or h_out_flag else &quot;正常&quot;,
+            &quot;data&quot;: &#123;
+                # 需要自定替换成收件人邮箱地址
+                &quot;recipient&quot;: &quot;@qq.com&quot;,
+                &quot;subject&quot;: &quot;告警邮件 - 温湿度异常&quot;,
+                &quot;body&quot;: email_body
+            &#125; if t_out_flag or h_out_flag else None
+        &#125;
+
+        return json(res)
+    except Exception as e:
+        return json(&#123;&quot;error&quot;: str(e)&#125;, status=500)
+
+def generate_email_body(sn, temperature, humidity, t_threshold, h_threshold):
+    return (
+        f&quot;告警通知: \n\n&quot;
+        f&quot;当前设备&#123;sn&#125;的温湿度数据超出正常范围。\n\n&quot;
+        f&quot;设备温度: &#123;temperature&#125;°C\n&quot;
+        f&quot;温度阈值: &#123;t_threshold[0]&#125;°C - &#123;t_threshold[1]&#125;°C\n\n&quot;
+        f&quot;设备湿度: &#123;humidity&#125;%\n&quot;
+        f&quot;湿度阈值: &#123;h_threshold[0]&#125;% - &#123;h_threshold[1]&#125;%\n\n&quot;
+        f&quot;请尽快检查设备并采取相应措施。\n\n&quot;
+        f&quot;时间: &#123;datetime.datetime.now().isoformat()&#125;&quot;
+    )
+
+if __name__ == &quot;__main__&quot;:
+    app.run(host=&quot;0.0.0.0&quot;, port=9000)
+</code></pre>
+<p>构建完成后，此时 FC 函数列表中应当有两个函数：fun-temperature-and-humidity-data-upload 和 fun-alarm-email-send。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E4%BA%91%E5%B7%A5%E4%BD%9C%E6%B5%81CloudFlow%E8%AE%BE%E8%AE%A1%E4%B8%8E%E4%BD%93%E9%AA%8C/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-19%20202646.png" alt="屏幕截图 2024-11-19 202646"></p>
+<h3 id="编排云工作流"><a href="#编排云工作流" class="headerlink" title="编排云工作流"></a>编排云工作流</h3><h5 id="创建云工作流"><a href="#创建云工作流" class="headerlink" title="创建云工作流"></a>创建云工作流</h5><p>进入云工作流控制台，<strong>地域需与 FC 所在地域保持一致</strong>。点击<code>创建工作流</code>按钮，在弹窗中勾选<code>使用空白画布</code>创建工作流。</p>
+<p>本实验不涉及耗时较长的任务，因此推荐采用<code>快速模式</code>来设置工作流。这种模式简化了工作流的配置步骤，有助于快速理解工作流的基本概念。填写好工作流信息后点击<code>创建</code>按钮完成工作流的创建。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E4%BA%91%E5%B7%A5%E4%BD%9C%E6%B5%81CloudFlow%E8%AE%BE%E8%AE%A1%E4%B8%8E%E4%BD%93%E9%AA%8C/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-19%20204804.png" alt="屏幕截图 2024-11-19 204804"></p>
+<h5 id="编排工作流"><a href="#编排工作流" class="headerlink" title="编排工作流"></a>编排工作流</h5><ul>
+<li>配置执行工作流角色</li>
+</ul>
+<p>工作流创建完成后将自动跳转至工作流编辑页面，点击页面中上部的<code>工作流配置</code>按钮，在执行角色输入框选择之前创建的角色，配置执行工作流时所使用的角色，从而使工作流可以获得角色所拥有的权限。配置完成后，点击右上角<code>保存</code>按钮。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E4%BA%91%E5%B7%A5%E4%BD%9C%E6%B5%81CloudFlow%E8%AE%BE%E8%AE%A1%E4%B8%8E%E4%BD%93%E9%AA%8C/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-19%20205906.png" alt="屏幕截图 2024-11-19 205906"></p>
+<ul>
+<li>编排数据上报FC</li>
+</ul>
+<p>点击页面中上部的 <code>CloudFlow Studio</code> 按钮回到画布编辑页面。删除工作流默认创建的 Hello World，并从左侧操作中拖拽 <code>InvokeFunction</code> 任务状态到画布上。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E4%BA%91%E5%B7%A5%E4%BD%9C%E6%B5%81CloudFlow%E8%AE%BE%E8%AE%A1%E4%B8%8E%E4%BD%93%E9%AA%8C/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-19%20205958.png" alt="屏幕截图 2024-11-19 205958"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E4%BA%91%E5%B7%A5%E4%BD%9C%E6%B5%81CloudFlow%E8%AE%BE%E8%AE%A1%E4%B8%8E%E4%BD%93%E9%AA%8C/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-19%20210052.png" alt="屏幕截图 2024-11-19 210052"></p>
+<p>在右侧的属性栏中<code>基本配置</code>中设置 <code>InvokeFunction</code> 任务状态的相关配置，推荐步骤名称与 FC 函数名保持一致。函数调用方式选择<code>同步调用</code>。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E4%BA%91%E5%B7%A5%E4%BD%9C%E6%B5%81CloudFlow%E8%AE%BE%E8%AE%A1%E4%B8%8E%E4%BD%93%E9%AA%8C/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-19%20210221.png" alt="屏幕截图 2024-11-19 210221"></p>
+<p>在<strong>基本配置页面</strong>点击<code>切换 YAML 编辑</code>，在 YAML 框内添加一行 <code>body.$: $Input.body</code>（后续通过工作流调度来请求工作流时，请求的参数会放在请求参数的 body 字段，故此处需要从输入中取出 body 部分），填写完后点击右上角<code>保存</code>按钮进行保存。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E4%BA%91%E5%B7%A5%E4%BD%9C%E6%B5%81CloudFlow%E8%AE%BE%E8%AE%A1%E4%B8%8E%E4%BD%93%E9%AA%8C/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-19%20214101.png" alt="屏幕截图 2024-11-19 214101"></p>
+<p>点击属性配置栏的<code>输出配置</code>按钮，对当前的 InvokeFunction 的执行输出进行配置。勾选<code>使用 JsonPath 选择部分参数</code>，填入 <code>$Output.Body</code>（将数据上报 FC 的执行 JSON 返回值会被携带上 Header 部分，只需要 Body 作为 InvokeFunction 状态输出）。配置完成后点击<code>保存</code>按钮。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E4%BA%91%E5%B7%A5%E4%BD%9C%E6%B5%81CloudFlow%E8%AE%BE%E8%AE%A1%E4%B8%8E%E4%BD%93%E9%AA%8C/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-19%20210636.png" alt="屏幕截图 2024-11-19 210636"></p>
+<ul>
+<li>编排告警邮件发送 FC</li>
+</ul>
+<p>从左侧操作栏新拖拽一个 InvokeFunction 任务状态至 <code>fun-temperature-and-humidity-data-upload</code> 任务与 <code>End 状态</code>的箭头上，工作流画布将自动链接前驱和后继。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E4%BA%91%E5%B7%A5%E4%BD%9C%E6%B5%81CloudFlow%E8%AE%BE%E8%AE%A1%E4%B8%8E%E4%BD%93%E9%AA%8C/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-19%20214510.png" alt="屏幕截图 2024-11-19 214510"></p>
+<p>同编排数据上报 FC 配置相似。但配置 YAML 数据负载时，需要填写为 <code>body.$: $Input.data</code>。因为上一个 InvokeFunction 的输出格式中的 data 部分才是发送告警邮件所需的参数，若数据上报接口代码为自行编写的，则按实际返回值情况进行填写。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E4%BA%91%E5%B7%A5%E4%BD%9C%E6%B5%81CloudFlow%E8%AE%BE%E8%AE%A1%E4%B8%8E%E4%BD%93%E9%AA%8C/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-19%20214626.png" alt="屏幕截图 2024-11-19 214626"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E4%BA%91%E5%B7%A5%E4%BD%9C%E6%B5%81CloudFlow%E8%AE%BE%E8%AE%A1%E4%B8%8E%E4%BD%93%E9%AA%8C/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-19%20215105.png" alt="屏幕截图 2024-11-19 215105"></p>
+<ul>
+<li>编排选择步骤</li>
+</ul>
+<p>为实现当温湿度异常时才调用发送告警邮件 FC，还需要在现有工作流基础上增加 <code>选择（Choice）</code>步骤，当温湿度正常时，直接运行至 <code>Succeed 流程</code>；当温湿度异常时，运行 <code>fun-alarm-email-send</code> 任务。</p>
+<p>从左侧流程栏中拖拽 <code>Choice</code> 放置在两个 InvokeFunction 之间，此时工作流将形成如下图所示分支。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E4%BA%91%E5%B7%A5%E4%BD%9C%E6%B5%81CloudFlow%E8%AE%BE%E8%AE%A1%E4%B8%8E%E4%BD%93%E9%AA%8C/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-19%20215223.png" alt="屏幕截图 2024-11-19 215223"></p>
+<p>从左侧流程中将 <code>Succeed</code> 拖拽至右侧分支进行步骤补全。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E4%BA%91%E5%B7%A5%E4%BD%9C%E6%B5%81CloudFlow%E8%AE%BE%E8%AE%A1%E4%B8%8E%E4%BD%93%E9%AA%8C/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-19%20215259.png" alt="屏幕截图 2024-11-19 215259"></p>
+<p>在右侧 Choice 的属性设置中配置状态规则：默认规则卡片的下个状态设置为 <code>Succeed</code>，<code>自定义规则 #1</code> 卡片添加条件 <code>$Input.status == 1</code>（因为数据上报 FC 返回值中 status 字段为 1 则表示异常），并设置下个状态设置为 <code>fun-alarm-email-send</code>，设置完成后点击保存按钮。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E4%BA%91%E5%B7%A5%E4%BD%9C%E6%B5%81CloudFlow%E8%AE%BE%E8%AE%A1%E4%B8%8E%E4%BD%93%E9%AA%8C/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-19%20223838.png" alt="屏幕截图 2024-11-19 223838"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E4%BA%91%E5%B7%A5%E4%BD%9C%E6%B5%81CloudFlow%E8%AE%BE%E8%AE%A1%E4%B8%8E%E4%BD%93%E9%AA%8C/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-19%20224133.png" alt="屏幕截图 2024-11-19 224133"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E4%BA%91%E5%B7%A5%E4%BD%9C%E6%B5%81CloudFlow%E8%AE%BE%E8%AE%A1%E4%B8%8E%E4%BD%93%E9%AA%8C/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-19%20224207.png" alt="屏幕截图 2024-11-19 224207"></p>
+<p>至此本实验完整的工作流构建完成。</p>
+<h3 id="修改现有FC以适配云工作流调用"><a href="#修改现有FC以适配云工作流调用" class="headerlink" title="修改现有FC以适配云工作流调用"></a>修改现有FC以适配云工作流调用</h3><p>云工作流的 InvokeFunction 调用 FC Web 函数时，本质上是发起 InvokeFunction API 的调用，由 FC System 将 <code>invoke</code> 调用转换为 <code>POST /invoke</code> 请求，因此需要为现有的两个 FC 新增 <code>/invoke</code> 路由。</p>
+<ul>
+<li><code>fun-alarm-email-send</code> FC 代码修订，修订完成后点击 <code>代码部署</code> 按钮。</li>
+</ul>
+<pre><code class="python">@app.route(&quot;/send&quot;, methods=[&quot;POST&quot;])
+
+修订为：
+@app.route(&quot;/send&quot;, methods=[&quot;POST&quot;], name=&#39;send&#39;)
+@app.route(&quot;/invoke&quot;, methods=[&quot;POST&quot;], name=&#39;invoke&#39;)
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E4%BA%91%E5%B7%A5%E4%BD%9C%E6%B5%81CloudFlow%E8%AE%BE%E8%AE%A1%E4%B8%8E%E4%BD%93%E9%AA%8C/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-20%20175033.png" alt="屏幕截图 2024-11-20 175033"></p>
+<ul>
+<li><code>fun-temperature-and-humidity-data-upload</code> FC 代码修订，修订完成后点击 <code>代码部署</code> 按钮。</li>
+</ul>
+<pre><code class="python">@app.route(&quot;/upload&quot;, methods=[&quot;POST&quot;])
+
+修订为：
+@app.route(&quot;/upload&quot;, methods=[&quot;POST&quot;], name=&#39;upload&#39;)
+@app.route(&quot;/invoke&quot;, methods=[&quot;POST&quot;], name=&#39;invoke&#39;)
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E4%BA%91%E5%B7%A5%E4%BD%9C%E6%B5%81CloudFlow%E8%AE%BE%E8%AE%A1%E4%B8%8E%E4%BD%93%E9%AA%8C/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-20%20175234.png" alt="屏幕截图 2024-11-20 175234"></p>
+<h3 id="云工作流测试"><a href="#云工作流测试" class="headerlink" title="云工作流测试"></a>云工作流测试</h3><h5 id="创建工作流调度"><a href="#创建工作流调度" class="headerlink" title="创建工作流调度"></a>创建工作流调度</h5><p>返回<code>工作流详情</code>页面，点击<code>工作流调度</code>标签页，点击<code>创建工作流调度</code>按钮，在弹窗中选择调度类型为 <code>HTTP/HTTPS 触发</code>。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E4%BA%91%E5%B7%A5%E4%BD%9C%E6%B5%81CloudFlow%E8%AE%BE%E8%AE%A1%E4%B8%8E%E4%BD%93%E9%AA%8C/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-20%20175333.png" alt="屏幕截图 2024-11-20 175333"></p>
+<p>选择调度类型后会弹出调度角色授权弹窗，点击授权即可。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E4%BA%91%E5%B7%A5%E4%BD%9C%E6%B5%81CloudFlow%E8%AE%BE%E8%AE%A1%E4%B8%8E%E4%BD%93%E9%AA%8C/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-20%20175448.png" alt="屏幕截图 2024-11-20 175448"></p>
+<p>填写调度类型名称，请求类型勾选 <code>HTTPS</code>，请求方法勾选 <code>POST</code>，设置完成后点击<code>确认</code>按钮完成创建。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E4%BA%91%E5%B7%A5%E4%BD%9C%E6%B5%81CloudFlow%E8%AE%BE%E8%AE%A1%E4%B8%8E%E4%BD%93%E9%AA%8C/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-20%20175559.png" alt="屏幕截图 2024-11-20 175559"></p>
+<p>返回工作流详情页面，可以查看当前的工作流调度列表。点击工作流调度的 <code>详情</code> 按钮查看详情信息，并复制 <code>公网访问地址</code> 备用。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E4%BA%91%E5%B7%A5%E4%BD%9C%E6%B5%81CloudFlow%E8%AE%BE%E8%AE%A1%E4%B8%8E%E4%BD%93%E9%AA%8C/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-20%20175627.png" alt="屏幕截图 2024-11-20 175627"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E4%BA%91%E5%B7%A5%E4%BD%9C%E6%B5%81CloudFlow%E8%AE%BE%E8%AE%A1%E4%B8%8E%E4%BD%93%E9%AA%8C/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-20%20175729.png" alt="屏幕截图 2024-11-20 175729"></p>
+<h5 id="模拟温湿度数据上报"><a href="#模拟温湿度数据上报" class="headerlink" title="模拟温湿度数据上报"></a>模拟温湿度数据上报</h5><p>利用 Apifox 对上一步骤中复制的公网访问地址发起 POST 请求，参数即为数据上报 FC 的请求参数，且温度在阈值范围内，模拟设备日常情况。</p>
+<pre><code class="json">&#123;
+  &quot;sn&quot;: &quot;sn45N2K&quot;,
+  &quot;temperature&quot;: 25.5,
+  &quot;humidity&quot;: 30
+&#125;
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E4%BA%91%E5%B7%A5%E4%BD%9C%E6%B5%81CloudFlow%E8%AE%BE%E8%AE%A1%E4%B8%8E%E4%BD%93%E9%AA%8C/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-20%20175958.png" alt="屏幕截图 2024-11-20 175958"></p>
+<p>返回<code>工作流详情</code>页面，点击<code>执行记录</code>标签，将出现一条执行记录。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E4%BA%91%E5%B7%A5%E4%BD%9C%E6%B5%81CloudFlow%E8%AE%BE%E8%AE%A1%E4%B8%8E%E4%BD%93%E9%AA%8C/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-20%20180032.png" alt="屏幕截图 2024-11-20 180032"></p>
+<p>点击执行记录<code>详情</code>按钮，可查看详细的执行过程，包括执行的基本信息，图形视图的执行过程，执行的输入输出数据等信息，此处仅以图形视图为例进行解释，其余数据请自行摸索。</p>
+<p>左侧工作流中被标记为绿色的步骤即为实际运行的路径，且执行步骤成功。点击 Choice 步骤观察右侧的输入数据，该数据为上一步骤的状态输出，且此时的 status 为 0，则执行默认分支至 <code>Succeed</code> 步骤。同理可以点击其他步骤查看相应的输出输入。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E4%BA%91%E5%B7%A5%E4%BD%9C%E6%B5%81CloudFlow%E8%AE%BE%E8%AE%A1%E4%B8%8E%E4%BD%93%E9%AA%8C/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-20%20180128.png" alt="屏幕截图 2024-11-20 180128"></p>
+<p>再次发起模拟数据上报请求，将温度调整至40度，模拟设备出现异常情况。进入新工作流执行记录详情页面，查看调用情况，由于问题超出阈值，数据上报 FC 返回的 status 为1，运行右侧分支进行告警信息发送。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E4%BA%91%E5%B7%A5%E4%BD%9C%E6%B5%81CloudFlow%E8%AE%BE%E8%AE%A1%E4%B8%8E%E4%BD%93%E9%AA%8C/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-20%20180259.png" alt="屏幕截图 2024-11-20 180259"></p>
+<p>阿里云 CloudFlow 功能十分强大，鼓励进一步探索 CloudFlow 的容错处理、自动重试等高级功能。</p>
+
+    </div>
+    
+    
+    
+    
+    <div id="comment">
+        <div id="giscus-container" class="giscus"></div>
+    </div>
+    
+    
+    
+    
+</div>
+
+            <footer id="footer">
+    <div id="footer-wrap">
+        <div>
+            &copy;
+            2024 - 2024 Whimsically_&#39;s
+            <span id="footer-icon">
+                <i class="fa-solid fa-font-awesome fa-fw"></i>
+            </span>
+            &commat;UniqueZheng
+        </div>
+        <div>
+            Based on the <a target="_blank" rel="noopener" href="https://hexo.io">Hexo Engine</a> &amp;
+            <a target="_blank" rel="noopener" href="https://github.com/theme-particlex/hexo-theme-particlex">ParticleX Theme</a>
+        </div>
+        
+    </div>
+</footer>
+
+        </div>
+        
+        <transition name="fade">
+            <div id="preview" ref="preview" v-show="previewShow">
+                <img id="preview-content" ref="previewContent" />
+            </div>
+        </transition>
+        
+    </div>
+    <script src="/js/main.js"></script>
+    
+    
+<script
+    src="https://giscus.app/client.js"
+    data-repo="Whimsically1/Whimsically1.github.io"
+    data-repo-id="R_kgDONAidog"
+    data-category="General"
+    data-category-id="DIC_kwDONAidos4CjdjK"
+    data-mapping="pathname"
+    data-strict="0"
+    data-reactions-enabled="1"
+    data-emit-metadata="0"
+    data-input-position="bottom"
+    data-theme="preferred_color_scheme"
+    data-lang="zh-CN"
+    crossorigin
+    async
+></script>
+
+
+
+
+
+    
+</body>
+</html>
+
+<script src="/js/fireworks.min.js"></script>
+
