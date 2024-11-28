@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <title>tags | Whimsically_&#39;s</title>
+    <title>基于阿里云Serverless应用引擎的服务部署迁移 | Whimsically_&#39;s</title>
     <meta name="author" content="UniqueZheng" />
     <meta name="description" content="A UESTCer/A Liverpool Fan" />
     <meta name="keywords" content="" />
@@ -37,6 +37,10 @@
 
 
 <script src="/js/lib/preview.js"></script>
+
+
+
+
 
 
 
@@ -150,67 +154,79 @@
 </transition>
 
         <div id="main" :class="loading ? 'into-enter-from': 'into-enter-active'">
-            <div id="archives">
-    
-    <div class="categories-tags">
-        
-        
-        
-        <span>
-            <a href="/tags/SpringBoot/" style="background: #ffa2c4">
-                <span class="icon">
-                    <i class="fa-solid fa-tags fa-fw"></i>
-                </span>
-                SpringBoot
-            </a>
+            <div class="article">
+    <div>
+        <h1>基于阿里云Serverless应用引擎的服务部署迁移</h1>
+    </div>
+    <div class="info">
+        <span class="date">
+            <span class="icon">
+                <i class="fa-solid fa-calendar fa-fw"></i>
+            </span>
+            2024/11/28
         </span>
         
         
-        
-        <span>
-            <a href="/tags/DevOps/" style="background: #ff7d73">
-                <span class="icon">
-                    <i class="fa-solid fa-tags fa-fw"></i>
-                </span>
-                DevOps
-            </a>
+        <span class="tags">
+            <span class="icon">
+                <i class="fa-solid fa-tags fa-fw"></i>
+            </span>
+            
+            
+            <span class="tag">
+                
+                <a href="/tags/DevOps/" style="color: #ff7d73">
+                    DevOps
+                </a>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/tags/%E4%BA%91%E8%AE%A1%E7%AE%97/" style="color: #ff9e81">
+                    云计算
+                </a>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" style="color: #ffe4d6">
+                    云原生
+                </a>
+            </span>
+            
         </span>
-        
-        
-        
-        <span>
-            <a href="/tags/%E4%BA%91%E8%AE%A1%E7%AE%97/" style="background: #ff9e81">
-                <span class="icon">
-                    <i class="fa-solid fa-tags fa-fw"></i>
-                </span>
-                云计算
-            </a>
-        </span>
-        
-        
-        
-        <span>
-            <a href="/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" style="background: #ffa2c4">
-                <span class="icon">
-                    <i class="fa-solid fa-tags fa-fw"></i>
-                </span>
-                云原生
-            </a>
-        </span>
-        
-        
-        
-        <span>
-            <a href="/tags/%E5%89%8D%E7%AB%AF/" style="background: #ffe4d6">
-                <span class="icon">
-                    <i class="fa-solid fa-tags fa-fw"></i>
-                </span>
-                前端
-            </a>
-        </span>
-        
         
     </div>
+    
+    <div class="content" v-pre>
+        <h1 id="基于阿里云Serverless应用引擎的服务部署迁移"><a href="#基于阿里云Serverless应用引擎的服务部署迁移" class="headerlink" title="基于阿里云Serverless应用引擎的服务部署迁移"></a>基于阿里云Serverless应用引擎的服务部署迁移</h1><hr>
+<h2 id="基本要求"><a href="#基本要求" class="headerlink" title="基本要求"></a>基本要求</h2><ul>
+<li>理解掌握云效Codeup代码仓库的使用；</li>
+<li>理解掌握阿里云Serverless应用引擎部署应用的方法。</li>
+</ul>
+<h2 id="实验原理"><a href="#实验原理" class="headerlink" title="实验原理"></a>实验原理</h2><h3 id="Serverless应用引擎"><a href="#Serverless应用引擎" class="headerlink" title="Serverless应用引擎"></a>Serverless应用引擎</h3><h2 id="实验过程"><a href="#实验过程" class="headerlink" title="实验过程"></a>实验过程</h2><h3 id="实验环境搭建"><a href="#实验环境搭建" class="headerlink" title="实验环境搭建"></a>实验环境搭建</h3><h5 id="获取Serverless应用引擎免费额度"><a href="#获取Serverless应用引擎免费额度" class="headerlink" title="获取Serverless应用引擎免费额度"></a>获取Serverless应用引擎免费额度</h5><p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91Serverless%E5%BA%94%E7%94%A8%E5%BC%95%E6%93%8E%E7%9A%84%E6%9C%8D%E5%8A%A1%E9%83%A8%E7%BD%B2%E8%BF%81%E7%A7%BB/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-28%20203816.png" alt="屏幕截图 2024-11-28 203816"></p>
+<blockquote>
+<p>[!CAUTION]</p>
+<p>此处若需使用试用额度，应点击“<strong>免费试用</strong>”，<strong>若点击“免费开通”将进入计费使用！</strong></p>
+</blockquote>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91Serverless%E5%BA%94%E7%94%A8%E5%BC%95%E6%93%8E%E7%9A%84%E6%9C%8D%E5%8A%A1%E9%83%A8%E7%BD%B2%E8%BF%81%E7%A7%BB/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-28%20203806.png" alt="屏幕截图 2024-11-28 203806"></p>
+<h5 id="获取云数据库Redis免费额度"><a href="#获取云数据库Redis免费额度" class="headerlink" title="获取云数据库Redis免费额度"></a>获取云数据库Redis免费额度</h5><p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91Serverless%E5%BA%94%E7%94%A8%E5%BC%95%E6%93%8E%E7%9A%84%E6%9C%8D%E5%8A%A1%E9%83%A8%E7%BD%B2%E8%BF%81%E7%A7%BB/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-28%20204639.png" alt="屏幕截图 2024-11-28 204639"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91Serverless%E5%BA%94%E7%94%A8%E5%BC%95%E6%93%8E%E7%9A%84%E6%9C%8D%E5%8A%A1%E9%83%A8%E7%BD%B2%E8%BF%81%E7%A7%BB/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-28%20204916.png" alt="屏幕截图 2024-11-28 204916"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91Serverless%E5%BA%94%E7%94%A8%E5%BC%95%E6%93%8E%E7%9A%84%E6%9C%8D%E5%8A%A1%E9%83%A8%E7%BD%B2%E8%BF%81%E7%A7%BB/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-28%20204923.png" alt="屏幕截图 2024-11-28 204923"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91Serverless%E5%BA%94%E7%94%A8%E5%BC%95%E6%93%8E%E7%9A%84%E6%9C%8D%E5%8A%A1%E9%83%A8%E7%BD%B2%E8%BF%81%E7%A7%BB/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-28%20204947.png" alt="屏幕截图 2024-11-28 204947"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91Serverless%E5%BA%94%E7%94%A8%E5%BC%95%E6%93%8E%E7%9A%84%E6%9C%8D%E5%8A%A1%E9%83%A8%E7%BD%B2%E8%BF%81%E7%A7%BB/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-28%20205400.png" alt="屏幕截图 2024-11-28 205400"></p>
+
+    </div>
+    
+    
+    
+    
+    <div id="comment">
+        <div id="giscus-container" class="giscus"></div>
+    </div>
+    
+    
+    
     
 </div>
 
@@ -242,6 +258,29 @@
         
     </div>
     <script src="/js/main.js"></script>
+    
+    
+<script
+    src="https://giscus.app/client.js"
+    data-repo="Whimsically1/Whimsically1.github.io"
+    data-repo-id="R_kgDONAidog"
+    data-category="General"
+    data-category-id="DIC_kwDONAidos4CjdjK"
+    data-mapping="pathname"
+    data-strict="0"
+    data-reactions-enabled="1"
+    data-emit-metadata="0"
+    data-input-position="bottom"
+    data-theme="preferred_color_scheme"
+    data-lang="zh-CN"
+    crossorigin
+    async
+></script>
+
+
+
+
+
     
 </body>
 </html>

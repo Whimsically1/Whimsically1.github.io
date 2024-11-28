@@ -167,10 +167,539 @@
         </span>
         
         
+        <span class="tags">
+            <span class="icon">
+                <i class="fa-solid fa-tags fa-fw"></i>
+            </span>
+            
+            
+            <span class="tag">
+                
+                <a href="/tags/DevOps/" style="color: #ff7d73">
+                    DevOps
+                </a>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/tags/%E4%BA%91%E8%AE%A1%E7%AE%97/" style="color: #ffe4d6">
+                    云计算
+                </a>
+            </span>
+            
+            <span class="tag">
+                
+                <a href="/tags/%E4%BA%91%E5%8E%9F%E7%94%9F/" style="color: #00a596">
+                    云原生
+                </a>
+            </span>
+            
+        </span>
+        
     </div>
     
     <div class="content" v-pre>
+        <h1 id="基于阿里云函数计算的简单邮件发送服务之数据库访问中间件"><a href="#基于阿里云函数计算的简单邮件发送服务之数据库访问中间件" class="headerlink" title="基于阿里云函数计算的简单邮件发送服务之数据库访问中间件"></a>基于阿里云函数计算的简单邮件发送服务之数据库访问中间件</h1><hr>
+<h2 id="基本要求"><a href="#基本要求" class="headerlink" title="基本要求"></a>基本要求</h2><ul>
+<li>理解掌握基于pymysql使用原生SQL开展数据库表访问的基本操作；</li>
+<li>理解掌握基于ORM框架SQLAlchemy开展数据库表访问的基本操作。</li>
+</ul>
+<h2 id="实验原理"><a href="#实验原理" class="headerlink" title="实验原理"></a>实验原理</h2><h3 id="专有网络VPC"><a href="#专有网络VPC" class="headerlink" title="专有网络VPC"></a>专有网络VPC</h3><p>专有网络VPC（Virtual Private Cloud）是阿里云提供的一种隔离的、私有的云上网络环境，允许用户在公共云上配置和管理一个<strong>逻辑隔离</strong>的网络区域。每个VPC都是逻辑上完全隔离的，确保了不同用户或业务间的数据和操作互不影响。若希望实现不同地域下的VPC互联互通，可以参考VPC对等连接（<a target="_blank" rel="noopener" href="https://help.aliyun.com/zh/vpc/user-guide/overview-6">什么是VPC对等连接_专有网络VPC(VPC)-阿里云帮助中心</a>）或云企业网CEN（<a target="_blank" rel="noopener" href="https://help.aliyun.com/zh/cen/product-overview/what-is-cen">什么是云企业网_云企业网(CEN)-阿里云帮助中心</a>）。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E7%AE%80%E5%8D%95%E9%82%AE%E4%BB%B6%E5%8F%91%E9%80%81%E6%9C%8D%E5%8A%A1%E4%B9%8B%E6%95%B0%E6%8D%AE%E5%BA%93%E8%AE%BF%E9%97%AE%E4%B8%AD%E9%97%B4%E4%BB%B6/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-26%20192717.png" alt="屏幕截图 2024-11-26 192717"></p>
+<blockquote>
+<p>[!NOTE]</p>
+<p>图片来源：<a target="_blank" rel="noopener" href="https://help.aliyun.com/zh/vpc/product-overview/virtual-private-cloud-overview">专有网络VPC的基本介绍_专有网络VPC(VPC)-阿里云帮助中心</a></p>
+</blockquote>
+<p>VPC由虚拟路由器、交换机和私网网段三个关键部分构成：</p>
+<ul>
+<li>虚拟路由器（vRouter）作为VPC的中枢，负责连接VPC内部的交换机，并作为通往外部网络的网关，通过路由表来指导数据包的转发路径。</li>
+<li>交换机（vSwitch）则是VPC内部的网络基础组件，它们在VPC内划分出不同的子网，使得资源部署更为灵活，并且支持跨可用区部署，增强了应用的高可用性。</li>
+<li>私网网段定义了VPC内部的IP地址分配范围，遵循预设的CIDR规范，确保地址的唯一性和管理的有效性。</li>
+</ul>
+<p>需要注意的是，每一个地域下可以创建若干个VPC，每个VPC下有且仅有一个虚拟路由器，但可以有多个交换机（默认上限为150个）。</p>
+<blockquote>
+<p>[!IMPORTANT]</p>
+<p>由于同一VPC内不同交换机之间内网互通，即使云服务配置的交换机不同，但只要在同一VPC，可以通过该交换机访问在其他可用区的VPC内资源，但可能会多1～2ms左右的延时。</p>
+</blockquote>
+<h3 id="安全组"><a href="#安全组" class="headerlink" title="安全组"></a>安全组</h3><p>安全组是一种云平台提供的虚拟防火墙，旨在控制ECS（Elastic Compute Service）实例的入站和出站流量。安全组的作用类似于传统网络防火墙，但更灵活且更易于管理。用户可以通过设置不同的安全规则来实现对ECS实例网络访问的精细化控制，从而提升系统的安全性。每个安全组可以包含多个ECS实例，这些实例共享安全组的网络访问规则，确保不同实例间的网络隔离与安全性。</p>
+<p>阿里云安全组分为入站规则和出站规则。入站规则用于控制外部对ECS实例的访问，例如限制特定IP地址或端口的访问权限，而出站规则则用来管理ECS实例对外部网络的访问权限。这种设计帮助用户在保持应用可访问性的同时，有效地防止潜在的网络攻击或未经授权的访问。安全组规则支持多种协议类型和端口范围的自定义，用户可以根据实际业务需求灵活配置，实现对流量的精细控制。</p>
+<p>安全组的灵活性体现在其可以随时调整和应用到不同的ECS实例上，从而简化了网络管理和运维工作。当用户新增或修改安全组规则时，这些更改会立即生效，无需重新启动ECS实例。这种动态性确保了用户在快速扩展或变更业务需求时，不会影响系统的稳定性和安全性。</p>
+<p>安全组配置最佳实践可参考(<a target="_blank" rel="noopener" href="https://help.aliyun.com/zh/ecs/user-guide/overview-44)%E3%80%82">https://help.aliyun.com/zh/ecs/user-guide/overview-44)。</a></p>
+<h3 id="PyMySQL"><a href="#PyMySQL" class="headerlink" title="PyMySQL"></a>PyMySQL</h3><blockquote>
+<p>[!NOTE]</p>
+<p><a target="_blank" rel="noopener" href="https://pymysql.readthedocs.io/en/latest/user/index.html">https://pymysql.readthedocs.io/en/latest/user/index.html</a></p>
+</blockquote>
+<p>PyMySQL是一个完全用Python编写的MySQL客户端库，它允许开发者在Python应用程序中轻松地与MySQL数据库进行连接和交互。这个库遵循Python数据库API规范，提供了一个全面的接口，使得用户能够执行各种数据库操作，如建立和终止数据库连接、执行SQL查询、插入和更新数据记录、删除数据条目以及管理事务等。</p>
+<p>PyMySQL的一个显著特点是其对预编译SQL语句和参数化查询的支持。这种支持不仅增强了数据库操作的安全性，防止了SQL注入攻击，还提高了操作的效率。通过预编译语句，开发者可以重用SQL模板，同时为不同的查询传递不同的参数，这不仅减少了数据库的解析负担，也使得代码更加简洁和易于维护。此外，参数化查询确保了数据在传递过程中的安全性，防止了潜在的注入风险。</p>
+<h3 id="ORM框架及Python-SQLAlchemy"><a href="#ORM框架及Python-SQLAlchemy" class="headerlink" title="ORM框架及Python SQLAlchemy"></a>ORM框架及Python SQLAlchemy</h3><p>对象关系映射（ORM）是一种在数据库和面向对象编程之间建立映射的技术，使开发者能够用面向对象的方法操作数据库。ORM通过将数据库表映射为程序中的类和对象，简化了数据库交互。现代ORM框架支持多种数据库，包括关系型和非关系型数据库。ORM的优势在于提高开发效率、代码可读性和移植性，但可能会影响性能，且在复杂操作时可能仍需要手动编写SQL。</p>
+<p>ORM通过抽象适配层、跨数据库兼容的查询API、数据类型映射和统一事务管理实现数据库的无关性。这种无关性提高了应用程序的灵活性和代码的可移植性，使得开发者可以专注于面向对象的结构，而不必关心底层数据库的表结构和SQL方言。选择ORM框架时，应考虑技术栈兼容性、框架易用性、性能需求和事务并发控制。常见的ORM框架包括Python的SQLAlchemy和Django ORM，Java的MyBatis和Hibernate。这些框架提供了丰富的功能，如动态SQL、CRUD操作简化、事务和缓存机制。</p>
+<p>其中SQLAlchemy(<a target="_blank" rel="noopener" href="https://sqlalchemy.org/)%E4%BD%9C%E4%B8%BAPython%E4%B8%AD%E6%AF%94%E8%BE%83%E6%88%90%E7%86%9F%E7%9A%84ORM%E6%A1%86%E6%9E%B6%EF%BC%8C%E6%8F%90%E4%BE%9B%E4%BA%86%E5%85%A8%E5%8A%9F%E8%83%BD%E7%9A%84SQL%E5%B7%A5%E5%85%B7%E5%8C%85%E5%92%8CORM%E6%98%A0%E5%B0%84%E5%99%A8%E3%80%82%E5%AE%83%E5%85%81%E8%AE%B8%E5%BC%80%E5%8F%91%E8%80%85%E4%BB%A5Python%E7%B1%BB%E5%92%8C%E5%AF%B9%E8%B1%A1%E7%9A%84%E5%BD%A2%E5%BC%8F%E6%93%8D%E4%BD%9C%E6%95%B0%E6%8D%AE%E5%BA%93%EF%BC%8C%E4%BB%8E%E8%80%8C%E7%AE%80%E5%8C%96%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9A%84%E4%BA%A4%E4%BA%92%EF%BC%8C%E6%8F%90%E9%AB%98%E5%BC%80%E5%8F%91%E6%95%88%E7%8E%87%E3%80%82%E4%B8%BB%E8%A6%81%E7%94%B1%E4%B8%A4%E5%A4%A7%E7%BB%84%E4%BB%B6%E6%9E%84%E6%88%90%EF%BC%9A">https://sqlalchemy.org/)作为Python中比较成熟的ORM框架，提供了全功能的SQL工具包和ORM映射器。它允许开发者以Python类和对象的形式操作数据库，从而简化与数据库的交互，提高开发效率。主要由两大组件构成：</a></p>
+<ul>
+<li><strong>SQLAlchemy Core</strong>: 这是SQLAlchemy的基础部分，提供了与数据库进行交互的底层功能。它包括了创建数据库引擎、连接管理、执行原生SQL语句的能力，以及构建和执行动态SQL表达式的语言。</li>
+<li><strong>SQLAlchemy ORM</strong>: 这是SQLAlchemy的对象关系映射层，它允许开发者使用面向对象的方法来操作数据库。通过将数据库中的表映射为Python类，行映射为类的实例，ORM层提供了一种更高级和抽象的方式来处理数据库操作。它包括了会话管理、对象关系映射、查询接口以及数据一致性维护等功能。</li>
+</ul>
+<h2 id="实验过程"><a href="#实验过程" class="headerlink" title="实验过程"></a>实验过程</h2><h3 id="实验环境搭建"><a href="#实验环境搭建" class="headerlink" title="实验环境搭建"></a>实验环境搭建</h3><h5 id="构建PolarDB版环境"><a href="#构建PolarDB版环境" class="headerlink" title="构建PolarDB版环境"></a>构建PolarDB版环境</h5><ul>
+<li>获取免费额度</li>
+</ul>
+<p>进入PolarDB MySQL版产品详情页面(<a target="_blank" rel="noopener" href="https://www.aliyun.com/product/polardb/mysql">https://www.aliyun.com/product/polardb/mysql</a>), 点击<code>免费试用</code>按钮获取免费额度。根据页面提示配置集群参数，<strong>地域必须与FC所在地域保持一致</strong>，专有网络和交换机选择默认即可。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E7%AE%80%E5%8D%95%E9%82%AE%E4%BB%B6%E5%8F%91%E9%80%81%E6%9C%8D%E5%8A%A1%E4%B9%8B%E6%95%B0%E6%8D%AE%E5%BA%93%E8%AE%BF%E9%97%AE%E4%B8%AD%E9%97%B4%E4%BB%B6/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-25%20114507.png" alt="屏幕截图 2024-11-25 114507"></p>
+<ul>
+<li>创建白名单及账号信息</li>
+</ul>
+<p>进入PolarDB的控制台，查看当前的集群列表(<a target="_blank" rel="noopener" href="https://polardb.console.aliyun.com/cn-hangzhou/clusters)%E3%80%82">https://polardb.console.aliyun.com/cn-hangzhou/clusters)。</a></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E7%AE%80%E5%8D%95%E9%82%AE%E4%BB%B6%E5%8F%91%E9%80%81%E6%9C%8D%E5%8A%A1%E4%B9%8B%E6%95%B0%E6%8D%AE%E5%BA%93%E8%AE%BF%E9%97%AE%E4%B8%AD%E9%97%B4%E4%BB%B6/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-25%20115226.png" alt="屏幕截图 2024-11-25 115226"></p>
+<p>进入集群详情页面进行数据库集群相关配置。点击 配置与管理 - 集群白名单 按钮进入白名单设置页面，点击 新增IP白名单分组 按钮配置允许所有IP访问(0.0.0.0&#x2F;0)。</p>
+<blockquote>
+<p>[!NOTE]</p>
+<p>该配置仅用于实验，实际生产环境上应配置内网访问，即使需要配置公网访问，也应当配置具体的IP或特定网段。</p>
+</blockquote>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E7%AE%80%E5%8D%95%E9%82%AE%E4%BB%B6%E5%8F%91%E9%80%81%E6%9C%8D%E5%8A%A1%E4%B9%8B%E6%95%B0%E6%8D%AE%E5%BA%93%E8%AE%BF%E9%97%AE%E4%B8%AD%E9%97%B4%E4%BB%B6/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-25%20125717.png" alt="屏幕截图 2024-11-25 125717"></p>
+<p>点击 <code>配置与管理 - 账号管理</code> 按钮进入账号页面，点击 创建账号 按钮创建集群访高权限账号。</p>
+<blockquote>
+<p>[!NOTE]</p>
+<p>该配置仅用于实验，实际生产环境上应根据实际情况创建普通用户并配置所需的最小权限集合。</p>
+</blockquote>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E7%AE%80%E5%8D%95%E9%82%AE%E4%BB%B6%E5%8F%91%E9%80%81%E6%9C%8D%E5%8A%A1%E4%B9%8B%E6%95%B0%E6%8D%AE%E5%BA%93%E8%AE%BF%E9%97%AE%E4%B8%AD%E9%97%B4%E4%BB%B6/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-25%20130605.png" alt="屏幕截图 2024-11-25 130605"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E7%AE%80%E5%8D%95%E9%82%AE%E4%BB%B6%E5%8F%91%E9%80%81%E6%9C%8D%E5%8A%A1%E4%B9%8B%E6%95%B0%E6%8D%AE%E5%BA%93%E8%AE%BF%E9%97%AE%E4%B8%AD%E9%97%B4%E4%BB%B6/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-25%20131038.png" alt="屏幕截图 2024-11-25 131038"></p>
+<ul>
+<li>获取内网访问方式</li>
+</ul>
+<p>点击左侧菜单栏中的 <code>基本信息</code> 按钮，进入集群基本信息页面，复制数据库连接中 <code>集群地址</code> 中的 <code>私网地址</code> 备用。主地址与集群地址比较，参见阿里云 PolarDB 连接地址介绍(<a target="_blank" rel="noopener" href="https://help.aliyun.com/zh/polardb/polardb-for-mysql/user-guide/connection-address)%E3%80%82">https://help.aliyun.com/zh/polardb/polardb-for-mysql/user-guide/connection-address)。</a></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E7%AE%80%E5%8D%95%E9%82%AE%E4%BB%B6%E5%8F%91%E9%80%81%E6%9C%8D%E5%8A%A1%E4%B9%8B%E6%95%B0%E6%8D%AE%E5%BA%93%E8%AE%BF%E9%97%AE%E4%B8%AD%E9%97%B4%E4%BB%B6/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-25%20131639.png" alt="屏幕截图 2024-11-25 131639"></p>
+<ul>
+<li>查看当前专有网络VPC和交换机VSwitch信息</li>
+</ul>
+<p>在基本信息中可以查看当前集群配置的VPC和交换机信息，后续的实验中需要配置VPC的地方将配置成该默认的VPC，实现不同阿里云服务间通信。可以进一步在专有网络控制台(<a target="_blank" rel="noopener" href="https://vpc.console.aliyun.com/vpc/cn-hangzhou/vpcs)%E6%9F%A5%E7%9C%8B%E5%BD%93%E5%89%8D%E8%B4%A6%E5%8F%B7%E4%B8%8B%E7%9A%84VPC%E5%AE%9E%E4%BE%8B%E4%BF%A1%E6%81%AF%E3%80%82">https://vpc.console.aliyun.com/vpc/cn-hangzhou/vpcs)查看当前账号下的VPC实例信息。</a></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E7%AE%80%E5%8D%95%E9%82%AE%E4%BB%B6%E5%8F%91%E9%80%81%E6%9C%8D%E5%8A%A1%E4%B9%8B%E6%95%B0%E6%8D%AE%E5%BA%93%E8%AE%BF%E9%97%AE%E4%B8%AD%E9%97%B4%E4%BB%B6/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-25%20132040.png" alt="屏幕截图 2024-11-25 132040"></p>
+<h5 id="构建FC自定义公共层，提供Python-sqlalchemy依赖"><a href="#构建FC自定义公共层，提供Python-sqlalchemy依赖" class="headerlink" title="构建FC自定义公共层，提供Python sqlalchemy依赖"></a>构建FC自定义公共层，提供Python sqlalchemy依赖</h5><p>sqlalchemy自定公共层构建方法，参见《基于阿里云函数计算FC的微服务部署体验》。</p>
+<blockquote>
+<p>[!IMPORTANT]</p>
+<h3 id="Q-为什么本实验需要使用-pymysql-和-sqlalchemy-两个框架，只构建-sqlalchemy-的公共层"><a href="#Q-为什么本实验需要使用-pymysql-和-sqlalchemy-两个框架，只构建-sqlalchemy-的公共层" class="headerlink" title="Q:为什么本实验需要使用 pymysql 和 sqlalchemy 两个框架，只构建 sqlalchemy 的公共层?"></a>Q:为什么本实验需要使用 pymysql 和 sqlalchemy 两个框架，只构建 sqlalchemy 的公共层?</h3><p>A:因为创建 FC Web 函数时选择阿里云官方提供的 Python 3.10 运行时中已经预装了 pymysql，故无需额外构建新的公共层。运行时预装依赖清单(<a target="_blank" rel="noopener" href="https://help.aliyun.com/zh/functioncompute/runtime-overview-2)%E3%80%82">https://help.aliyun.com/zh/functioncompute/runtime-overview-2)。</a></p>
+<h3 id="Q-在构建阿里云函数计算（FC）的公共层时，应当遵循哪些指导原则"><a href="#Q-在构建阿里云函数计算（FC）的公共层时，应当遵循哪些指导原则" class="headerlink" title="Q:在构建阿里云函数计算（FC）的公共层时，应当遵循哪些指导原则?"></a>Q:在构建阿里云函数计算（FC）的公共层时，应当遵循哪些指导原则?</h3><p>A:阿里云官方并没有明确给出建议，结合公共层的特性可总结为以下几点:</p>
+<h4 id="原则一：依赖项应按关联性和使用频率进行组合。"><a href="#原则一：依赖项应按关联性和使用频率进行组合。" class="headerlink" title="原则一：依赖项应按关联性和使用频率进行组合。"></a>原则一：依赖项应按关联性和使用频率进行组合。</h4><p>将高关联性和经常一起使用的依赖项放在同一个层中，可以减少层的数量和部署复杂度；对于独立、复用性高的依赖项，应分离为单独的层，以便在不同场景下灵活使用。</p>
+<h4 id="原则二：控制层的大小，避免超过阿里云限制。"><a href="#原则二：控制层的大小，避免超过阿里云限制。" class="headerlink" title="原则二：控制层的大小，避免超过阿里云限制。"></a>原则二：控制层的大小，避免超过阿里云限制。</h4><p>层的大小应控制在 50 MB 以内。如果依赖项导致层的大小超出限制，应拆分层，将相关性较高的部分保留在同一层，其余部分分离至其他层，以确保部署和更新的效率。</p>
+<h4 id="原则三：根据依赖项的重要性和冷启动性能优化层结构。"><a href="#原则三：根据依赖项的重要性和冷启动性能优化层结构。" class="headerlink" title="原则三：根据依赖项的重要性和冷启动性能优化层结构。"></a>原则三：根据依赖项的重要性和冷启动性能优化层结构。</h4><p>将关键和高频使用的依赖项整合到一个层中，以减少冷启动时间。其他低频使用或次要依赖项可分散到单独的层中，从而在提升性能的同时保持层的灵活性和独立性。</p>
+<h4 id="原则四：为每个层单独管理版本，确保更新的独立性和回滚的灵活性。"><a href="#原则四：为每个层单独管理版本，确保更新的独立性和回滚的灵活性。" class="headerlink" title="原则四：为每个层单独管理版本，确保更新的独立性和回滚的灵活性。"></a>原则四：为每个层单独管理版本，确保更新的独立性和回滚的灵活性。</h4><p>每个层应具备独立的版本控制机制，以便在更新单个依赖项时，不影响其他层的稳定性。同时，这样的管理方式便于在问题出现时快速回滚到上一版本，确保服务连续性。</p>
+<h4 id="原则五：避免将所有依赖项合并到一个层中，以减少复杂度和提高维护性。"><a href="#原则五：避免将所有依赖项合并到一个层中，以减少复杂度和提高维护性。" class="headerlink" title="原则五：避免将所有依赖项合并到一个层中，以减少复杂度和提高维护性。"></a>原则五：避免将所有依赖项合并到一个层中，以减少复杂度和提高维护性。</h4><p>虽然将依赖项集中到一个层中可以减少层的数量，但可能会导致管理复杂性和更新风险增加。应保持层的合理拆分，确保每个层在更新和维护时有明确的目标和边界，便于调试和问题排查。</p>
+</blockquote>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E7%AE%80%E5%8D%95%E9%82%AE%E4%BB%B6%E5%8F%91%E9%80%81%E6%9C%8D%E5%8A%A1%E4%B9%8B%E6%95%B0%E6%8D%AE%E5%BA%93%E8%AE%BF%E9%97%AE%E4%B8%AD%E9%97%B4%E4%BB%B6/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-25%20132510.png" alt="屏幕截图 2024-11-25 132510"></p>
+<h5 id="配置现有FC允许访问VPC"><a href="#配置现有FC允许访问VPC" class="headerlink" title="配置现有FC允许访问VPC"></a>配置现有FC允许访问VPC</h5><p>从函数计算 FC 控制台 <a target="_blank" rel="noopener" href="https://fcnext.console.aliyun.com/">https://fcnext.console.aliyun.com</a> 进入 <code>fun-alarm-email-send</code> 函数详情页面，进入<code>配置</code>标签页，点击<code>网络 - 编辑</code>按钮对网络进行配置。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E7%AE%80%E5%8D%95%E9%82%AE%E4%BB%B6%E5%8F%91%E9%80%81%E6%9C%8D%E5%8A%A1%E4%B9%8B%E6%95%B0%E6%8D%AE%E5%BA%93%E8%AE%BF%E9%97%AE%E4%B8%AD%E9%97%B4%E4%BB%B6/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-25%20133025.png" alt="屏幕截图 2024-11-25 133025"></p>
+<p>选择与 PolarDB 一致的专有网络和交换机。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E7%AE%80%E5%8D%95%E9%82%AE%E4%BB%B6%E5%8F%91%E9%80%81%E6%9C%8D%E5%8A%A1%E4%B9%8B%E6%95%B0%E6%8D%AE%E5%BA%93%E8%AE%BF%E9%97%AE%E4%B8%AD%E9%97%B4%E4%BB%B6/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-25%20133432.png" alt="屏幕截图 2024-11-25 133432"></p>
+<p>若该VPC网络下没有默认的安全组，则进入云服务器控制台 <a target="_blank" rel="noopener" href="https://ecs.console.aliyun.com,点击`网络与安全/">https://ecs.console.aliyun.com，点击`网络与安全</a> - 安全组<code>进入配置页面，点击</code>创建安全组&#96;按钮，选择上述的VPC网络，安全组默认内网互通，故无需额外配置规则。创建完成后再返回FC配置页面选择刚创建的安全组。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E7%AE%80%E5%8D%95%E9%82%AE%E4%BB%B6%E5%8F%91%E9%80%81%E6%9C%8D%E5%8A%A1%E4%B9%8B%E6%95%B0%E6%8D%AE%E5%BA%93%E8%AE%BF%E9%97%AE%E4%B8%AD%E9%97%B4%E4%BB%B6/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-25%20134511.png" alt="屏幕截图 2024-11-25 134511"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E7%AE%80%E5%8D%95%E9%82%AE%E4%BB%B6%E5%8F%91%E9%80%81%E6%9C%8D%E5%8A%A1%E4%B9%8B%E6%95%B0%E6%8D%AE%E5%BA%93%E8%AE%BF%E9%97%AE%E4%B8%AD%E9%97%B4%E4%BB%B6/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-25%20134700.png" alt="屏幕截图 2024-11-25 134700"></p>
+<h3 id="创建告警邮件数据库表"><a href="#创建告警邮件数据库表" class="headerlink" title="创建告警邮件数据库表"></a>创建告警邮件数据库表</h3><p>使用阿里云提供的云数据库统一控制台 <a target="_blank" rel="noopener" href="https://dmslab.aliyun.com/">https://dmslab.aliyun.com</a> 对 PolarDB 进行操作。首次进入需要授权创建 DMS 服务关联角色方可使用。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E7%AE%80%E5%8D%95%E9%82%AE%E4%BB%B6%E5%8F%91%E9%80%81%E6%9C%8D%E5%8A%A1%E4%B9%8B%E6%95%B0%E6%8D%AE%E5%BA%93%E8%AE%BF%E9%97%AE%E4%B8%AD%E9%97%B4%E4%BB%B6/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-25%20134808.png" alt="屏幕截图 2024-11-25 134808"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E7%AE%80%E5%8D%95%E9%82%AE%E4%BB%B6%E5%8F%91%E9%80%81%E6%9C%8D%E5%8A%A1%E4%B9%8B%E6%95%B0%E6%8D%AE%E5%BA%93%E8%AE%BF%E9%97%AE%E4%B8%AD%E9%97%B4%E4%BB%B6/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-25%20134914.png" alt="屏幕截图 2024-11-25 134914"></p>
+<p>开启自动接入功能，可以自动接入当前阿里云租户下的各种云数据库实例（可选）。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E7%AE%80%E5%8D%95%E9%82%AE%E4%BB%B6%E5%8F%91%E9%80%81%E6%9C%8D%E5%8A%A1%E4%B9%8B%E6%95%B0%E6%8D%AE%E5%BA%93%E8%AE%BF%E9%97%AE%E4%B8%AD%E9%97%B4%E4%BB%B6/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-25%20135152.png" alt="屏幕截图 2024-11-25 135152"></p>
+<p>左侧的数据库实例中将展示出当前可登录的实例，点击“请先登录”按钮进行登录。首次登录需要输入数据的账号信息进行登录，后续再点击登录则无需自动再次输入。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E7%AE%80%E5%8D%95%E9%82%AE%E4%BB%B6%E5%8F%91%E9%80%81%E6%9C%8D%E5%8A%A1%E4%B9%8B%E6%95%B0%E6%8D%AE%E5%BA%93%E8%AE%BF%E9%97%AE%E4%B8%AD%E9%97%B4%E4%BB%B6/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-25%20140256.png" alt="屏幕截图 2024-11-25 140256"></p>
+<p>点击<code>确认</code>按钮进行登录后，DMS将默认打开 <code>information_schema</code> 表的 SQLConsole，表示登录成功。右键已登录的实例，在弹出菜单中点击<code>数据库管理</code>按钮，进入管理页面。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E7%AE%80%E5%8D%95%E9%82%AE%E4%BB%B6%E5%8F%91%E9%80%81%E6%9C%8D%E5%8A%A1%E4%B9%8B%E6%95%B0%E6%8D%AE%E5%BA%93%E8%AE%BF%E9%97%AE%E4%B8%AD%E9%97%B4%E4%BB%B6/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-25%20160153.png" alt="屏幕截图 2024-11-25 160153"></p>
+<p>点击<code>创建库</code>按钮新建 <code>db_message</code> 数据库。字符集选择为 <code>utf8mb4</code>。点击<code>确认</code>按钮完成创建。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E7%AE%80%E5%8D%95%E9%82%AE%E4%BB%B6%E5%8F%91%E9%80%81%E6%9C%8D%E5%8A%A1%E4%B9%8B%E6%95%B0%E6%8D%AE%E5%BA%93%E8%AE%BF%E9%97%AE%E4%B8%AD%E9%97%B4%E4%BB%B6/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-25%20160449.png" alt="屏幕截图 2024-11-25 160449"></p>
+<p>双击右侧已登录实例的db_message数据库，打开相应的SQL控制台。使用以下SQL创建<code>tbl_config</code>表结构，点击执行按钮，并选择<code>直接执行</code>完成创建。</p>
+<pre><code>CREATE TABLE `tbl_config` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT &#39;配置记录的唯一标识符&#39;,
+  `host` varchar(255) NOT NULL COMMENT &#39;邮件服务器的主机地址&#39;,
+  `port` int(5) NOT NULL COMMENT &#39;邮件服务器的端口号&#39;,
+  `username` varchar(100) NOT NULL COMMENT &#39;登录邮件服务器的用户名,示例: synx@example.com&#39;,
+  `password` varchar(100) NOT NULL COMMENT &#39;登录邮件服务器的授权码&#39;,
+  `sender` varchar(255) NOT NULL COMMENT &#39;邮件发送人的地址,示例: synx@example.com&#39;,
+  `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT &#39;记录创建时间&#39;,
+  `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT &#39;记录最后更新时间&#39;,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT=&#39;邮件配置表&#39;;
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E7%AE%80%E5%8D%95%E9%82%AE%E4%BB%B6%E5%8F%91%E9%80%81%E6%9C%8D%E5%8A%A1%E4%B9%8B%E6%95%B0%E6%8D%AE%E5%BA%93%E8%AE%BF%E9%97%AE%E4%B8%AD%E9%97%B4%E4%BB%B6/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-25%20161933.png" alt="屏幕截图 2024-11-25 161933"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E7%AE%80%E5%8D%95%E9%82%AE%E4%BB%B6%E5%8F%91%E9%80%81%E6%9C%8D%E5%8A%A1%E4%B9%8B%E6%95%B0%E6%8D%AE%E5%BA%93%E8%AE%BF%E9%97%AE%E4%B8%AD%E9%97%B4%E4%BB%B6/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-25%20162031.png" alt="屏幕截图 2024-11-25 162031"></p>
+<h3 id="基于pymysql框架重构告警邮件发送功能"><a href="#基于pymysql框架重构告警邮件发送功能" class="headerlink" title="基于pymysql框架重构告警邮件发送功能"></a>基于pymysql框架重构告警邮件发送功能</h3><h5 id="项目结构说明"><a href="#项目结构说明" class="headerlink" title="项目结构说明"></a>项目结构说明</h5><pre><code class="python">.
+├── app.py                  # Sanic 应用入口
+├── custom_json_encoder.py  # 自定义JSON编码器，用于处理数据库格式序列化问题
+└── email_config_service.py # 邮件配置实现
+</code></pre>
+<h5 id="邮件配置管理实现"><a href="#邮件配置管理实现" class="headerlink" title="邮件配置管理实现"></a>邮件配置管理实现</h5><p>本实验提供了一个基于PyMySQL框架的邮件配置CRUD（创建，读取，更新，删除）操作和自定义JSON编码器的示例代码，需要按照上面所示目录结构创建文件并将以下代码拷贝到文件中。</p>
+<p>此代码可进一步优化，例如，可以添加按条件查询的功能，或者使用连接池来获取数据库连接，以避免每次操作都创建新的连接，从而提高程序的性能和效率。</p>
+<pre><code class="python"># filename: email_config_service.py
+
+import json
+from typing import Any, Dict
+import pymysql
+from custom_json_encoder import DateTimeEncoder
+
+def get_db_connection():
+    &quot;&quot;&quot;获取数据库连接，需要自行替换为前文中的数据库连接信息&quot;&quot;&quot;
+    return pymysql.connect(
+        host=&#39;xxx.aliyuncs.com&#39;,
+        port=3306,
+        user=&#39;synx&#39;,
+        password=&#39;******&#39;,
+        db=&#39;db_message&#39;,
+        charset=&#39;utf8mb4&#39;
+    )
+    
+async def create_config(data) -&gt; Dict[str, Any]:
+    &quot;&quot;&quot;创建配置&quot;&quot;&quot;
+    try:
+        with get_db_connection() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(&quot;&quot;&quot;
+                INSERT INTO tbl_config(host, port, username, password, sender)
+                VALUES (%s, %s, %s, %s, %s)
+                &quot;&quot;&quot;, (data[&#39;host&#39;], data[&#39;port&#39;], data[&#39;username&#39;], data[&#39;password&#39;], data[&#39;sender&#39;]))
+                connection.commit()
+            return &#123;&quot;message&quot;: &quot;Config created successfully&quot;&#125;
+    except Exception as e:
+        connection.rollback()
+        return &#123;&quot;error&quot;: str(e)&#125;
+    
+async def read_config(data) -&gt; Dict[str, Any]:
+    &quot;&quot;&quot;
+    读取配置，此处仅做最简单的查询，实际应用中需要根据业务需求进行查询
+    &quot;&quot;&quot;
+    try:
+        with get_db_connection() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(&quot;SELECT * FROM tbl_config LIMIT 1&quot;)
+                result = cursor.fetchone()
+                if result:
+                    config = &#123;
+                        &quot;id&quot;: result[0],
+                        &quot;host&quot;: result[1],
+                        &quot;port&quot;: result[2],
+                        &quot;username&quot;: result[3],
+                        &quot;password&quot;: result[4],
+                        &quot;sender&quot;: result[5],
+                        &quot;create_time&quot;: result[6],
+                        &quot;update_time&quot;: result[7],
+                    &#125;
+                    return json.loads(json.dumps(config, cls=DateTimeEncoder))
+                else:
+                    return &#123;&quot;error&quot;: &quot;No configuration found&quot;&#125;
+    except Exception as e:
+        return &#123;&quot;error&quot;: str(e)&#125;
+    
+async def update_config(data) -&gt; Dict[str, Any]:
+    &quot;&quot;&quot;修改邮件配置&quot;&quot;&quot;
+    try:
+        with get_db_connection() as connection:
+            with connection.cursor() as cursor:
+                if not data.get(&quot;id&quot;):
+                    raise ValueError(&quot;id is required&quot;)
+                sql = &quot;UPDATE tbl_config SET &quot;
+                params = []
+                for key in [&#39;host&#39;, &#39;port&#39;, &#39;username&#39;, &#39;password&#39;, &#39;sender&#39;]:
+                    if data.get(key):
+                        sql += f&quot;&#123;key&#125;=%s,&quot;
+                        params.append(data[key])
+                sql = sql.rstrip(&quot;,&quot;) + &quot; WHERE id=%s&quot;
+                params.append(data[&quot;id&quot;])
+                if cursor.execute(sql, tuple(params)) == 0:
+                    raise ValueError(&quot;Config not found&quot;)
+                connection.commit()
+                return &#123;&quot;message&quot;: &quot;Config updated successfully&quot;&#125;
+    except Exception as e:
+        connection.rollback()
+        return &#123;&quot;error&quot;: str(e)&#125;
+    
+async def delete_config(data) -&gt; Dict[str, Any]:
+    &quot;&quot;&quot;删除邮件配置&quot;&quot;&quot;
+    try:
+        with get_db_connection() as connection:
+            with connection.cursor() as cursor:
+                if not data.get(&quot;id&quot;):
+                    raise ValueError(&quot;id is required&quot;)
+                if cursor.execute(&quot;DELETE FROM tbl_config WHERE id=%s&quot;, (data[&quot;id&quot;],)) == 0:
+                    raise ValueError(&quot;Config not found&quot;)
+                connection.commit()
+                return &#123;&quot;message&quot;: &quot;Config deleted successfully&quot;&#125;
+    except Exception as e:
+        connection.rollback()
+        return &#123;&quot;error&quot;: str(e)&#125;
+</code></pre>
+<pre><code class="python"># filename: custom_json_encoder.py
+import json
+from datetime import datetime
+
+class DateTimeEncoder(json.JSONEncoder):
+    &quot;&quot;&quot;自定义编码器&quot;&quot;&quot;
+    def default(self, obj):
+        if isinstance(obj, datetime):
+            return obj.isoformat()
+        return super().default(obj)
+</code></pre>
+<h5 id="告警邮件发送FC代码优化"><a href="#告警邮件发送FC代码优化" class="headerlink" title="告警邮件发送FC代码优化"></a>告警邮件发送FC代码优化</h5><p>修改app.py文件接口定义，通过参数传递action参数决定执行的方法。如action为”send_email”时则执行发送邮件相关逻辑，修改完成后点击<code>代码部署</code>按钮。</p>
+<pre><code class="python"># -*- coding: utf-8 -*-
+import json as std_json
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from smtplib import SMTP
+
+from sanic import Sanic, response
+from sanic.response import json
+
+from email_config_service import (
+    create_config,
+    delete_config,
+    read_config,
+    update_config
+)
+
+app = Sanic(&quot;EmailSender&quot;)
+
+async def send_email(data):
+    # 从数据库中读取邮件配置
+    email_config = await read_config(None)
+
+    # 创建邮件对象
+    msg = MIMEMultipart()
+    msg[&#39;From&#39;] = email_config[&quot;sender&quot;]
+    msg[&#39;To&#39;] = data.get(&quot;recipient&quot;)
+    msg[&#39;Subject&#39;] = data.get(&quot;subject&quot;)
+
+    # 添加邮件正文
+    msg.attach(MIMEText(data.get(&quot;body&quot;), &#39;plain&#39;))
+
+    # 连接SMTP服务器
+    server = SMTP(email_config[&quot;host&quot;], email_config[&quot;port&quot;])
+    server.starttls()  # 启动TLS加密
+    server.login(email_config[&quot;username&quot;], email_config[&quot;password&quot;])
+
+    # 发送邮件
+    server.send_message(msg)
+
+    # 关闭连接
+    server.quit()
+
+    return &#123;&quot;message&quot;: &quot;Email sent successfully&quot;&#125;
+
+@app.route(&quot;/invoke&quot;, methods=[&quot;POST&quot;])
+async def send_email_route(request):
+    action = request.json.get(&quot;action&quot;)
+    data = request.json.get(&quot;data&quot;, &#123;&#125;)
+    
+    actions = &#123;
+    &quot;create_config&quot;: create_config,
+    &quot;read_config&quot;: read_config,
+    &quot;update_config&quot;: update_config,
+    &quot;delete_config&quot;: delete_config,
+    &quot;send_email&quot;: send_email
+&#125;
+
+    func = actions.get(action)
+    if func:
+        return json(await func(data))
+    else:
+        return response.json(&#123;&quot;error&quot;: &quot;Invalid action&quot;&#125;, status=400)
+
+if __name__ == &quot;__main__&quot;:
+    app.run(host=&quot;0.0.0.0&quot;, port=9000, dev=True)
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E7%AE%80%E5%8D%95%E9%82%AE%E4%BB%B6%E5%8F%91%E9%80%81%E6%9C%8D%E5%8A%A1%E4%B9%8B%E6%95%B0%E6%8D%AE%E5%BA%93%E8%AE%BF%E9%97%AE%E4%B8%AD%E9%97%B4%E4%BB%B6/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-25%20171146.png" alt="屏幕截图 2024-11-25 171146"></p>
+<h5 id="测试告警邮件发送FC功能"><a href="#测试告警邮件发送FC功能" class="headerlink" title="测试告警邮件发送FC功能"></a>测试告警邮件发送FC功能</h5><p>本小节将利用Apifox对<code>fun-alarm-email-send</code>函数进行测试，测试新增邮件配置及发送告警邮件功能。</p>
+<ul>
+<li>新增邮件发送配置</li>
+</ul>
+<p>传参中action字段应传入<code>create_config</code>，完成请求参数如下：</p>
+<pre><code class="json">&#123;
+  &quot;action&quot;: &quot;create_config&quot;,
+  &quot;data&quot;: &#123;
+    &quot;host&quot;: &quot;smtp.qq.com&quot;,
+    &quot;port&quot;: 587,
+    &quot;username&quot;: &quot;synx@qq.com&quot;,
+    &quot;password&quot;: &quot;xxxxxxxxxxxxxxxx&quot;,
+    &quot;sender&quot;: &quot;synx@qq.com&quot;
+  &#125;
+&#125;
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E7%AE%80%E5%8D%95%E9%82%AE%E4%BB%B6%E5%8F%91%E9%80%81%E6%9C%8D%E5%8A%A1%E4%B9%8B%E6%95%B0%E6%8D%AE%E5%BA%93%E8%AE%BF%E9%97%AE%E4%B8%AD%E9%97%B4%E4%BB%B6/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-25%20184016.png" alt="屏幕截图 2024-11-25 184016"></p>
+<p>登录PolarDB实例，右键<code>db_message</code>库中<code>tbl_config</code>表，点击<code>打开表</code>按钮查看表中数据，可以发现数据已经存储在数据库中。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E7%AE%80%E5%8D%95%E9%82%AE%E4%BB%B6%E5%8F%91%E9%80%81%E6%9C%8D%E5%8A%A1%E4%B9%8B%E6%95%B0%E6%8D%AE%E5%BA%93%E8%AE%BF%E9%97%AE%E4%B8%AD%E9%97%B4%E4%BB%B6/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-25%20184438.png" alt="屏幕截图 2024-11-25 184438"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E7%AE%80%E5%8D%95%E9%82%AE%E4%BB%B6%E5%8F%91%E9%80%81%E6%9C%8D%E5%8A%A1%E4%B9%8B%E6%95%B0%E6%8D%AE%E5%BA%93%E8%AE%BF%E9%97%AE%E4%B8%AD%E9%97%B4%E4%BB%B6/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-25%20184910.png" alt="屏幕截图 2024-11-25 184910"></p>
+<ul>
+<li>发送告警邮件</li>
+</ul>
+<p>传参中action字段应传入seng_email，完成请求参数如下：</p>
+<pre><code class="json">&#123;
+  &quot;action&quot;: &quot;send_email&quot;,
+  &quot;data&quot;: &#123;
+    &quot;recipient&quot;: &quot;1404332425@qq.com&quot;,
+    &quot;subject&quot;: &quot;告警邮件&quot;,
+    &quot;body&quot;: &quot;告警邮件正文部分&quot;
+  &#125;
+&#125;
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E7%AE%80%E5%8D%95%E9%82%AE%E4%BB%B6%E5%8F%91%E9%80%81%E6%9C%8D%E5%8A%A1%E4%B9%8B%E6%95%B0%E6%8D%AE%E5%BA%93%E8%AE%BF%E9%97%AE%E4%B8%AD%E9%97%B4%E4%BB%B6/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-25%20185604.png" alt="屏幕截图 2024-11-25 185604"></p>
+<p>等待片刻，收件邮箱将受到告警邮件。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E7%AE%80%E5%8D%95%E9%82%AE%E4%BB%B6%E5%8F%91%E9%80%81%E6%9C%8D%E5%8A%A1%E4%B9%8B%E6%95%B0%E6%8D%AE%E5%BA%93%E8%AE%BF%E9%97%AE%E4%B8%AD%E9%97%B4%E4%BB%B6/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-25%20190006.png" alt="屏幕截图 2024-11-25 190006"></p>
+<h3 id="基于sqlalchemy框架重构邮件配置管理实现"><a href="#基于sqlalchemy框架重构邮件配置管理实现" class="headerlink" title="基于sqlalchemy框架重构邮件配置管理实现"></a>基于sqlalchemy框架重构邮件配置管理实现</h3><p>目前已支持使用 pymysql 库直接与 MySQL 数据库进行交互。虽然这种方式能够有效地实现 CRUD 操作，并且对于初学者来说可以很好地理解数据库的基本操作，但直接使用 <code>pymysql</code> 也存在一些问题。比如，当应用程序的复杂度增加时，手动构建 SQL 语句和管理数据库连接将变得困难，并且容易导致代码重复和错误。此外，手动处理 SQL 语句也增加了代码维护的难度，特别是在涉及多个表关联查询或需要进行事务管理时，代码的可读性和扩展性都可能受到影响。</p>
+<p>为了解决这些问题，本小节引入了 SQLAlchemy 框架。SQLAlchemy 是一款功能强大的 ORM（对象关系映射）工具，它可以将数据库表与 Python 类关联，从而通过类和对象来管理数据库中的数据，简化了与数据库的交互。</p>
+<h5 id="重构邮件配置管理实现"><a href="#重构邮件配置管理实现" class="headerlink" title="重构邮件配置管理实现"></a>重构邮件配置管理实现</h5><p>本实验提供了一个基于 SQLAlchemy 框架的邮件配置 CRUD（创建、读取、更新、删除）操作示例代码，需要将 <code>email_config_service.py</code> 文件内容进行替换。</p>
+<pre><code class="python">import json
+import urllib.parse
+from typing import Any, Dict
+from sqlalchemy import Column, DateTime, Integer, String, create_engine, func
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+from custom_json_encoder import DateTimeEncoder
+
+Base = declarative_base()
+
+class Config(Base):
+    __tablename__ = &#39;tbl_config&#39;
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    host = Column(String(255))
+    port = Column(Integer)
+    username = Column(String(255))
+    password = Column(String(255))
+    sender = Column(String(255))
+    create_time = Column(DateTime, server_default=func.now())
+    update_time = Column(DateTime, server_default=func.now(), onupdate=func.now())
+    
+def get_db_connection():
+    DB_HOST = &#39;xxx.aliyuncs.com&#39;
+    DB_PORT = 3306
+    DB_USER = &#39;synx&#39;
+    DB_PASSWORD = &#39;******&#39; 
+    DB_NAME = &#39;db_message&#39;
+    encoded_password = urllib.parse.quote_plus(DB_PASSWORD)
+    DATABASE_URL = f&#39;mysql+pymysql://&#123;DB_USER&#125;:&#123;encoded_password&#125;@&#123;DB_HOST&#125;:&#123;DB_PORT&#125;/&#123;DB_NAME&#125;&#39;
+    engine = create_engine(DATABASE_URL, echo=True)
+    Session = sessionmaker(bind=engine)
+    return Session()
+
+async def create_config(data) -&gt; Dict[str, Any]:
+    &quot;&quot;&quot;创建配置&quot;&quot;&quot;
+    with get_db_connection() as session:
+        try:
+            config = Config(
+                host=data[&#39;host&#39;],
+                port=data[&#39;port&#39;],
+                username=data[&#39;username&#39;],
+                password=data[&#39;password&#39;],
+                sender=data[&#39;sender&#39;]
+            )
+            session.add(config)
+            session.commit()
+            return &#123;&quot;message&quot;: &quot;Config created successfully&quot;&#125;
+        except SQLAlchemyError as e:
+            session.rollback()
+            return &#123;&quot;error&quot;: str(e)&#125;
+
+async def read_config(data) -&gt; Dict[str, Any]:
+    &quot;&quot;&quot;
+    读取配置，此处仅做最简单的查询，实际应用中需要根据业务需求进行查询
+    &quot;&quot;&quot;
+    with get_db_connection() as session:
+        try:
+            config = session.query(Config).first()
+            if config:
+                config_dict = &#123;
+                    &quot;id&quot;: config.id,
+                    &quot;host&quot;: config.host,
+                    &quot;port&quot;: config.port,
+                    &quot;username&quot;: config.username,
+                    &quot;password&quot;: config.password,
+                    &quot;sender&quot;: config.sender,
+                    &quot;create_time&quot;: config.create_time,
+                    &quot;update_time&quot;: config.update_time,
+                &#125;
+                encoded_result = json.dumps(config_dict, cls=DateTimeEncoder)
+                return json.loads(encoded_result)
+            else:
+                return &#123;&quot;error&quot;: &quot;No configuration found&quot;&#125;
+        except SQLAlchemyError as e:
+            return &#123;&quot;error&quot;: str(e)&#125;
         
+async def update_config(data) -&gt; Dict[str, Any]:
+    &quot;&quot;&quot;
+    更新配置
+    &quot;&quot;&quot;
+    with get_db_connection() as session:
+        try:
+            config_id = data.get(&quot;id&quot;, None)
+            if not config_id:
+                raise ValueError(&quot;id is required&quot;)
+            config = session.query(Config).filter(Config.id == config_id).first()
+            if not config:
+                raise ValueError(&quot;Config not found&quot;)
+            for key in [&#39;host&#39;, &#39;port&#39;, &#39;username&#39;, &#39;password&#39;, &#39;sender&#39;]:
+                if key in data:
+                    setattr(config, key, data[key])
+            session.commit()
+            return &#123;&quot;message&quot;: &quot;Config updated successfully&quot;&#125;
+        except SQLAlchemyError as e:
+            session.rollback()
+            return &#123;&quot;error&quot;: str(e)&#125;
+        
+async def delete_config(data) -&gt; Dict[str, Any]:
+    &quot;&quot;&quot;
+    删除配置
+    &quot;&quot;&quot;
+    with get_db_connection() as session:
+        try:
+            config_id = data.get(&quot;id&quot;, None)
+            if not config_id:
+                raise ValueError(&quot;id is required&quot;)
+            config = session.query(Config).filter(Config.id == config_id).first()
+            if not config:
+                raise ValueError(&quot;Config not found&quot;)
+            session.delete(config)
+            session.commit()
+            return &#123;&quot;message&quot;: &quot;Config deleted successfully&quot;&#125;
+        except SQLAlchemyError as e:
+            session.rollback()
+            return &#123;&quot;error&quot;: str(e)&#125;
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E7%AE%80%E5%8D%95%E9%82%AE%E4%BB%B6%E5%8F%91%E9%80%81%E6%9C%8D%E5%8A%A1%E4%B9%8B%E6%95%B0%E6%8D%AE%E5%BA%93%E8%AE%BF%E9%97%AE%E4%B8%AD%E9%97%B4%E4%BB%B6/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-28%20192207.png" alt="屏幕截图 2024-11-28 192207"></p>
+<h5 id="测试告警邮件发送FC功能-1"><a href="#测试告警邮件发送FC功能-1" class="headerlink" title="测试告警邮件发送FC功能"></a>测试告警邮件发送FC功能</h5><p>本小节将利用 Apifox 对 <code>fun-alarm-email-send</code> 函数进行测试，测试新增邮件配置及发送告警邮件功能。</p>
+<ul>
+<li>新增邮件发送配置</li>
+</ul>
+<p>传参中 <code>action</code> 字段应传入 <code>create_config</code>，完成请求参数如下：</p>
+<pre><code class="json">&#123;
+  &quot;action&quot;: &quot;create_config&quot;,
+  &quot;data&quot;: &#123;
+    &quot;host&quot;: &quot;smtp.example.com&quot;,
+    &quot;port&quot;: 587,
+    &quot;username&quot;: &quot;synx@example.com&quot;,
+    &quot;password&quot;: &quot;******&quot;, 
+    &quot;sender&quot;: &quot;synx@example.com&quot;
+  &#125;
+&#125;
+</code></pre>
+<blockquote>
+<p>[!WARNING]</p>
+<p>遇到如下图所示问题：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E7%AE%80%E5%8D%95%E9%82%AE%E4%BB%B6%E5%8F%91%E9%80%81%E6%9C%8D%E5%8A%A1%E4%B9%8B%E6%95%B0%E6%8D%AE%E5%BA%93%E8%AE%BF%E9%97%AE%E4%B8%AD%E9%97%B4%E4%BB%B6/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-28%20193552.png" alt="屏幕截图 2024-11-28 193552"></p>
+<p>应为没有增加之前设置好的自定义依赖层。如下图所示可以解决：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E7%AE%80%E5%8D%95%E9%82%AE%E4%BB%B6%E5%8F%91%E9%80%81%E6%9C%8D%E5%8A%A1%E4%B9%8B%E6%95%B0%E6%8D%AE%E5%BA%93%E8%AE%BF%E9%97%AE%E4%B8%AD%E9%97%B4%E4%BB%B6/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-28%20194057.png" alt="屏幕截图 2024-11-28 194057"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E7%AE%80%E5%8D%95%E9%82%AE%E4%BB%B6%E5%8F%91%E9%80%81%E6%9C%8D%E5%8A%A1%E4%B9%8B%E6%95%B0%E6%8D%AE%E5%BA%93%E8%AE%BF%E9%97%AE%E4%B8%AD%E9%97%B4%E4%BB%B6/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-28%20194141.png" alt="屏幕截图 2024-11-28 194141"></p>
+</blockquote>
+<p>再次查看数据库表中数据，发现已经存在两条数据。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E7%AE%80%E5%8D%95%E9%82%AE%E4%BB%B6%E5%8F%91%E9%80%81%E6%9C%8D%E5%8A%A1%E4%B9%8B%E6%95%B0%E6%8D%AE%E5%BA%93%E8%AE%BF%E9%97%AE%E4%B8%AD%E9%97%B4%E4%BB%B6/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-28%20194259.png" alt="屏幕截图 2024-11-28 194259"></p>
+<ul>
+<li>发送告警邮件</li>
+</ul>
+<p>传参中 <code>action</code> 字段应传入 <code>send_email</code>，完成请求参数如下：</p>
+<pre><code class="json">&#123;
+  &quot;action&quot;: &quot;send_email&quot;,
+  &quot;data&quot;: &#123;
+    &quot;recipient&quot;: &quot;smtp@example.com&quot;,
+    &quot;subject&quot;: &quot;告警邮件&quot;,
+    &quot;body&quot;: &quot;告警邮件正文部分&quot;
+  &#125;
+&#125;
+</code></pre>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E7%AE%80%E5%8D%95%E9%82%AE%E4%BB%B6%E5%8F%91%E9%80%81%E6%9C%8D%E5%8A%A1%E4%B9%8B%E6%95%B0%E6%8D%AE%E5%BA%93%E8%AE%BF%E9%97%AE%E4%B8%AD%E9%97%B4%E4%BB%B6/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-28%20194743.png" alt="屏幕截图 2024-11-28 194743"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Whimsically1/ImgServer/%E5%9F%BA%E4%BA%8E%E9%98%BF%E9%87%8C%E4%BA%91%E5%87%BD%E6%95%B0%E8%AE%A1%E7%AE%97%E7%9A%84%E7%AE%80%E5%8D%95%E9%82%AE%E4%BB%B6%E5%8F%91%E9%80%81%E6%9C%8D%E5%8A%A1%E4%B9%8B%E6%95%B0%E6%8D%AE%E5%BA%93%E8%AE%BF%E9%97%AE%E4%B8%AD%E9%97%B4%E4%BB%B6/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202024-11-28%20194803.png" alt="屏幕截图 2024-11-28 194803"></p>
+<p>等待片刻，收件邮件将收到告警邮件。</p>
+<h3 id="修改CloudFlow工作流的参数传递"><a href="#修改CloudFlow工作流的参数传递" class="headerlink" title="修改CloudFlow工作流的参数传递"></a>修改CloudFlow工作流的参数传递</h3><p>该小节内容参考《基于阿里云函数计算的云工作流CloudFlow设计与体验》对工作流进行修改，主要修改<code>fun-alarm-email-send</code>的<code>InvokeFunction</code>参数传递，使其正常运行。</p>
+
     </div>
     
     
